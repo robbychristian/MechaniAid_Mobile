@@ -21,7 +21,22 @@ const Register = () => {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm({});
+  } = useForm({
+    defaultValues: {
+      fname: "Robby",
+      mname: "Derit",
+      lname: "De Leon",
+      bday: new Date(),
+      region: "NCR",
+      state: "Metro Manila",
+      city: "Quezon City",
+      barangay: "Masagana",
+      street: "Rigor",
+      email: "robbychristiandeleon@gmail.com",
+      pwd: "Password1!",
+      confpw: "Password1!",
+    },
+  });
 
   const onSubmit = async (data) => {
     const formdata = new FormData();
@@ -32,10 +47,15 @@ const Register = () => {
     };
     for (const key in data) {
       if (data.hasOwnProperty(key)) {
-        formdata.append(key, data[key]);
+        if (key == 'bday') {
+          formdata.append(key, moment(data[key]).format("YYYY-MM-DD"));
+        } else{
+          formdata.append(key, data[key]);
+        }
       }
     }
     formdata.append("customers_profile_pic", newFile);
+    console.log(await formdata)
     try {
       const response = await dispatch(registerUser(formdata));
       if (response.type == "auth/register/fulfilled") {
@@ -128,6 +148,15 @@ const Register = () => {
               message={`Last name is required`}
               my={5}
               name={`lname`}
+              rules={{ required: true }}
+            />
+            <CustomTextInput
+              control={control}
+              errors={errors}
+              label={`Contact No.`}
+              message={`Contact Number is required`}
+              my={5}
+              name={`phone`}
               rules={{ required: true }}
             />
             <CustomDatePicker
