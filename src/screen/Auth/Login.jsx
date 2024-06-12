@@ -8,6 +8,7 @@ import CustomTextInput from "../../components/Inputs/CustomTextInput";
 import { useForm } from "react-hook-form";
 import { loginUser } from "../../store/auth/User";
 import { api } from "../../../config/api";
+import { Toast } from "toastify-react-native";
 
 const Login = () => {
   const navigation = useNavigation();
@@ -24,38 +25,19 @@ const Login = () => {
       email: data.email,
       password: data.password,
     };
-    // api.post('mobilelogin', inputs)
-    //   .then((response) => {
-    //     console.log(response.data)
-    //   }).catch(err => {
-    //     console.log(err.response)
-    //   })
+
     try {
       const response = await dispatch(loginUser(inputs));
-      if (response.type == "auth/login/fulfilled") {
+      if (response.payload == "error") {
+        Toast.error("User does not exist!");
+      } else {
+        Toast.success("Logged in successfully!");
         navigation.navigate("DrawerStack");
       }
     } catch (err) {
       console.log(err);
     }
   };
-
-  //   const handleOnLogin = async () => {
-  //     const inputs = {
-  //       email,
-  //       password,
-  //     };
-  //     const response = await dispatch(loginUser(inputs));
-  //     if (response.payload.error === "Credentials does not exist!") {
-  //       Toast.error("Credentials does not exist!");
-  //     } else {
-  //       console.log(response.payload);
-  //       Toast.success("Logged In!");
-  //       navigation.navigate("DrawerStack", {
-  //         screen: "Home",
-  //       });
-  //     }
-  //   };
 
   return (
     <View
@@ -102,7 +84,11 @@ const Login = () => {
         />
         <Button
           appearance="filled"
-          style={{ backgroundColor: "#A02828", borderColor: "#A02828", marginTop: 15 }}
+          style={{
+            backgroundColor: "#A02828",
+            borderColor: "#A02828",
+            marginTop: 15,
+          }}
           onPress={handleSubmit(onSubmit)}
         >
           LOGIN

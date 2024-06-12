@@ -7,6 +7,7 @@ import Register from '../screen/Auth/Register';
 import Login from '../screen/Auth/Login';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import DrawerNavigation from './DrawerNavigation';
+import BottomNav from './BottomNavigation';
 
 const AuthStack = createNativeStackNavigator();
 

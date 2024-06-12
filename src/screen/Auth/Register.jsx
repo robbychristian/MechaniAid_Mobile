@@ -23,18 +23,6 @@ const Register = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      fname: "Robby",
-      mname: "Derit",
-      lname: "De Leon",
-      bday: new Date(),
-      region: "NCR",
-      state: "Metro Manila",
-      city: "Quezon City",
-      barangay: "Masagana",
-      street: "Rigor",
-      email: "robbychristiandeleon@gmail.com",
-      pwd: "Password1!",
-      confpw: "Password1!",
     },
   });
 
