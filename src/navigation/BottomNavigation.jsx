@@ -2,6 +2,7 @@ import * as React from 'react';
 import { BottomNavigation, Text } from 'react-native-paper';
 import Home from '../screen/Home';
 import Booking from '../screen/Booking/Booking';
+import ProductList from '../screen/Market/ProductList';
 
 const AlbumsRoute = () => <Text>Albums</Text>;
 
@@ -20,7 +21,7 @@ const BottomNav = () => {
 
   const renderScene = BottomNavigation.SceneMap({
     home: Home,
-    market: AlbumsRoute,
+    market: ProductList,
     chat: RecentsRoute,
     booking: Booking,
   });

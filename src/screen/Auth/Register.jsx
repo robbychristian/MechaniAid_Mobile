@@ -84,8 +84,7 @@ const Register = () => {
               Register As Customer!
             </Text>
             <Text category="p2" style={{ color: "#fff" }} appearance="hint">
-              By creating your account, you agree to the terms and condition of
-              our application!
+              You will be able to access the features of our app after registration!
             </Text>
           </View>
           <View style={{ paddingHorizontal: 15, paddingVertical: 20 }}>

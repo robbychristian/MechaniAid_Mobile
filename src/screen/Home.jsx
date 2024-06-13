@@ -21,7 +21,7 @@ const Home = () => {
       }, []);
     return (
         <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-            <Text>Nothing to display here yet</Text>
+            <Text>Dashboard</Text>
         </View>
     );
 }

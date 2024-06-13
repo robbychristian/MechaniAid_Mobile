@@ -9,6 +9,20 @@ const WelcomePage = () => {
     <View
       style={{ justifyContent: "center", alignItems: "center", height: "100%" }}
     >
+      <View
+        style={{
+          height: 300,
+          width: 300,
+          backgroundColor: "#A02828",
+          borderRadius: 1000,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Text category="h1" style={{ color: "#fff" }}>
+          Mechani-Aid
+        </Text>
+      </View>
       <View style={{ width: "90%", marginTop: 250 }}>
         <Button
           style={{ marginVertical: 10, backgroundColor: "#A02828" }}
