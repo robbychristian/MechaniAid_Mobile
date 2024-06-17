@@ -9,21 +9,27 @@ import { Button, Text } from "@ui-kitten/components";
 import { useSelector } from "react-redux";
 
 const Booking = () => {
+  const navigation = useNavigation()
   const [location, setLocation] = useState(null);
   useEffect(() => {
-    (async () => {
+    const unsubscribe = navigation.addListener('focus', async () => {
       let loc = await Location.getCurrentPositionAsync({});
       setLocation(loc.coords);
       console.log(loc.coords);
-      })();
-      const interval = setInterval(async () => {
-          let loc = await Location.getCurrentPositionAsync({});
-          setLocation(loc.coords);
-          console.log(loc.coords);
+    });
+
+    const interval = setInterval(async () => {
+      let loc = await Location.getCurrentPositionAsync({});
+      setLocation(loc.coords);
+      console.log(loc.coords);
     }, 5000);
 
-    return () => clearInterval(interval);
-  }, []);
+    // Clean up the interval when the component unmounts or navigation focus changes
+    return () => {
+      unsubscribe();
+      clearInterval(interval);
+    };
+  }, [navigation]);
 
   return (
     <View style={{ flex: 1 }}>

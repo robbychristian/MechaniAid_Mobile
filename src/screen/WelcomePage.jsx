@@ -1,13 +1,13 @@
 import { useNavigation } from "@react-navigation/native";
-import { Button } from "@ui-kitten/components";
+import { Button, Text } from "@ui-kitten/components";
 import React from "react";
-import { View, Text } from "react-native";
+import { View } from "react-native";
 
 const WelcomePage = () => {
   const navigation = useNavigation();
   return (
     <View
-      style={{ justifyContent: "center", alignItems: "center", height: "100%" }}
+      style={{ justifyContent: "center", alignItems: "center", flex: 1}}
     >
       <View
         style={{
@@ -23,15 +23,15 @@ const WelcomePage = () => {
           Mechani-Aid
         </Text>
       </View>
-      <View style={{ width: "90%", marginTop: 250 }}>
+      <View style={{ width: "90%", marginTop: 100 }}>
         <Button
-          style={{ marginVertical: 10, backgroundColor: "#A02828" }}
+          style={{ marginVertical: 10, borderColor: "#A02828", backgroundColor: "#A02828" }}
           onPress={() => navigation.navigate("Login")}
         >
           LOGIN
         </Button>
         <Button
-          style={{ marginVertical: 10, backgroundColor: "#A02828" }}
+          style={{ marginVertical: 10, borderColor: "#A02828", backgroundColor: "#A02828" }}
           onPress={() => navigation.navigate("Register")}
         >
           REGISTER

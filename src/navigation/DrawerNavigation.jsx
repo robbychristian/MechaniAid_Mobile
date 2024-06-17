@@ -5,6 +5,8 @@ import Home from "../screen/Home";
 import { useDispatch } from "react-redux";
 import { Drawer, DrawerItem, IndexPath } from "@ui-kitten/components";
 import BottomNav from '../navigation/BottomNavigation'
+import Product from "../screen/Market/Product";
+import Chat from "../screen/Chat/Chat";
 
 const DrawerStack = createDrawerNavigator();
 
@@ -14,7 +16,7 @@ const DrawerContent = ({ navigation, state }) => {
     <Drawer
       selectedIndex={new IndexPath(state.index)}
       onSelect={(index) => {
-        if (index != 1) {
+        if (index != 2) {
           navigation.navigate(state.routeNames[index.row]);
         }
       }}
@@ -52,6 +54,8 @@ const DrawerNavigation = () => {
       }}
     >
       <DrawerStack.Screen name="BottomNav" component={BottomNav} />
+      <DrawerStack.Screen name="Product" component={Product} />
+      <DrawerStack.Screen name="Chat" component={Chat} />
       {/* <DrawerStack.Screen
         name="Services"
         component={Services}

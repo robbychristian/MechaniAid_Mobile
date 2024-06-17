@@ -10,6 +10,7 @@ import { useDispatch } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import CustomDatePicker from "../../components/Inputs/CustomDatePicker";
 import moment from "moment";
+import { IconButton } from "react-native-paper";
 
 const Register = () => {
   const dispatch = useDispatch();
@@ -22,8 +23,7 @@ const Register = () => {
     handleSubmit,
     formState: { errors },
   } = useForm({
-    defaultValues: {
-    },
+    defaultValues: {},
   });
 
   const onSubmit = async (data) => {
@@ -35,15 +35,15 @@ const Register = () => {
     };
     for (const key in data) {
       if (data.hasOwnProperty(key)) {
-        if (key == 'bday') {
+        if (key == "bday") {
           formdata.append(key, moment(data[key]).format("YYYY-MM-DD"));
-        } else{
+        } else {
           formdata.append(key, data[key]);
         }
       }
     }
     formdata.append("customers_profile_pic", newFile);
-    console.log(await formdata)
+    console.log(await formdata);
     try {
       const response = await dispatch(registerUser(formdata));
       if (response.type == "auth/register/fulfilled") {
@@ -84,7 +84,8 @@ const Register = () => {
               Register As Customer!
             </Text>
             <Text category="p2" style={{ color: "#fff" }} appearance="hint">
-              You will be able to access the features of our app after registration!
+              You will be able to access the features of our app after
+              registration!
             </Text>
           </View>
           <View style={{ paddingHorizontal: 15, paddingVertical: 20 }}>
@@ -240,6 +241,26 @@ const Register = () => {
             >
               Submit
             </Button>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate("Login");
+              }}
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                marginVertical: 10,
+              }}
+            >
+              <Text category="label">
+                Already have an account?{" "}
+                <Text
+                  category="label"
+                  style={{ textDecorationLine: "underline" }}
+                >
+                  Login Here!
+                </Text>
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
