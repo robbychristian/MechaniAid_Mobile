@@ -9,6 +9,7 @@ const WelcomePage = () => {
     <View
       style={{ justifyContent: "center", alignItems: "center", flex: 1}}
     >
+      {/* <div></div> == <View></View> */}
       <View
         style={{
           height: 300,

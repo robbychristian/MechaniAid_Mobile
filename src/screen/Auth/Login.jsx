@@ -63,6 +63,7 @@ const Login = () => {
         </Text>
       </View>
       <View style={{ width: "80%" }}>
+        {/* <input type='text' name='email' required> */}
         <CustomTextInput
           control={control}
           errors={errors}
@@ -71,7 +72,8 @@ const Login = () => {
           rules={{ required: true }}
           message={`Email is required!`}
           my={5}
-        />
+          />
+        {/* <input type='password' name='email' required> */}
         <CustomTextInput
           control={control}
           errors={errors}

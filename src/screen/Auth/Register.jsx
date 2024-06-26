@@ -6,14 +6,16 @@ import CustomTextInput from "../../components/Inputs/CustomTextInput";
 import * as DocumentPicker from "expo-document-picker";
 import { Toast } from "toastify-react-native";
 import { registerUser } from "../../store/auth/User";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import CustomDatePicker from "../../components/Inputs/CustomDatePicker";
 import moment from "moment";
 import { IconButton } from "react-native-paper";
+import Loading from '../../components/Loading'
 
 const Register = () => {
   const dispatch = useDispatch();
+  const {loading} = useSelector(state => state.auth)
   const navigation = useNavigation();
   const [page, setPage] = useState(1);
   const [fileUpload, setFileUpload] = useState(null);
@@ -43,7 +45,6 @@ const Register = () => {
       }
     }
     formdata.append("customers_profile_pic", newFile);
-    console.log(await formdata);
     try {
       const response = await dispatch(registerUser(formdata));
       if (response.type == "auth/register/fulfilled") {
@@ -66,6 +67,7 @@ const Register = () => {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
+      <Loading loading={loading} />
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <View
           style={{

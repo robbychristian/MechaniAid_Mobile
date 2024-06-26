@@ -83,14 +83,16 @@ const Product = () => {
                 <Text category="h4" style={{ color: "#A02828" }}>
                   Seller Details
                 </Text>
-                <View style={{ flexDirection: "row" }}>
-                  <Image
-                    source={{
-                      uri: `https://www.mechaniaid.com/api/seller-image/${product.mechanics_info.mechanics_profile_pic}`,
-                    }}
-                    style={{ height: 125, width: 125, borderRadius: 100 }}
-                  />
-                  <View style={{ marginLeft: 30, justifyContent: "center" }}>
+                <View>
+                  <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+                    <Image
+                      source={{
+                        uri: `https://www.mechaniaid.com/api/seller-image/${product.mechanics_info.mechanics_profile_pic}`,
+                      }}
+                      style={{ height: 125, width: 125, borderRadius: 100 }}
+                    />
+                  </View>
+                  <View style={{ marginLeft: 0, justifyContent: "center" }}>
                     <Text category="h6">
                       Name:{" "}
                       <Text style={{ fontWeight: 400 }}>
@@ -137,10 +139,9 @@ const Product = () => {
                       marginVertical: 10,
                     }}
                     onPress={() =>
-                      navigation.navigate("Chat", {
-                        mechanics_id:
-                          user.user_role == 3 ? item.user_2 : item.user_1,
-                        chat_id: item.id,
+                      navigation.navigate("Payment", {
+                        mechanics_id: product.mechanics_id,
+                        total_price: product.price,
                       })
                     }
                     appearance="outline"

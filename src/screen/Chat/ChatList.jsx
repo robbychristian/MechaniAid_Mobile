@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { Image, ScrollView, TouchableOpacity, View } from 'react-native'
-import { Text } from '@ui-kitten/components'
+import { Card, Text } from '@ui-kitten/components'
 import ChatCard from '../../components/Cards/ChatCard';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -28,14 +28,18 @@ const ChatList = () => {
         <View style={{ width: '100%' }}>
             <Loading loading={loading} />
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-                {chatList.length > 0 && chatList.map((item, index) => {
+                {chatList.length > 0 ? chatList.map((item, index) => {
                     return (
                         <ChatCard key={index} item={item} onPress={() => navigation.navigate("Chat", {
                             mechanics_id: user.user_role == 3 ? item.user_2 : item.user_1,
                             chat_id: item.id
                         })} />
                     )
-                })}
+                }) : (
+                    <Card style={{ height: "100%", alignItems: 'center' }}>
+                        <Text category='h6'>Nothing to display yet!</Text>
+                    </Card>
+                )}
             </ScrollView>
         </View>
     );

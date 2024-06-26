@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { clearProduct, getAllMechanicProducts, getAllProducts } from "../../store/products/Products";
 import Loading from "../../components/Loading";
 import { IconButton } from "react-native-paper";
+import { Card } from "@ui-kitten/components";
 
 const ProductList = () => {
   const navigation = useNavigation();
@@ -30,7 +31,7 @@ const ProductList = () => {
       }
     });
     return unsubscribe;
-  }, [navigation]);
+  }, [navigation]);  
   return (
     <View style={{ alignItems: "center", }}>
       <Loading loading={loading} />
@@ -43,7 +44,7 @@ const ProductList = () => {
             width: "100%"
           }}
         >
-          {productList.length > 0 &&
+          {productList.length > 0 ?
             productList.map((item, index) => {
               return (
                 <ProductCard
@@ -57,17 +58,16 @@ const ProductList = () => {
                   }}
                 />
               );
-            })}
+            }) : <Card style={{ marginTop: 20, width: '90%', justifyContent: 'center', alignItems: "center" }}><Text>No products in listing!</Text></Card>}
         </View>
-        {user.user_role == 2 && (
+        {/* {user.user_role == 2 && (
           <IconButton
             onPress={() => console.log('try add')}
             icon={"plus-box"}
             size={50}
             iconColor="#A02828"
-            style={{ position: "absolute", right: 10, bottom: 10 }}
           />
-        )}
+        )} */}
       </ScrollView>
     </View>
   );

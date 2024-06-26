@@ -54,9 +54,9 @@ const BottomNav = () => {
       tabBarIcon: ({ color, size }) => {
         let iconName;
         switch (route.name) {
-          case 'Home':
-            iconName = 'home';
-            break;
+          // case 'Home':
+          //   iconName = 'home';
+          //   break;
           case 'Market':
             iconName = 'shopping-cart';
             break;
@@ -85,7 +85,7 @@ const BottomNav = () => {
         fontWeight: 'bold',
       },
     })}>
-      <BottomTab.Screen name="Home" component={Home} />
+      {/* <BottomTab.Screen name="Home" component={Home} /> */}
       <BottomTab.Screen name="Market" component={ProductList} />
       <BottomTab.Screen name="ChatList" component={ChatList} options={{ tabBarLabel: "Chat" }} />
       <BottomTab.Screen name="Booking" component={Booking} />

@@ -7,6 +7,8 @@ import { Drawer, DrawerItem, IndexPath } from "@ui-kitten/components";
 import BottomNav from '../navigation/BottomNavigation'
 import Product from "../screen/Market/Product";
 import Chat from "../screen/Chat/Chat";
+import AcceptBooking from "../screen/Booking/AcceptBooking";
+import Payment from "../screen/Payment/Payment";
 
 const DrawerStack = createDrawerNavigator();
 
@@ -56,6 +58,8 @@ const DrawerNavigation = () => {
       <DrawerStack.Screen name="BottomNav" component={BottomNav} />
       <DrawerStack.Screen name="Product" component={Product} />
       <DrawerStack.Screen name="Chat" component={Chat} />
+      <DrawerStack.Screen name="AcceptBooking" component={AcceptBooking} />
+      <DrawerStack.Screen name="Payment" component={Payment} />
       {/* <DrawerStack.Screen
         name="Services"
         component={Services}
