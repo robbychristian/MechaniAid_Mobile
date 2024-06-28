@@ -50,7 +50,7 @@ const CustomTabBar = () => {
 
 const BottomNav = () => {
   return (
-  <BottomTab.Navigator screenOptions={({ route }) => ({
+    <BottomTab.Navigator screenOptions={({ route }) => ({
       headerShown: false,
       tabBarIcon: ({ color, size }) => {
         let iconName;
@@ -89,7 +89,7 @@ const BottomNav = () => {
       <BottomTab.Screen name="Home" component={Home} />
       <BottomTab.Screen name="Market" component={ProductList} />
       <BottomTab.Screen name="ChatList" component={ChatList} options={{ tabBarLabel: "Chat" }} />
-      <BottomTab.Screen name="Booking" component={BookingDetails} options={{ tabBarLabel: "Booking" }} />
+      <BottomTab.Screen name="BookingDetails" component={BookingDetails} options={{ tabBarLabel: "Booking" }} />
     </BottomTab.Navigator>
   );
 };
