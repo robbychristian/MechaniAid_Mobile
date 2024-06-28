@@ -4,7 +4,7 @@ import { Alert, TouchableOpacity, View } from "react-native";
 import { api } from "../../../config/api";
 import Loading from "../../components/Loading";
 import * as Location from "expo-location";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { Button, Text } from "@ui-kitten/components";
 import { useSelector } from "react-redux";
 import * as geolib from 'geolib';
@@ -12,6 +12,7 @@ import { Toast } from "toastify-react-native";
 
 const Booking = () => {
   const navigation = useNavigation()
+  const route = useRoute();
   const {user} = useSelector(state => state.auth)
   const [loading, setLoading] = useState(false);
   const [location, setLocation] = useState(null);
@@ -56,6 +57,7 @@ const Booking = () => {
       last_name: user.last_name,
       longitude: location.longitude,
       latitude: location.latitude,
+      service_type: route.params.service_type,
       radius: 1000,
     }).then((response) => {
       setIsBooking(true);

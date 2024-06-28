@@ -47,10 +47,10 @@ const AcceptBooking = () => {
     api.post('submitbooking',{
         booking_id: route.params.item.id,
         total_price: data.total_price,
-        service_type: data.service_type
+        // service_type: data.service_type
     }).then((response) => {
         setLoading(false)
-        Toast.success("Booking completed!")
+        Toast.success("Booking updated!")
         navigation.navigate('Market')
     }).catch(err => {
         console.log(err.response)
@@ -77,7 +77,7 @@ const AcceptBooking = () => {
               {address.address.city}
             </Text>
           </View>
-          <View style={{ paddingVertical: 10 }}>
+          {/* <View style={{ paddingVertical: 10 }}>
             <Text category="h5" style={{ color: "rgb(153 29 29)" }}>
               What type of service does the customer require?
             </Text>
@@ -89,7 +89,7 @@ const AcceptBooking = () => {
               name={`service_type`}
               rules={{ required: true }}
             />
-          </View>
+          </View> */}
           <View style={{ paddingVertical: 10 }}>
             <Text category="h5" style={{ color: "rgb(153 29 29)" }}>
               How much would it cost?

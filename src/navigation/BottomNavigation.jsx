@@ -5,6 +5,7 @@ import Booking from "../screen/Booking/Booking";
 import ProductList from "../screen/Market/ProductList";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import ChatList from "../screen/Chat/ChatList";
+import BookingDetails from "../screen/Booking/BookingDetails";
 
 const AlbumsRoute = () => <Text>Albums</Text>;
 
@@ -85,10 +86,10 @@ const BottomNav = () => {
         fontWeight: 'bold',
       },
     })}>
-      {/* <BottomTab.Screen name="Home" component={Home} /> */}
+      <BottomTab.Screen name="Home" component={Home} />
       <BottomTab.Screen name="Market" component={ProductList} />
       <BottomTab.Screen name="ChatList" component={ChatList} options={{ tabBarLabel: "Chat" }} />
-      <BottomTab.Screen name="Booking" component={Booking} />
+      <BottomTab.Screen name="Booking" component={BookingDetails} options={{ tabBarLabel: "Booking" }} />
     </BottomTab.Navigator>
   );
 };
