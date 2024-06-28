@@ -1,5 +1,5 @@
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { Text } from "@ui-kitten/components";
+import { Button, Text } from "@ui-kitten/components";
 import React from "react";
 import { View } from "react-native";
 import CustomTextInput from "../../components/Inputs/CustomTextInput";
@@ -18,10 +18,10 @@ const BookingDetails = () => {
 
   const onSubmit = (data) => {
     navigation.navigate("Booking", {
-        service_type: data.service_type
+      service_type: data.service_type
     })
   }
-  
+
   return (
     <View style={{ width: "100%", paddingVertical: 10, paddingHorizontal: 15 }}>
       <View style={{ paddingBottom: 10 }}>
@@ -42,8 +42,8 @@ const BookingDetails = () => {
         </Text>
       </View>
       <View style={{ paddingVertical: 10 }}>
-            <Button onPress={handleSubmit(onSubmit)} style={{ backgroundColor: "#A02828", borderColor: "#A02828" }}>COMPLETE BOOKING</Button>
-          </View>
+        <Button onPress={handleSubmit(onSubmit)} style={{ backgroundColor: "#A02828", borderColor: "#A02828" }}>COMPLETE BOOKING</Button>
+      </View>
     </View>
   );
 };
