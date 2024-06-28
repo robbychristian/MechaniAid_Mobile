@@ -27,7 +27,7 @@ const Home = () => {
           api.get(`getuserbookings?user_id=${user.id}`)
             .then((response) => {
               console.log(response.data)
-              setBookings()
+              setBookings(response.data)
             }).catch(err => {
               console.log(err.response)
             })
@@ -36,7 +36,7 @@ const Home = () => {
     return (
         <View style={{ justifyContent: 'center', alignItems: 'center', paddingVertical: 15, paddingHorizontal: 15 }}>
           <Text category='h3' style={{ fontWeight: 700 }}>Booking Log</Text>
-          {bookings.length > 0 && bookings.map((item, index) => {
+          {bookings.length > 0 ? bookings.map((item, index) => {
             return (
             <Card style={{ width: "100%" }} key={index} onPress={() => navigation.navigate('BookingPayment', {
               mechanics_id: item.mechanics_id,
@@ -49,7 +49,11 @@ const Home = () => {
                 <Text category='c1' style={{ color: "#A02828" }}>{moment(item.created_at)}</Text>
             </Card>
             )
-          })}
+          }) : (
+            <Card style={{ width: '100%' }}>
+              <Text>Book now to access your logs!</Text>
+            </Card>
+          )}
         </View>
     );
 }
