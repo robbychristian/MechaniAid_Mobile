@@ -8,6 +8,7 @@ import Login from '../screen/Auth/Login';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import DrawerNavigation from './DrawerNavigation';
 import BottomNav from './BottomNavigation';
+import RoleScreen from '../screen/Auth/RoleScreen';
 
 const AuthStack = createNativeStackNavigator();
 
@@ -17,6 +18,7 @@ function MainNavigation() {
       <AuthStack.Navigator screenOptions={{ headerShown: false }}>
         <AuthStack.Screen name="Welcome" component={WelcomePage} />
         <AuthStack.Screen name="Register" component={Register} />
+        <AuthStack.Screen name="RoleScreen" component={RoleScreen} />
         <AuthStack.Screen name="Login" component={Login} />
         <AuthStack.Screen name="DrawerStack" component={DrawerNavigation} />
       </AuthStack.Navigator>

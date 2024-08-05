@@ -1,45 +1,56 @@
 import { useNavigation } from "@react-navigation/native";
 import { Button, Text } from "@ui-kitten/components";
 import React from "react";
-import { View } from "react-native";
+import { View, Image, StyleSheet } from "react-native";
 
 const WelcomePage = () => {
   const navigation = useNavigation();
   return (
-    <View
-      style={{ justifyContent: "center", alignItems: "center", flex: 1}}
-    >
+    <View style={styles.container}>
       {/* <div></div> == <View></View> */}
-      <View
-        style={{
-          height: 300,
-          width: 300,
-          backgroundColor: "#A02828",
-          borderRadius: 1000,
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Text category="h1" style={{ color: "#fff" }}>
-          Mechani-Aid
-        </Text>
-      </View>
-      <View style={{ width: "90%", marginTop: 100 }}>
+      <Image
+        source={require("../../assets/MechaniAid-Logo.png")}
+        style={{ width: 370, height: 186 }}
+      />
+      
+      <View style={{ width: "90%", marginTop: 160, alignItems: "center" }}>
         <Button
-          style={{ marginVertical: 10, borderColor: "#A02828", backgroundColor: "#A02828" }}
+          style={styles.buttonStyle}
           onPress={() => navigation.navigate("Login")}
         >
-          LOGIN
+          {() => <Text style={styles.textStyle}>LOGIN</Text>}
         </Button>
         <Button
-          style={{ marginVertical: 10, borderColor: "#A02828", backgroundColor: "#A02828" }}
-          onPress={() => navigation.navigate("Register")}
+          style={styles.buttonStyle}
+          onPress={() => navigation.navigate("RoleScreen")}
         >
-          REGISTER
+          {() => <Text style={styles.textStyle}>REGISTER</Text>}
         </Button>
+        <View style={{ marginTop: 20 }}>
+          <Text style={{ color: "#8e8888", fontFamily: "Nunito-Bold", fontSize: 15 }}>Developed by Data X 2024</Text>
+        </View>
       </View>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: { justifyContent: "center", 
+    alignItems: "center", 
+    flex: 1 
+  },
+  buttonStyle: {
+    width: "80%",
+    marginVertical: 10,
+    borderColor: "#EF4141",
+    backgroundColor: "#EF4141",
+    borderRadius: 20,
+    paddingVertical: 15,
+  },
+  textStyle: { fontFamily: "Nunito-Bold",  
+    fontSize: 20, 
+    color: "#fff" 
+  },
+});
 
 export default WelcomePage;
