@@ -13,7 +13,7 @@ import moment from "moment";
 import { IconButton } from "react-native-paper";
 import Loading from '../../components/Loading'
 
-const Register = () => {
+const MechanicRegister = () => {
   const dispatch = useDispatch();
   const {loading} = useSelector(state => state.auth)
   const navigation = useNavigation();
@@ -83,10 +83,10 @@ const Register = () => {
             }}
           >
             <Text  style={{ fontFamily: "Nunito-Bold", fontSize: 30, color: "#fff" }}>
-              Register As Customer!
+              Register As Mechanic!
             </Text>
             <Text style={{ fontFamily: "Nunito-Regular", fontSize: 15, color: "#fff" }} appearance="hint">
-              You will be able to access the features of our app after
+              You will be able to access mechanic features after
               registration!
             </Text>
           </View>
@@ -154,13 +154,13 @@ const Register = () => {
               name={`phone`}
               rules={{ required: true }}
             />
-            <CustomDatePicker
+            <CustomTextInput
               control={control}
               errors={errors}
-              label={`Birthday`}
-              message={`Birthday is required`}
+              label={`Landline`}
+              message={`Landline Number is required`}
               my={5}
-              name={`bday`}
+              name={`landline`}
               rules={{ required: true }}
             />
             <Text
@@ -213,6 +213,11 @@ const Register = () => {
               name={`street`}
               rules={{ required: true }}
             />
+             <Text
+              style={styles.title}
+            >
+              Documents
+            </Text>
             <Text
               style={styles.title}
             >
@@ -309,4 +314,4 @@ const styles = StyleSheet.create({
     color: "#fff" 
   },
 })
-export default Register;
+export default MechanicRegister;

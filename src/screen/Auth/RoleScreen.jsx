@@ -20,7 +20,7 @@ const RoleScreen = () => {
       <View style={{ width: "90%", marginTop: 20, alignItems: "center" }}>
         <Button
           style={styles.buttonStyle}
-          onPress={() => navigation.navigate("Login")}
+          onPress={() => navigation.navigate("MechanicRegister")}
         >
           {() => <Text style={styles.textStyle}>MECHANIC</Text>}
         </Button>

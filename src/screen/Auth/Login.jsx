@@ -121,7 +121,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingVertical: 15,
   },
-  textStyle: { fontFamily: "Nunito-Bold",  
+  textStyle: { 
+    fontFamily: "Nunito-Bold",  
     fontSize: 20, 
     color: "#fff" 
   },
