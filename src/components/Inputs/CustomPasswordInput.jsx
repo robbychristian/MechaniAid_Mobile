@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Controller } from 'react-hook-form';
 import { StyleSheet } from 'react-native';
 
-const CustomTextInput = ({
+const CustomPasswordInput = ({
   control,
   rules = {},
   label,
@@ -15,6 +15,11 @@ const CustomTextInput = ({
   isFull = true
 }) => {
   const [isFocused, setIsFocused] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!passwordVisible);
+  };
 
   return (
     <>
@@ -62,4 +67,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CustomTextInput;
+export default CustomPasswordInput;

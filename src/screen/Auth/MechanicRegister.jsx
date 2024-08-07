@@ -1,4 +1,4 @@
-import { Button, Text } from "@ui-kitten/components";
+import { Button, Text, Select, Layout } from "@ui-kitten/components";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { View, ScrollView, TouchableOpacity, Image, StyleSheet } from "react-native";
@@ -12,6 +12,8 @@ import CustomDatePicker from "../../components/Inputs/CustomDatePicker";
 import moment from "moment";
 import { IconButton } from "react-native-paper";
 import Loading from '../../components/Loading'
+import CustomPhoneInput from "../../components/Inputs/CustomPhoneInput";
+import CustomTextInputMultiline from "../../components/Inputs/CustomTextInputMultiline";
 
 const MechanicRegister = () => {
   const dispatch = useDispatch();
@@ -145,11 +147,11 @@ const MechanicRegister = () => {
               name={`lname`}
               rules={{ required: true }}
             />
-            <CustomTextInput
+            <CustomPhoneInput
               control={control}
               errors={errors}
-              label={`Contact No.`}
-              message={`Contact Number is required`}
+              label={`Phone No.`}
+              message={`Mobile Number is required`}
               my={5}
               name={`phone`}
               rules={{ required: true }}
@@ -161,6 +163,15 @@ const MechanicRegister = () => {
               message={`Landline Number is required`}
               my={5}
               name={`landline`}
+              rules={{ required: true }}
+            />
+            <CustomTextInputMultiline
+              control={control}
+              errors={errors}
+              label={`Description`}
+              message={`Description is required`}
+              my={5}
+              name={`description`}
               rules={{ required: true }}
             />
             <Text

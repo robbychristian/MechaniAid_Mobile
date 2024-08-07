@@ -1,9 +1,9 @@
-import { Input, Text } from '@ui-kitten/components';
-import React, { useState } from 'react';
-import { Controller } from 'react-hook-form';
-import { StyleSheet } from 'react-native';
+import { Input, Text } from "@ui-kitten/components";
+import React, { useState } from "react";
+import { Controller } from "react-hook-form";
+import { StyleSheet } from "react-native";
 
-const CustomTextInput = ({
+const CustomTextInputMultiline = ({
   control,
   rules = {},
   label,
@@ -12,7 +12,7 @@ const CustomTextInput = ({
   errors,
   message,
   my,
-  isFull = true
+  isFull = true,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
 
@@ -34,9 +34,11 @@ const CustomTextInput = ({
             value={value}
             style={[
               styles.input,
-              { width: isFull ? '100%' : '47%' },
-              isFocused && styles.focusedInput
+              { width: isFull ? "100%" : "47%" },
+              isFocused && styles.focusedInput,
             ]}
+            textStyle={styles.multiline} // Adjust the height for multiline
+            multiline={true} // Enable multiline input
           />
         )}
         name={name}
@@ -52,14 +54,18 @@ const CustomTextInput = ({
 
 const styles = StyleSheet.create({
   input: {
-    height: 70, 
     borderWidth: 1,
-    borderColor: '#E4E9F2',
+    borderColor: "#E4E9F2",
     borderRadius: 15,
+
   },
   focusedInput: {
-    borderColor: 'red', 
+    borderColor: "red",
   },
+  multiline: { 
+    minHeight: 100,
+    textAlignVertical: "top",
+}
 });
 
-export default CustomTextInput;
+export default CustomTextInputMultiline;
