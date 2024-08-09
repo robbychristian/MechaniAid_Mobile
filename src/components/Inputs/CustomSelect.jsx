@@ -7,6 +7,12 @@ import {
   Text,
   IndexPath,
 } from "@ui-kitten/components";
+import {
+  getRegions,
+  getProvincesByRegion,
+  getCitiesByProvince,
+  getBarangaysByCity,
+} from "select-philippines-address";
 
 export const CustomSelect = ({
   my,

@@ -1,7 +1,7 @@
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, ActivityIndicator } from 'react-native';
 import { Input, Text, Layout, Select, SelectItem, IndexPath } from '@ui-kitten/components';
-import React, { useState } from 'react';
 import { Controller } from 'react-hook-form';
-import { StyleSheet, View } from 'react-native';
 
 const CustomPhoneInput = ({
   control,
@@ -13,59 +13,77 @@ const CustomPhoneInput = ({
   message,
   my,
   isFull = true,
-  // placeholder,
-  // options,
-  // value,
-  // setValue,
 }) => {
+  const [selectedIndex, setSelectedIndex] = useState(new IndexPath(0));
+  const [options, setOptions] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [isFocused, setIsFocused] = useState(false);
 
-  const [selectedIndex, setSelectedIndex] = useState(new IndexPath(0));
-  
-  // const displayValue = options[selectedIndex.row];
+  useEffect(() => {
+    const fetchCountryCodes = async () => {
+      try {
+        const response = await fetch('https://restcountries.com/v3.1/all');
+        const data = await response.json();
+
+        const sortedCountries = data.sort((a, b) => a.name.common.localeCompare(b.name.common));
+        const countryOptions = sortedCountries.map(country => {
+          const callingCode = (country.idd.root || '') + (country.idd.suffixes ? country.idd.suffixes[0] : '');
+          return callingCode ? `${callingCode}` : null;
+        }).filter(Boolean);
+
+        setOptions(countryOptions);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching country codes:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchCountryCodes();
+  }, []);
+
   return (
     <>
       <Controller
         control={control}
         rules={rules}
         render={({ field: { onChange, onBlur, value } }) => (
-          <Layout
-            style={[styles.container, { width: isFull ? '100%' : '70%' }]}
-          >
+          <Layout style={[styles.container, { width: isFull ? '100%' : '70%' }]}>
             <View style={styles.selectContainer}>
-              <Select
-                label={label}
-                style={styles.select}
-                // placeholder={placeholder}
-                // value={displayValue}
-                selectedIndex={selectedIndex}
-                onSelect={(index) => {
-                  setSelectedIndex(index);
-                  // setValue(index.row);
-                }}
-              >
-                {/* {options.map((item, index) => {
-        return <SelectItem key={index} title={item} />;
-      })} */}
-                <SelectItem title='+63' />
-                <SelectItem title='+1' /> 
+              {loading ? (
+                <ActivityIndicator size="small" color="#0000ff" />
+              ) : (
+                <Select
+                  label={label}
+                  style={styles.select}
+                  selectedIndex={selectedIndex}
+                  onSelect={(index) => {
+                    setSelectedIndex(index);
+                    onChange(options[index.row]);
+                  }}
+                  value={options[selectedIndex.row]}
+                >
+                  {options.map((item, index) => (
+                    <SelectItem key={index} title={item} />
+                  ))}
                 </Select>
+              )}
             </View>
             <View style={styles.inputContainer}>
-            <Input
-              secureTextEntry={secureTextEntry}
-              onChangeText={onChange}
-              onBlur={() => {
-                onBlur();
-                setIsFocused(false);
-              }}
-              onFocus={() => setIsFocused(true)}
-              value={value}
-              style={[
-                styles.input,
-                isFocused && styles.focusedInput
-              ]}
-            />
+              <Input
+                secureTextEntry={secureTextEntry}
+                onChangeText={onChange}
+                onBlur={() => {
+                  onBlur();
+                  setIsFocused(false);
+                }}
+                onFocus={() => setIsFocused(true)}
+                value={value}
+                style={[
+                  styles.input,
+                  isFocused && styles.focusedInput,
+                ]}
+              />
             </View>
           </Layout>
         )}
@@ -84,7 +102,6 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    
   },
   selectContainer: {
     flex: 1,
@@ -92,14 +109,10 @@ const styles = StyleSheet.create({
   },
   select: {
     height: 70,
-    // borderWidth: 1,
     borderColor: '#000',
-    // alignSelf: 'flex-start',
-    
   },
   inputContainer: {
     flex: 2,
-    // borderWidth: 1,
     marginLeft: 45,
   },
   input: {
@@ -107,7 +120,6 @@ const styles = StyleSheet.create({
     width: 235,
     borderRadius: 15,
     paddingVertical: 16,
-    // marginRight:,
   },
   focusedInput: {
     borderColor: 'red',

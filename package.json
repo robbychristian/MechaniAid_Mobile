@@ -22,6 +22,7 @@
     "axios": "0.24",
     "expo": "~50.0.17",
     "expo-document-picker": "~11.10.1",
+    "expo-font": "~11.10.3",
     "expo-location": "~16.5.5",
     "expo-status-bar": "~1.11.1",
     "geolib": "^3.3.4",
@@ -38,8 +39,7 @@
     "react-native-svg": "^15.3.0",
     "react-redux": "^9.1.2",
     "redux": "^5.0.1",
-    "toastify-react-native": "^5.0.0",
-    "expo-font": "~11.10.3"
+    "toastify-react-native": "^5.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

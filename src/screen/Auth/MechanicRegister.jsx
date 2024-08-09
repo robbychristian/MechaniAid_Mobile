@@ -14,7 +14,7 @@ import { IconButton } from "react-native-paper";
 import Loading from '../../components/Loading'
 import CustomPhoneInput from "../../components/Inputs/CustomPhoneInput";
 import CustomTextInputMultiline from "../../components/Inputs/CustomTextInputMultiline";
-
+import { CustomSelect } from "../../components/Inputs/CustomSelect";
 const MechanicRegister = () => {
   const dispatch = useDispatch();
   const {loading} = useSelector(state => state.auth)
@@ -179,6 +179,16 @@ const MechanicRegister = () => {
             >
               Address Information
             </Text>
+            {/* <CustomSelect
+            label={'Region'}
+            placeholder={' Select a Region'}
+            my={5}
+            isRequired={true}
+            options={}
+            value={displayValue}
+            setValue={setValue}
+            isFull={true}
+            /> */}
             <CustomTextInput
               control={control}
               errors={errors}

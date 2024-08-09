@@ -12,6 +12,7 @@ import CustomDatePicker from "../../components/Inputs/CustomDatePicker";
 import moment from "moment";
 import { IconButton } from "react-native-paper";
 import Loading from '../../components/Loading'
+import CustomPhoneInput from "../../components/Inputs/CustomPhoneInput";
 
 const Register = () => {
   const dispatch = useDispatch();
@@ -145,11 +146,11 @@ const Register = () => {
               name={`lname`}
               rules={{ required: true }}
             />
-            <CustomTextInput
+             <CustomPhoneInput
               control={control}
               errors={errors}
-              label={`Contact No.`}
-              message={`Contact Number is required`}
+              label={`Phone No.`}
+              message={`Mobile Number is required`}
               my={5}
               name={`phone`}
               rules={{ required: true }}
