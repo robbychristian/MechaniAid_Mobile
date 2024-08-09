@@ -51,7 +51,6 @@ const MechanicRegister = () => {
     axios
       .get("https://isaacdarcilla.github.io/philippine-addresses/region.json")
       .then((response) => setRegions(response.data));
-      
   }, []);
 
   useEffect(() => {
@@ -67,6 +66,9 @@ const MechanicRegister = () => {
             )
           )
         );
+      setSelectedProvince(null); // Reset selected province
+      setSelectedCity(null); // Reset selected city
+      setSelectedBarangay(null); // Reset selected barangay
     } else {
       setProvinces([]);
     }
@@ -83,6 +85,8 @@ const MechanicRegister = () => {
             )
           )
         );
+      setSelectedCity(null); // Reset selected city
+      setSelectedBarangay(null); // Reset selected barangay
     } else {
       setCities([]);
     }
@@ -99,11 +103,11 @@ const MechanicRegister = () => {
             response.data.filter((b) => b.city_code === selectedCity.city_code)
           )
         );
+      setSelectedBarangay(null); // Reset selected barangay
     } else {
       setBarangays([]);
     }
   }, [selectedCity]);
-  
 
   const onSubmit = async (data) => {
     const formdata = new FormData();

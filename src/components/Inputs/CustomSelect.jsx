@@ -20,13 +20,13 @@ export const CustomSelect = ({
     if (value) {
       const index = options.findIndex(option => option.value === value.value);
       setSelectedIndex(index !== -1 ? new IndexPath(index) : null);
-      console.log("selected index: ",index);
-      console.log("selected value: ",value);
+      console.log("selected index: ", index);
+      console.log("selected value: ", value);
     }
   }, [value, options]);
 
   return (
-    <View style={{ width: "100px", marginVertical: my }}>
+    <View style={{ width: "100", marginVertical: my }}>
       <Text category="label" style={{ color: "#009688", marginBottom: 5 }}>
         {label}{" "}
         <Text style={{ color: "#DC3545" }}>{isRequired ? "*" : null}</Text>
@@ -35,6 +35,7 @@ export const CustomSelect = ({
         style={styles.select}
         placeholder={placeholder}
         selectedIndex={selectedIndex}
+        value={value ? value.value : placeholder} // Display the selected value or the placeholder
         onSelect={(index) => {
           const selectedOption = options[index.row];
           setSelectedIndex(index);
@@ -51,5 +52,7 @@ export const CustomSelect = ({
 };
 
 const styles = StyleSheet.create({
-  
+  select: {
+    // Your styles here
+  },
 });
