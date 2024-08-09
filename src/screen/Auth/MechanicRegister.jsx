@@ -1,7 +1,13 @@
 import { Button, Text, Select, Layout } from "@ui-kitten/components";
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { View, ScrollView, TouchableOpacity, Image, StyleSheet } from "react-native";
+import {
+  View,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+} from "react-native";
 import CustomTextInput from "../../components/Inputs/CustomTextInput";
 import * as DocumentPicker from "expo-document-picker";
 import { Toast } from "toastify-react-native";
@@ -11,14 +17,14 @@ import { useNavigation } from "@react-navigation/native";
 import CustomDatePicker from "../../components/Inputs/CustomDatePicker";
 import moment from "moment";
 import { IconButton } from "react-native-paper";
-import Loading from '../../components/Loading'
+import Loading from "../../components/Loading";
 import CustomPhoneInput from "../../components/Inputs/CustomPhoneInput";
 import CustomTextInputMultiline from "../../components/Inputs/CustomTextInputMultiline";
 import { CustomSelect } from "../../components/Inputs/CustomSelect";
 import axios from "axios";
 const MechanicRegister = () => {
   const dispatch = useDispatch();
-  const {loading} = useSelector(state => state.auth)
+  const { loading } = useSelector((state) => state.auth);
   const navigation = useNavigation();
   const [page, setPage] = useState(1);
   const [fileUpload, setFileUpload] = useState(null);
@@ -35,38 +41,69 @@ const MechanicRegister = () => {
   const [provinces, setProvinces] = useState([]);
   const [cities, setCities] = useState([]);
   const [barangays, setBarangays] = useState([]);
+
   const [selectedRegion, setSelectedRegion] = useState(null);
   const [selectedProvince, setSelectedProvince] = useState(null);
   const [selectedCity, setSelectedCity] = useState(null);
   const [selectedBarangay, setSelectedBarangay] = useState(null);
 
-
   useEffect(() => {
-    axios.get('https://isaacdarcilla.github.io/philippine-addresses/region.json')
-      .then(response => setRegions(response.data));
+    axios
+      .get("https://isaacdarcilla.github.io/philippine-addresses/region.json")
+      .then((response) => setRegions(response.data));
+      
   }, []);
 
-  const fetchProvinces = () => {
+  useEffect(() => {
     if (selectedRegion) {
-      axios.get('https://isaacdarcilla.github.io/philippine-addresses/province.json')
-        .then(response => setProvinces(response.data));
+      axios
+        .get(
+          "https://isaacdarcilla.github.io/philippine-addresses/province.json"
+        )
+        .then((response) =>
+          setProvinces(
+            response.data.filter(
+              (p) => p.region_code === selectedRegion.region_code
+            )
+          )
+        );
+    } else {
+      setProvinces([]);
     }
-  };
+  }, [selectedRegion]);
 
-  const fetchCities = () => {
+  useEffect(() => {
     if (selectedProvince) {
-      axios.get('https://isaacdarcilla.github.io/philippine-addresses/city.json')
-        .then(response => setCities(response.data));
+      axios
+        .get("https://isaacdarcilla.github.io/philippine-addresses/city.json")
+        .then((response) =>
+          setCities(
+            response.data.filter(
+              (c) => c.province_code === selectedProvince.province_code
+            )
+          )
+        );
+    } else {
+      setCities([]);
     }
-  };
+  }, [selectedProvince]);
 
-  const fetchBarangays = () => {
+  useEffect(() => {
     if (selectedCity) {
-      axios.get('https://isaacdarcilla.github.io/philippine-addresses/barangay.json')
-        .then(response => setBarangays(response.data));
+      axios
+        .get(
+          "https://isaacdarcilla.github.io/philippine-addresses/barangay.json"
+        )
+        .then((response) =>
+          setBarangays(
+            response.data.filter((b) => b.city_code === selectedCity.city_code)
+          )
+        );
+    } else {
+      setBarangays([]);
     }
-  };
-
+  }, [selectedCity]);
+  
 
   const onSubmit = async (data) => {
     const formdata = new FormData();
@@ -122,12 +159,20 @@ const MechanicRegister = () => {
               paddingVertical: 20,
             }}
           >
-            <Text  style={{ fontFamily: "Nunito-Bold", fontSize: 30, color: "#fff" }}>
+            <Text
+              style={{ fontFamily: "Nunito-Bold", fontSize: 30, color: "#fff" }}
+            >
               Register As Mechanic!
             </Text>
-            <Text style={{ fontFamily: "Nunito-Regular", fontSize: 15, color: "#fff" }} appearance="hint">
-              You will be able to access mechanic features after
-              registration!
+            <Text
+              style={{
+                fontFamily: "Nunito-Regular",
+                fontSize: 15,
+                color: "#fff",
+              }}
+              appearance="hint"
+            >
+              You will be able to access mechanic features after registration!
             </Text>
           </View>
           <View style={{ paddingHorizontal: 15, paddingVertical: 20 }}>
@@ -149,15 +194,13 @@ const MechanicRegister = () => {
                     style={{ height: "100%", width: "100%", borderRadius: 100 }}
                   />
                 ) : (
-                  <Text style={{ fontFamily: "Nunito-SemiBold", fontSize: 20 }}>Upload Photo Here</Text>
+                  <Text style={{ fontFamily: "Nunito-SemiBold", fontSize: 20 }}>
+                    Upload Photo Here
+                  </Text>
                 )}
               </TouchableOpacity>
             </View>
-            <Text
-              style={styles.title}
-            >
-              Personal Information
-            </Text>
+            <Text style={styles.title}>Personal Information</Text>
             <CustomTextInput
               control={control}
               errors={errors}
@@ -212,49 +255,53 @@ const MechanicRegister = () => {
               name={`description`}
               rules={{ required: true }}
             />
-            <Text
-              style={styles.title}
-            >
-              Address Information
-            </Text>
+            <Text style={styles.title}>Address Information</Text>
             <CustomSelect
-              my={8}
+              my={5}
               label="Region"
               placeholder="Select Region"
-              options={regions}
+              options={regions.map((region) => ({
+                value: region.region_name,
+                ...region,
+              }))}
               value={selectedRegion}
               setValue={setSelectedRegion}
-              fetchData={fetchProvinces}
-              optionKey="region_name" // Adjust based on your API response
             />
             <CustomSelect
-              my={8}
+              my={5}
               label="Province"
               placeholder="Select Province"
-              options={provinces}
+              options={provinces.map((province) => ({
+                value: province.province_name,
+                ...province,
+              }))}
               value={selectedProvince}
               setValue={setSelectedProvince}
-              fetchData={fetchCities}
-              optionKey="province_name" // Adjust based on your API response
+              disabled={!selectedRegion}
             />
             <CustomSelect
-              my={8}
+              my={5}
               label="City"
               placeholder="Select City"
-              options={cities}
+              options={cities.map((city) => ({
+                value: city.city_name,
+                ...city,
+              }))}
               value={selectedCity}
               setValue={setSelectedCity}
-              fetchData={fetchBarangays}
-              optionKey="city_name" // Adjust based on your API response
+              disabled={!selectedProvince}
             />
             <CustomSelect
-              my={8}
+              my={5}
               label="Barangay"
               placeholder="Select Barangay"
-              options={barangays}
+              options={barangays.map((barangay) => ({
+                value: barangay.brgy_name,
+                ...barangay,
+              }))}
               value={selectedBarangay}
               setValue={setSelectedBarangay}
-              optionKey="barangay_name" // Adjust based on your API response
+              disabled={!selectedCity}
             />
 
             <CustomTextInput
@@ -302,16 +349,8 @@ const MechanicRegister = () => {
               name={`street`}
               rules={{ required: true }}
             />
-             <Text
-              style={styles.title}
-            >
-              Documents
-            </Text>
-            <Text
-              style={styles.title}
-            >
-              Account Information
-            </Text>
+            <Text style={styles.title}>Documents</Text>
+            <Text style={styles.title}>Account Information</Text>
             <CustomTextInput
               control={control}
               errors={errors}
@@ -344,34 +383,40 @@ const MechanicRegister = () => {
           </View>
         </View>
         <Button
-              appearance="filled"
-              style={styles.buttonStyle}
-              onPress={handleSubmit(onSubmit)}
-            >
-              {() => <Text style={styles.textStyle}>SUBMIT</Text>}
-            </Button>
-            <TouchableOpacity
-              onPress={() => {
-                navigation.navigate("Login");
-              }}
-              style={{
-                justifyContent: "center",
-                alignItems: "center",
-                marginVertical: 10,
-                marginTop: 5,
-              }}
-            >
-              <Text>
-                Already have an account?{" "}
-                <Text
-                  style={{ textDecorationLine: "underline" }}
-                >
-                  Login Here!
-                </Text>
-              </Text>
-            </TouchableOpacity>
+          appearance="filled"
+          style={styles.buttonStyle}
+          onPress={handleSubmit(onSubmit)}
+        >
+          {() => <Text style={styles.textStyle}>SUBMIT</Text>}
+        </Button>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate("Login");
+          }}
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            marginVertical: 10,
+            marginTop: 5,
+          }}
+        >
+          <Text>
+            Already have an account?{" "}
+            <Text style={{ textDecorationLine: "underline" }}>Login Here!</Text>
+          </Text>
+        </TouchableOpacity>
         <View style={{ marginTop: 20 }}>
-          <Text style={{ color: "#8e8888", fontFamily: "Nunito-Bold", fontSize: 15, textAlign: "center", marginBottom: 20 }}>Developed by Data X 2024</Text>
+          <Text
+            style={{
+              color: "#8e8888",
+              fontFamily: "Nunito-Bold",
+              fontSize: 15,
+              textAlign: "center",
+              marginBottom: 20,
+            }}
+          >
+            Developed by Data X 2024
+          </Text>
         </View>
       </ScrollView>
     </View>
@@ -395,12 +440,12 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingVertical: 15,
   },
-  textStyle: { 
+  textStyle: {
     alignItems: "center",
     justifyContent: "center",
-    fontFamily: "Nunito-Bold",  
-    fontSize: 20, 
-    color: "#fff" 
+    fontFamily: "Nunito-Bold",
+    fontSize: 20,
+    color: "#fff",
   },
-})
+});
 export default MechanicRegister;

@@ -1,13 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { StyleSheet } from "react-native";
-import {
-  Layout,
-  Select,
-  SelectItem,
-  Text,
-  IndexPath,
-} from "@ui-kitten/components";
-import axios from "axios";
+import React, { useState, useEffect } from "react";
+import { StyleSheet, View } from "react-native";
+import { Select, SelectItem, Text } from "@ui-kitten/components";
+import { IndexPath } from "@ui-kitten/components";
 
 export const CustomSelect = ({
   my,
@@ -17,43 +11,45 @@ export const CustomSelect = ({
   options,
   value,
   setValue,
-  fetchData,
+  disabled,
   loading,
-  optionKey = 'name' // Default to 'name' if key is not provided
 }) => {
-  const [selectedIndex, setSelectedIndex] = useState(new IndexPath(0));
-
-  const displayValue = options[selectedIndex.row] ? options[selectedIndex.row][optionKey] : '';
+  const [selectedIndex, setSelectedIndex] = useState(null);
 
   useEffect(() => {
-    if (fetchData) fetchData();
-  }, [fetchData]);
+    if (value) {
+      const index = options.findIndex(option => option.value === value.value);
+      setSelectedIndex(index !== -1 ? new IndexPath(index) : null);
+      console.log("selected index: ",index);
+      console.log("selected value: ",value);
+    }
+  }, [value, options]);
 
   return (
-    <Select
-      style={{
-        width: "100%",
-        marginVertical: my,
-        borderRadius: 10,
-      }}
-      placeholder={placeholder}
-      label={() => (
-        <Text category="label" style={{ color: "#009688" }}>
-          {label}{" "}
-          <Text style={{ color: "red" }}>{isRequired ? "*" : null}</Text>
-        </Text>
-      )}
-      value={displayValue}
-      selectedIndex={selectedIndex}
-      onSelect={(index) => {
-        setSelectedIndex(index);
-        setValue(options[index.row]);
-      }}
-      disabled={loading}
-    >
-      {options.map((item, index) => (
-        <SelectItem key={index} title={item[optionKey]} />
-      ))}
-    </Select>
+    <View style={{ width: "100px", marginVertical: my }}>
+      <Text category="label" style={{ color: "#009688", marginBottom: 5 }}>
+        {label}{" "}
+        <Text style={{ color: "#DC3545" }}>{isRequired ? "*" : null}</Text>
+      </Text>
+      <Select
+        style={styles.select}
+        placeholder={placeholder}
+        selectedIndex={selectedIndex}
+        onSelect={(index) => {
+          const selectedOption = options[index.row];
+          setSelectedIndex(index);
+          setValue(selectedOption); // Update the selected value
+        }}
+        disabled={disabled || loading}
+      >
+        {options.map((item, index) => (
+          <SelectItem key={index} title={item.value} />
+        ))}
+      </Select>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  
+});
