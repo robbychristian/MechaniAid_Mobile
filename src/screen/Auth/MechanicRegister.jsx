@@ -217,16 +217,6 @@ const MechanicRegister = () => {
             >
               Address Information
             </Text>
-            {/* <CustomSelect
-            label={'Region'}
-            placeholder={' Select a Region'}
-            my={5}
-            isRequired={true}
-            options={}
-            value={displayValue}
-            setValue={setValue}
-            isFull={true}
-            /> */}
             <CustomSelect
               my={8}
               label="Region"
