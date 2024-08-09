@@ -1,5 +1,5 @@
 import { Button, Text, Select, Layout } from "@ui-kitten/components";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { View, ScrollView, TouchableOpacity, Image, StyleSheet } from "react-native";
 import CustomTextInput from "../../components/Inputs/CustomTextInput";
@@ -15,6 +15,7 @@ import Loading from '../../components/Loading'
 import CustomPhoneInput from "../../components/Inputs/CustomPhoneInput";
 import CustomTextInputMultiline from "../../components/Inputs/CustomTextInputMultiline";
 import { CustomSelect } from "../../components/Inputs/CustomSelect";
+import axios from "axios";
 const MechanicRegister = () => {
   const dispatch = useDispatch();
   const {loading} = useSelector(state => state.auth)
@@ -29,6 +30,43 @@ const MechanicRegister = () => {
   } = useForm({
     defaultValues: {},
   });
+
+  const [regions, setRegions] = useState([]);
+  const [provinces, setProvinces] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [barangays, setBarangays] = useState([]);
+  const [selectedRegion, setSelectedRegion] = useState(null);
+  const [selectedProvince, setSelectedProvince] = useState(null);
+  const [selectedCity, setSelectedCity] = useState(null);
+  const [selectedBarangay, setSelectedBarangay] = useState(null);
+
+
+  useEffect(() => {
+    axios.get('https://isaacdarcilla.github.io/philippine-addresses/region.json')
+      .then(response => setRegions(response.data));
+  }, []);
+
+  const fetchProvinces = () => {
+    if (selectedRegion) {
+      axios.get('https://isaacdarcilla.github.io/philippine-addresses/province.json')
+        .then(response => setProvinces(response.data));
+    }
+  };
+
+  const fetchCities = () => {
+    if (selectedProvince) {
+      axios.get('https://isaacdarcilla.github.io/philippine-addresses/city.json')
+        .then(response => setCities(response.data));
+    }
+  };
+
+  const fetchBarangays = () => {
+    if (selectedCity) {
+      axios.get('https://isaacdarcilla.github.io/philippine-addresses/barangay.json')
+        .then(response => setBarangays(response.data));
+    }
+  };
+
 
   const onSubmit = async (data) => {
     const formdata = new FormData();
@@ -189,6 +227,46 @@ const MechanicRegister = () => {
             setValue={setValue}
             isFull={true}
             /> */}
+            <CustomSelect
+              my={8}
+              label="Region"
+              placeholder="Select Region"
+              options={regions}
+              value={selectedRegion}
+              setValue={setSelectedRegion}
+              fetchData={fetchProvinces}
+              optionKey="region_name" // Adjust based on your API response
+            />
+            <CustomSelect
+              my={8}
+              label="Province"
+              placeholder="Select Province"
+              options={provinces}
+              value={selectedProvince}
+              setValue={setSelectedProvince}
+              fetchData={fetchCities}
+              optionKey="province_name" // Adjust based on your API response
+            />
+            <CustomSelect
+              my={8}
+              label="City"
+              placeholder="Select City"
+              options={cities}
+              value={selectedCity}
+              setValue={setSelectedCity}
+              fetchData={fetchBarangays}
+              optionKey="city_name" // Adjust based on your API response
+            />
+            <CustomSelect
+              my={8}
+              label="Barangay"
+              placeholder="Select Barangay"
+              options={barangays}
+              value={selectedBarangay}
+              setValue={setSelectedBarangay}
+              optionKey="barangay_name" // Adjust based on your API response
+            />
+
             <CustomTextInput
               control={control}
               errors={errors}

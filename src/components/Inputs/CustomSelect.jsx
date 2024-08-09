@@ -7,12 +7,7 @@ import {
   Text,
   IndexPath,
 } from "@ui-kitten/components";
-import {
-  getRegions,
-  getProvincesByRegion,
-  getCitiesByProvince,
-  getBarangaysByCity,
-} from "select-philippines-address";
+import axios from "axios";
 
 export const CustomSelect = ({
   my,
@@ -22,10 +17,17 @@ export const CustomSelect = ({
   options,
   value,
   setValue,
+  fetchData,
+  loading,
+  optionKey = 'name' // Default to 'name' if key is not provided
 }) => {
   const [selectedIndex, setSelectedIndex] = useState(new IndexPath(0));
 
-  const displayValue = options[selectedIndex.row];
+  const displayValue = options[selectedIndex.row] ? options[selectedIndex.row][optionKey] : '';
+
+  useEffect(() => {
+    if (fetchData) fetchData();
+  }, [fetchData]);
 
   return (
     <Select
@@ -38,21 +40,20 @@ export const CustomSelect = ({
       label={() => (
         <Text category="label" style={{ color: "#009688" }}>
           {label}{" "}
-          <Text style={{ color: "#DC3545" }}>{isRequired ? "*" : null}</Text>
+          <Text style={{ color: "red" }}>{isRequired ? "*" : null}</Text>
         </Text>
       )}
       value={displayValue}
       selectedIndex={selectedIndex}
       onSelect={(index) => {
         setSelectedIndex(index);
-        setValue(index.row);
+        setValue(options[index.row]);
       }}
+      disabled={loading}
     >
-      {options.map((item, index) => {
-        return <SelectItem key={index} title={item} />;
-      })}
+      {options.map((item, index) => (
+        <SelectItem key={index} title={item[optionKey]} />
+      ))}
     </Select>
   );
 };
-
-const styles = StyleSheet.create({});
