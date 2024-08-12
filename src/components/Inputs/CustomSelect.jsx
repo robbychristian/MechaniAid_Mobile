@@ -27,7 +27,7 @@ export const CustomSelect = ({
 
   return (
     <View style={{ width: "100", marginVertical: my }}>
-      <Text category="label" style={{ color: "#009688", marginBottom: 5 }}>
+      <Text category="label" style={{ color: "gray", marginBottom: 5 }}>
         {label}{" "}
         <Text style={{ color: "#DC3545" }}>{isRequired ? "*" : null}</Text>
       </Text>

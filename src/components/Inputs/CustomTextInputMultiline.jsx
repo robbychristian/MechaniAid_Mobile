@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
     borderColor: "#E4E9F2",
-    borderRadius: 15,
+    // borderRadius: 15,
 
   },
   focusedInput: {

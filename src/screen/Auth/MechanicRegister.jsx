@@ -29,6 +29,9 @@ const MechanicRegister = () => {
   const [page, setPage] = useState(1);
   const [fileUpload, setFileUpload] = useState(null);
   const [displayFileUpload, setDisplayFileUpload] = useState(null);
+
+  const [validIdUpload, setValidIdUpload] = useState(null);
+  const [displayValidIdUpload, setDisplayValidIdUpload] = useState(null);
   const {
     control,
     handleSubmit,
@@ -144,6 +147,12 @@ const MechanicRegister = () => {
     const result = await DocumentPicker.getDocumentAsync({});
     setFileUpload(result.assets[0]);
     setDisplayFileUpload(result.assets[0].uri);
+  };
+
+  const uploadValidId = async () => {
+    const result = await DocumentPicker.getDocumentAsync({});
+    setValidIdUpload(result.assets[0]);
+    setDisplayValidIdUpload(result.assets[0].uri);
   };
 
   return (
@@ -307,43 +316,6 @@ const MechanicRegister = () => {
               setValue={setSelectedBarangay}
               disabled={!selectedCity}
             />
-
-            <CustomTextInput
-              control={control}
-              errors={errors}
-              label={`Region`}
-              message={`Region is required`}
-              my={5}
-              name={`region`}
-              rules={{ required: true }}
-            />
-            <CustomTextInput
-              control={control}
-              errors={errors}
-              label={`State`}
-              message={`State is required`}
-              my={5}
-              name={`state`}
-              rules={{ required: true }}
-            />
-            <CustomTextInput
-              control={control}
-              errors={errors}
-              label={`City`}
-              message={`City is required`}
-              my={5}
-              name={`city`}
-              rules={{ required: true }}
-            />
-            <CustomTextInput
-              control={control}
-              errors={errors}
-              label={`Barangay`}
-              message={`Barangay is required`}
-              my={5}
-              name={`barangay`}
-              rules={{ required: true }}
-            />
             <CustomTextInput
               control={control}
               errors={errors}
@@ -354,6 +326,70 @@ const MechanicRegister = () => {
               rules={{ required: true }}
             />
             <Text style={styles.title}>Documents</Text>
+            <View>
+              <Text>Valid ID</Text>
+              <View
+                style={{
+                  borderWidth: 1,
+                  borderColor: "#ddd",
+                  padding: 10,
+                  borderRadius: 10,
+                  justifyContent: "center",
+                  alignItems: "flex-start",
+                  width: "100%",
+                }}
+              >
+                <Button
+                onPress={uploadValidId}
+                  style={{
+                    width: "40%",
+                    padding: 10,
+                    borderRadius: 10,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: "#ddd", // Set background to transparent or desired color
+                    borderWidth: 1,
+                    borderColor: "#ddd", // Make it match the parent view
+                  }}
+                > Choose File
+                </Button>
+                {validIdUpload !== null ? (
+                    <Image
+                      source={{ uri: displayValidIdUpload }}
+                      style={{ height: "100%", width: "100%", borderRadius: 100 }}
+                      />
+                  ) : (<Text> No File Choosen </Text> )}
+                  
+              </View>
+              <Text>Professional Certificate</Text>
+              <View
+                style={{
+                  borderWidth: 1,
+                  borderColor: "#ddd",
+                  padding: 10,
+                  borderRadius: 10,
+                  justifyContent: "center",
+                  alignItems: "flex-start",
+                  width: "100%",
+                }}
+              >
+                <Button
+                  style={{
+                    width: "40%",
+                    padding: 10,
+                    borderRadius: 10,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: "#ddd", // Set background to transparent or desired color
+                    borderWidth: 1,
+                    borderColor: "#ddd", // Make it match the parent view
+                  }}
+                >
+                  Choose File
+                </Button>
+              </View>
+            </View>
+
             <Text style={styles.title}>Account Information</Text>
             <CustomTextInput
               control={control}

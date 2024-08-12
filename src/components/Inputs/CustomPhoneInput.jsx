@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   input: {
     height: 68,
     width: 235,
-    borderRadius: 15,
+    // borderRadius: 15,
     paddingVertical: 16,
   },
   focusedInput: {
