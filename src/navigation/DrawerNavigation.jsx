@@ -11,6 +11,7 @@ import AcceptBooking from "../screen/Booking/AcceptBooking";
 import Payment from "../screen/Payment/Payment";
 import BookingDetails from "../screen/Booking/BookingDetails";
 import BookingPayment from "../screen/Payment/BookingPayment";
+import BookingHistory from "../screen/Booking/BookingHistory";
 import Booking from "../screen/Booking/Booking";
 
 const DrawerStack = createDrawerNavigator();
@@ -48,7 +49,7 @@ const DrawerNavigation = () => {
       drawerContent={(props) => <DrawerContent {...props} />}
       screenOptions={{
         headerStyle: {
-          backgroundColor: "#A02828",
+          backgroundColor: "#EF4444",
         },
         headerTitleStyle: {
           color: "#fff",
@@ -63,6 +64,7 @@ const DrawerNavigation = () => {
       <DrawerStack.Screen name="Chat" component={Chat} />
       <DrawerStack.Screen name="AcceptBooking" component={AcceptBooking} />
       <DrawerStack.Screen name="Payment" component={Payment} />
+      <DrawerStack.Screen name="BookingHistory" component={BookingHistory} />
       <DrawerStack.Screen name="BookingDetails" component={BookingDetails} />
       <DrawerStack.Screen name="BookingPayment" component={BookingPayment} />
       <DrawerStack.Screen name="Booking" component={Booking} />
