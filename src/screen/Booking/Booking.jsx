@@ -19,7 +19,17 @@ const Booking = () => {
   const [isBooking, setIsBooking] = useState(false)
   const [isSearching, setIsSearching] = useState(false)
   const [nearbySearch, setNearbySearch] = useState([])
+  
+  const { service_type, vehicle_type, vehicle_name, mode_of_payment } = route.params;
 
+  // Log the data received from the previous screen
+  console.log("Received data on Booking screen:", {
+    service_type,
+    vehicle_type,
+    vehicle_name,
+    mode_of_payment
+  });
+  
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', async () => {
       let loc = await Location.getCurrentPositionAsync({});

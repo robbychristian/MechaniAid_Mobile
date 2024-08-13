@@ -1,25 +1,48 @@
-import React from "react";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import React, { useState } from "react";
+import { useNavigation } from "@react-navigation/native";
 import { Button, Text } from "@ui-kitten/components";
 import { View, StyleSheet, Image, ScrollView } from "react-native";
 import { useForm } from "react-hook-form";
 import { IconButton, Card } from "react-native-paper";
 import CustomTextInput from "../../components/Inputs/CustomTextInput";
-import { Ionicons } from "@expo/vector-icons"; // Import Ionicons from expo vector icons
+import CustomMultiSelect from "../../components/Inputs/CustomMultiSelect";
+import CustomSimpleSelect from "../../components/Inputs/CustomSimpleSelect";
+
+import { Ionicons } from "@expo/vector-icons";
 
 const BookingDetails = () => {
   const {
     control,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm();
-  
+
   const navigation = useNavigation();
-  const route = useRoute();
+
+  const serviceOptions = [
+    { title: "Oil Change", value: "oil_change" },
+    { title: "Tire Replacement", value: "tire_replacement" },
+    { title: "Brake Inspection", value: "brake_inspection" },
+    { title: "Other", value: "other" },
+  ];
+
+  const vehicleTypes = [
+    { title: "Car", valueType: "Car" },
+    { title: "Motorcycle", valueType: "Motorcycle" },
+  ];
+
+  const paymentMethods = [
+    { title: "Cash", valueType: "Cash" },
+    { title: "Cashless", valueType: "Cashless" },
+  ];
 
   const onSubmit = (data) => {
     navigation.navigate("Booking", {
       service_type: data.service_type,
+      vehicle_type: data.vehicle_type,
+      vehicle_name: data.vehicle_name,
+      mode_of_payment: data.mode_of_payment
     });
   };
 
@@ -41,37 +64,65 @@ const BookingDetails = () => {
         />
 
         <Card style={styles.card}>
-         
-        <CustomTextInput
-              control={control}
-              errors={errors}
-              label={`Service Type`}
-              message={`Service Type is required`}
-              my={5}
-              name={`service_type`}
-              rules={{ required: true }}
-            />
-         
+          <CustomMultiSelect
+            control={control}
+            errors={errors}
+            label={`Service Type`}
+            message={`Please select at least one service`}
+            my={5}
+            name={`service_type`}
+            options={serviceOptions}
+            rules={{ required: true }}
+            isFull={true}
+          />
+
+          <CustomSimpleSelect
+            control={control}
+            errors={errors}
+            label={`Vehicle Type`}
+            message={`Please select a vehicle type`}
+            my={5}
+            name={`vehicle_type`}
+            options={vehicleTypes}
+            rules={{ required: true }}
+            isFull={true}
+          />
+
+          <CustomTextInput
+            control={control}
+            errors={errors}
+            label={`Vehicle Name`}
+            message={`Vehicle Name is required`}
+            my={5}
+            name={`vehicle_name`}
+            rules={{ required: true }}
+          />
+
+          <CustomSimpleSelect
+            control={control}
+            errors={errors}
+            label={`Payment Method`}
+            message={`Please select a payment method`}
+            my={5}
+            name={`mode_of_payment`}
+            rules={{ required: true }}
+            options={paymentMethods}
+            isFull={true}
+          />
+
           <Text style={styles.hintText}>
-            * Initial cost of booking a mechanic is P100 and may vary depending on the problem assessed by the mechanic.
+            * Initial cost of booking a mechanic is P100 and may vary depending
+            on the problem assessed by the mechanic.
           </Text>
         </Card>
-
-        {/* <Button
-          onPress={handleSubmit(onSubmit)}
-          style={styles.completeButton}
-        >
-          COMPLETE BOOKING
-        </Button> */}
 
         <Button
           appearance="filled"
           style={styles.buttonStyle}
           onPress={handleSubmit(onSubmit)}
         >
-         {() => <Text style={styles.textStyle}>PROCEED</Text>}
+          {() => <Text style={styles.textStyle}>PROCEED</Text>}
         </Button>
-
       </View>
     </ScrollView>
   );
@@ -126,13 +177,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#8f9bb3",
   },
-  completeButton: {
-    backgroundColor: "#A02828",
-    borderColor: "#A02828",
-    paddingVertical: 10,
-    marginTop: 20,
-    borderRadius: 10,
-  },
   backButton: {
     padding: 0,
   },
@@ -146,10 +190,10 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     paddingVertical: 15,
   },
-  textStyle: { 
-    fontFamily: "Nunito-Bold",  
-    fontSize: 20, 
-    color: "#fff" 
+  textStyle: {
+    fontFamily: "Nunito-Bold",
+    fontSize: 20,
+    color: "#fff",
   },
 });
 
