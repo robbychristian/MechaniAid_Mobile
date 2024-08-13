@@ -32,6 +32,9 @@ const MechanicRegister = () => {
 
   const [validIdUpload, setValidIdUpload] = useState(null);
   const [displayValidIdUpload, setDisplayValidIdUpload] = useState(null);
+  const [professionalCertUpload, setProfessionalCertUpload] = useState(null);
+  const [displayProfessionalCertUpload, setDisplayProfessionalCertUpload] =
+    useState(null);
   const {
     control,
     handleSubmit,
@@ -119,6 +122,16 @@ const MechanicRegister = () => {
       type: "multipart/form-data",
       name: fileUpload.name,
     };
+    const newValidId = {
+      uri: validIdUpload.uri,
+      type: "multipart/form-data",
+      name: validIdUpload.name,
+    };
+    const newProfessionalCert = {
+      uri: professionalCertUpload.uri,
+      type: "multipart/form-data",
+      name: professionalCertUpload.name,
+    };  
     for (const key in data) {
       if (data.hasOwnProperty(key)) {
         if (key == "bday") {
@@ -129,6 +142,8 @@ const MechanicRegister = () => {
       }
     }
     formdata.append("customers_profile_pic", newFile);
+    formdata.append("valid_id", newValidId);
+    formdata.append("certificate", newProfessionalCert);
     try {
       const response = await dispatch(registerUser(formdata));
       if (response.type == "auth/register/fulfilled") {
@@ -153,6 +168,12 @@ const MechanicRegister = () => {
     const result = await DocumentPicker.getDocumentAsync({});
     setValidIdUpload(result.assets[0]);
     setDisplayValidIdUpload(result.assets[0].uri);
+  };
+
+  const uploadProfessionalCert = async () => {
+    const result = await DocumentPicker.getDocumentAsync({});
+    setProfessionalCertUpload(result.assets[0]);
+    setDisplayProfessionalCertUpload(result.assets[0].uri);
   };
 
   return (
@@ -327,66 +348,39 @@ const MechanicRegister = () => {
             />
             <Text style={styles.title}>Documents</Text>
             <View>
-              <Text>Valid ID</Text>
+              <Text style={{ fontFamily: "Nunito-SemiBold", fontSize: 12, marginVertical: 5 }}>Valid ID</Text>
               <View
-                style={{
-                  borderWidth: 1,
-                  borderColor: "#ddd",
-                  padding: 10,
-                  borderRadius: 10,
-                  justifyContent: "center",
-                  alignItems: "flex-start",
-                  width: "100%",
-                }}
+                style={styles.uploadButtonContainer}
               >
                 <Button
                 onPress={uploadValidId}
-                  style={{
-                    width: "40%",
-                    padding: 10,
-                    borderRadius: 10,
-                    justifyContent: "center",
-                    alignItems: "center",
-                    backgroundColor: "#ddd", // Set background to transparent or desired color
-                    borderWidth: 1,
-                    borderColor: "#ddd", // Make it match the parent view
-                  }}
+                  style={styles.uploadButton}
                 > Choose File
                 </Button>
                 {validIdUpload !== null ? (
                     <Image
                       source={{ uri: displayValidIdUpload }}
-                      style={{ height: "100%", width: "100%", borderRadius: 100 }}
+                      style={{ alignSelf: "center", height: "115%", width: "25%", borderRadius: 5 }}
                       />
-                  ) : (<Text> No File Choosen </Text> )}
+                  ) : (<Text style={{ fontFamily: "Nunito-SemiBold", fontSize: 16, marginTop: 10 }}> No File Choosen </Text> )}
                   
               </View>
-              <Text>Professional Certificate</Text>
+              <Text style={{ fontFamily: "Nunito-SemiBold", fontSize: 12, marginVertical: 5 }}>Professional Certificate</Text>
               <View
-                style={{
-                  borderWidth: 1,
-                  borderColor: "#ddd",
-                  padding: 10,
-                  borderRadius: 10,
-                  justifyContent: "center",
-                  alignItems: "flex-start",
-                  width: "100%",
-                }}
+                style={styles.uploadButtonContainer}
               >
                 <Button
-                  style={{
-                    width: "40%",
-                    padding: 10,
-                    borderRadius: 10,
-                    justifyContent: "center",
-                    alignItems: "center",
-                    backgroundColor: "#ddd", // Set background to transparent or desired color
-                    borderWidth: 1,
-                    borderColor: "#ddd", // Make it match the parent view
-                  }}
-                >
-                  Choose File
+                onPress={uploadProfessionalCert}
+                  style={styles.uploadButton}
+                > Choose File
                 </Button>
+                {professionalCertUpload !== null ? (
+                    <Image
+                      source={{ uri: displayProfessionalCertUpload }}
+                      style={{ alignSelf: "center", height: "140%", width: "25%", borderRadius: 5 }}
+                      />
+                  ) : (<Text style={{ fontFamily: "Nunito-SemiBold", fontSize: 16, marginTop: 10 }}> No File Choosen </Text> )}
+                  
               </View>
             </View>
 
@@ -487,5 +481,25 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: "#fff",
   },
+  uploadButtonContainer: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    padding: 10,
+    borderRadius: 10,
+    alignItems: "flex-start",
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  uploadButton: 
+  {
+    width: "40%",
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: "#ddd", 
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+
 });
 export default MechanicRegister;
