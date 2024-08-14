@@ -24,7 +24,7 @@ const ChatCard = ({item, onPress}) => {
       <View style={{ justifyContent: "center", marginLeft: 10 }}>
         <Text category="h6">{user.id == item.user_2 ? `${item.user1.first_name} ${item.user1.last_name}` : `${item.user2.first_name} ${item.user2.last_name}`}</Text>
         {/* <Text category="h6">{item.user_1}</Text> */}
-        <Text category="c1">{item.messages[0].message}</Text>
+        {/* <Text category="c1">{item.messages[0].message}</Text> */}
       </View>
     </TouchableOpacity>
   );

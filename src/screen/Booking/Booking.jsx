@@ -21,6 +21,7 @@ const Booking = () => {
   const [nearbySearch, setNearbySearch] = useState([])
 
   useEffect(() => {
+    // console.log(route.params.service_type)
     const unsubscribe = navigation.addListener('focus', async () => {
       let loc = await Location.getCurrentPositionAsync({});
       setLocation(loc.coords);
@@ -50,6 +51,15 @@ const Booking = () => {
   }, [navigation]);
 
   const bookNow = () => {
+    // console.log({
+    //   user_id: user.id,
+    //   first_name: user.first_name,
+    //   middle_name: user.middle_name,
+    //   last_name: user.last_name,
+    //   longitude: location.longitude,
+    //   latitude: location.latitude,
+    //   service_type: route.params.service_type,
+    // })
     api.post('startbooking', {
       user_id: user.id,
       first_name: user.first_name,

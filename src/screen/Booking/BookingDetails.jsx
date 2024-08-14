@@ -42,7 +42,7 @@ const BookingDetails = () => {
         </Text>
       </View>
       <View style={{ paddingVertical: 10 }}>
-        <Button onPress={handleSubmit(onSubmit)} style={{ backgroundColor: "#A02828", borderColor: "#A02828" }}>COMPLETE BOOKING</Button>
+        <Button onPress={handleSubmit(onSubmit)} style={{ backgroundColor: "#A02828", borderColor: "#A02828" }}>BOOKING NOW</Button>
       </View>
     </View>
   );

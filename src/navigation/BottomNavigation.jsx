@@ -6,6 +6,7 @@ import ProductList from "../screen/Market/ProductList";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import ChatList from "../screen/Chat/ChatList";
 import BookingDetails from "../screen/Booking/BookingDetails";
+import { useSelector } from "react-redux";
 
 const AlbumsRoute = () => <Text>Albums</Text>;
 
@@ -49,6 +50,7 @@ const CustomTabBar = () => {
 };
 
 const BottomNav = () => {
+  const {user} = useSelector(state => state.auth)
   return (
     <BottomTab.Navigator screenOptions={({ route }) => ({
       headerShown: false,
@@ -89,7 +91,11 @@ const BottomNav = () => {
       <BottomTab.Screen name="Home" component={Home} />
       <BottomTab.Screen name="Market" component={ProductList} />
       <BottomTab.Screen name="ChatList" component={ChatList} options={{ tabBarLabel: "Chat" }} />
-      <BottomTab.Screen name="BookingDetails" component={BookingDetails} options={{ tabBarLabel: "Booking" }} />
+      {user.user_role == 3 ? (
+        <BottomTab.Screen name="BookingDetails" component={BookingDetails} options={{ tabBarLabel: "Booking" }} />
+      ) : (
+        <BottomTab.Screen name="BookingDetails" component={Booking} options={{ tabBarLabel: "Booking" }} />
+      )}
     </BottomTab.Navigator>
   );
 };

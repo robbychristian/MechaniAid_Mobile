@@ -12,6 +12,7 @@ import Payment from "../screen/Payment/Payment";
 import BookingDetails from "../screen/Booking/BookingDetails";
 import BookingPayment from "../screen/Payment/BookingPayment";
 import Booking from "../screen/Booking/Booking";
+import Profile from "../screen/Auth/Profile";
 
 const DrawerStack = createDrawerNavigator();
 
@@ -21,13 +22,14 @@ const DrawerContent = ({ navigation, state }) => {
     <Drawer
       selectedIndex={new IndexPath(state.index)}
       onSelect={(index) => {
-        if (index != 2) {
+        if (index != 3) {
           navigation.navigate(state.routeNames[index.row]);
         }
       }}
       style={{ marginTop: 50 }}
     >
       <DrawerItem title={`Home`} />
+      <DrawerItem title={`Profile`} />
       <DrawerItem
         title={`Logout`}
         onPress={async () => {
@@ -59,6 +61,7 @@ const DrawerNavigation = () => {
       }}
     >
       <DrawerStack.Screen name="BottomNav" component={BottomNav} />
+      <DrawerStack.Screen name="Profile" component={Profile} />
       <DrawerStack.Screen name="Product" component={Product} />
       <DrawerStack.Screen name="Chat" component={Chat} />
       <DrawerStack.Screen name="AcceptBooking" component={AcceptBooking} />

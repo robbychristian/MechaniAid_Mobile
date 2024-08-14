@@ -41,6 +41,32 @@ export const registerUser = createAsyncThunk(
   },
 );
 
+export const updatePersonalInformation = createAsyncThunk(
+  'auth/updatepersonalinformation',
+  async (inputs, {rejectWithValue}) => {
+    try {
+      const response = await api.post('updatepersonalinformation', inputs)
+      return response.data
+    } catch (err) {
+      console.log(err.response)
+      return rejectWithValue(err.response)
+    }
+  }
+)
+
+export const updateAddressInformation = createAsyncThunk(
+  'auth/updateaddressinformation',
+  async (inputs, {rejectWithValue}) => {
+    try {
+      const response = await api.post('updateaddressinformation', inputs)
+      return response.data
+    } catch (err) {
+      console.log(err.response)
+      return rejectWithValue(err.response)
+    }
+  }
+)
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -67,6 +93,26 @@ const authSlice = createSlice({
     builder.addCase(registerUser.rejected, (state, {payload}) => {
       state.loading = false;
     });
+    builder.addCase(updatePersonalInformation.pending, state => {
+      state.loading = true
+    })
+    builder.addCase(updatePersonalInformation.fulfilled, (state, {payload}) => {
+      state.loading = false
+      state.user = payload
+    })
+    builder.addCase(updatePersonalInformation.rejected, (state, {payload}) => {
+      state.loading = false
+    })
+    builder.addCase(updateAddressInformation.pending, state => {
+      state.loading = true
+    })
+    builder.addCase(updateAddressInformation.fulfilled, (state, {payload}) => {
+      state.loading = false
+      state.user = payload
+    })
+    builder.addCase(updateAddressInformation.rejected, (state, {payload}) => {
+      state.loading = false
+    })
   },
 });
 
