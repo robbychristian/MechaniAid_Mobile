@@ -62,12 +62,14 @@ const DrawerNavigation = () => {
       <DrawerStack.Screen name="BottomNav" component={BottomNav} />
       <DrawerStack.Screen name="Product" component={Product} />
       <DrawerStack.Screen name="Chat" component={Chat} />
+      <DrawerStack.Screen name="BookingDetails" component={BookingDetails} />
+      <DrawerStack.Screen name="Booking" component={Booking} />
       <DrawerStack.Screen name="AcceptBooking" component={AcceptBooking} />
+      <DrawerStack.Screen name="BookingPayment" component={BookingPayment} />
       <DrawerStack.Screen name="Payment" component={Payment} />
       <DrawerStack.Screen name="BookingHistory" component={BookingHistory} />
-      <DrawerStack.Screen name="BookingDetails" component={BookingDetails} />
-      <DrawerStack.Screen name="BookingPayment" component={BookingPayment} />
-      <DrawerStack.Screen name="Booking" component={Booking} />
+      
+      
       {/* <DrawerStack.Screen
         name="Services"
         component={Services}

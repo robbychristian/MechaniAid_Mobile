@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Button, Text } from "@ui-kitten/components";
-import { View, StyleSheet, Image, ScrollView } from "react-native";
+import { View, StyleSheet, Image, ScrollView, BackHandler } from "react-native";
 import { useForm } from "react-hook-form";
 import { IconButton, Card } from "react-native-paper";
 import CustomTextInput from "../../components/Inputs/CustomTextInput";
@@ -45,6 +45,18 @@ const BookingDetails = () => {
       mode_of_payment: data.mode_of_payment
     });
   };
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        navigation.goBack();
+        return true; // Prevent default behavior
+      };
+
+      BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+      return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+    }, [navigation])
+  );
 
   return (
     <ScrollView style={styles.container}>

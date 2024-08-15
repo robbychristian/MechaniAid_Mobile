@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, } from "react";
 import MapView, { Circle, Marker } from "react-native-maps";
 import {
   Alert,
@@ -7,11 +7,12 @@ import {
   Animated,
   Easing,
   StyleSheet,
+  BackHandler
 } from "react-native";
 import { api } from "../../../config/api";
 import Loading from "../../components/Loading";
 import * as Location from "expo-location";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/native";
 import { Button, Text } from "@ui-kitten/components";
 import { useSelector } from "react-redux";
 import * as geolib from "geolib";
@@ -129,6 +130,20 @@ const Booking = () => {
     inputRange: [0, 1],
     outputRange: ["0deg", "360deg"],
   });
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        navigation.goBack();
+        return true; // Prevent default behavior
+      };
+
+      BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+      return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+    }, [navigation])
+  );
+
 
   const cancelBooking = () => {
     // setIsBooking(false);

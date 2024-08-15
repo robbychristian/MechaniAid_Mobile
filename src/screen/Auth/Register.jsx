@@ -1,5 +1,5 @@
 import { Button, Text } from "@ui-kitten/components";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { View, ScrollView, TouchableOpacity, Image, StyleSheet } from "react-native";
 import CustomTextInput from "../../components/Inputs/CustomTextInput";
@@ -13,6 +13,8 @@ import moment from "moment";
 import { IconButton } from "react-native-paper";
 import Loading from '../../components/Loading'
 import CustomPhoneInput from "../../components/Inputs/CustomPhoneInput";
+import { CustomSelect } from "../../components/Inputs/CustomSelect";
+import axios from 'axios'
 
 const Register = () => {
   const dispatch = useDispatch();
@@ -21,6 +23,79 @@ const Register = () => {
   const [page, setPage] = useState(1);
   const [fileUpload, setFileUpload] = useState(null);
   const [displayFileUpload, setDisplayFileUpload] = useState(null);
+
+  const [regions, setRegions] = useState([]);
+  const [provinces, setProvinces] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [barangays, setBarangays] = useState([]);
+
+  const [selectedRegion, setSelectedRegion] = useState(null);
+  const [selectedProvince, setSelectedProvince] = useState(null);
+  const [selectedCity, setSelectedCity] = useState(null);
+  const [selectedBarangay, setSelectedBarangay] = useState(null);
+
+  useEffect(() => {
+    axios
+      .get("https://isaacdarcilla.github.io/philippine-addresses/region.json")
+      .then((response) => setRegions(response.data));
+  }, []);
+
+  useEffect(() => {
+    if (selectedRegion) {
+      axios
+        .get(
+          "https://isaacdarcilla.github.io/philippine-addresses/province.json"
+        )
+        .then((response) =>
+          setProvinces(
+            response.data.filter(
+              (p) => p.region_code === selectedRegion.region_code
+            )
+          )
+        );
+      setSelectedProvince(null); // Reset selected province
+      setSelectedCity(null); // Reset selected city
+      setSelectedBarangay(null); // Reset selected barangay
+    } else {
+      setProvinces([]);
+    }
+  }, [selectedRegion]);
+
+  useEffect(() => {
+    if (selectedProvince) {
+      axios
+        .get("https://isaacdarcilla.github.io/philippine-addresses/city.json")
+        .then((response) =>
+          setCities(
+            response.data.filter(
+              (c) => c.province_code === selectedProvince.province_code
+            )
+          )
+        );
+      setSelectedCity(null); // Reset selected city
+      setSelectedBarangay(null); // Reset selected barangay
+    } else {
+      setCities([]);
+    }
+  }, [selectedProvince]);
+
+  useEffect(() => {
+    if (selectedCity) {
+      axios
+        .get(
+          "https://isaacdarcilla.github.io/philippine-addresses/barangay.json"
+        )
+        .then((response) =>
+          setBarangays(
+            response.data.filter((b) => b.city_code === selectedCity.city_code)
+          )
+        );
+      setSelectedBarangay(null); // Reset selected barangay
+    } else {
+      setBarangays([]);
+    }
+  }, [selectedCity]);
+
   const {
     control,
     handleSubmit,
@@ -169,41 +244,52 @@ const Register = () => {
             >
               Address Information
             </Text>
-            <CustomTextInput
-              control={control}
-              errors={errors}
-              label={`Region`}
-              message={`Region is required`}
+            <CustomSelect
               my={5}
-              name={`region`}
-              rules={{ required: true }}
+              label="Region"
+              placeholder="Select Region"
+              options={regions.map((region) => ({
+                value: region.region_name,
+                ...region,
+              }))}
+              value={selectedRegion}
+              setValue={setSelectedRegion}
             />
-            <CustomTextInput
-              control={control}
-              errors={errors}
-              label={`State`}
-              message={`State is required`}
+            <CustomSelect
               my={5}
-              name={`state`}
-              rules={{ required: true }}
+              label="Province"
+              placeholder="Select Province"
+              options={provinces.map((province) => ({
+                value: province.province_name,
+                ...province,
+              }))}
+              value={selectedProvince}
+              setValue={setSelectedProvince}
+              disabled={!selectedRegion}
             />
-            <CustomTextInput
-              control={control}
-              errors={errors}
-              label={`City`}
-              message={`City is required`}
+            <CustomSelect
               my={5}
-              name={`city`}
-              rules={{ required: true }}
+              label="City"
+              placeholder="Select City"
+              options={cities.map((city) => ({
+                value: city.city_name,
+                ...city,
+              }))}
+              value={selectedCity}
+              setValue={setSelectedCity}
+              disabled={!selectedProvince}
             />
-            <CustomTextInput
-              control={control}
-              errors={errors}
-              label={`Barangay`}
-              message={`Barangay is required`}
+            <CustomSelect
               my={5}
-              name={`barangay`}
-              rules={{ required: true }}
+              label="Barangay"
+              placeholder="Select Barangay"
+              options={barangays.map((barangay) => ({
+                value: barangay.brgy_name,
+                ...barangay,
+              }))}
+              value={selectedBarangay}
+              setValue={setSelectedBarangay}
+              disabled={!selectedCity}
             />
             <CustomTextInput
               control={control}
