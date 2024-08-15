@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Image, ScrollView, TouchableOpacity, View } from "react-native";
 import { Button, Text } from "@ui-kitten/components";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,6 +21,7 @@ const Profile = () => {
     control: controlPersonal,
     handleSubmit: handleSubmitPersonal,
     formState: { errors: errorsPersonal },
+    setValue,
   } = useForm({ defaultValues: {} });
 
   const {
@@ -85,6 +86,23 @@ const Profile = () => {
         Toast.error("There was a problem updating your account!")
     }
   }
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      setValue('fname', user.first_name)
+      setValue('mname', user.middle_name)
+      setValue('lname', user.last_name)
+      setValue('phone', user.user_role === 3 ? user.customers != undefined && user.customers.phone : user.mechanics !== undefined && user.mechanics.phone)
+    })
+    setValue('fname', user.first_name)
+    setValue('mname', user.middle_name)
+    setValue('lname', user.last_name)
+    setValue('phone', user.user_role === 3 ? user.customers != undefined && user.customers.phone : user.mechanics !== undefined && user.mechanics.phone)
+    // setValue('bday', moment(user.birth_day))
+
+    return unsubscribe
+  }, [navigation])
+  
 
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
