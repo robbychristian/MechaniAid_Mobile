@@ -1,51 +1,200 @@
-import { useNavigation, useRoute } from "@react-navigation/native";
+import React, { useState } from "react";
+import { useNavigation } from "@react-navigation/native";
 import { Button, Text } from "@ui-kitten/components";
-import React from "react";
-import { View } from "react-native";
-import CustomTextInput from "../../components/Inputs/CustomTextInput";
+import { View, StyleSheet, Image, ScrollView } from "react-native";
 import { useForm } from "react-hook-form";
+import { IconButton, Card } from "react-native-paper";
+import CustomTextInput from "../../components/Inputs/CustomTextInput";
+import CustomMultiSelect from "../../components/Inputs/CustomMultiSelect";
+import CustomSimpleSelect from "../../components/Inputs/CustomSimpleSelect";
+
+import { Ionicons } from "@expo/vector-icons";
 
 const BookingDetails = () => {
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm({
-    defaultValues: {},
-  });
-  const route = useRoute();
+    watch,
+  } = useForm();
+
   const navigation = useNavigation();
+
+  const serviceOptions = [
+    { title: "Oil Change", value: "oil_change" },
+    { title: "Tire Replacement", value: "tire_replacement" },
+    { title: "Brake Inspection", value: "brake_inspection" },
+    { title: "Other", value: "other" },
+  ];
+
+  const vehicleTypes = [
+    { title: "Car", valueType: "Car" },
+    { title: "Motorcycle", valueType: "Motorcycle" },
+  ];
+
+  const paymentMethods = [
+    { title: "Cash", valueType: "Cash" },
+    { title: "Cashless", valueType: "Cashless" },
+  ];
 
   const onSubmit = (data) => {
     navigation.navigate("Booking", {
-      service_type: data.service_type
-    })
-  }
+      service_type: data.service_type,
+      vehicle_type: data.vehicle_type,
+      vehicle_name: data.vehicle_name,
+      mode_of_payment: data.mode_of_payment
+    });
+  };
 
   return (
-    <View style={{ width: "100%", paddingVertical: 10, paddingHorizontal: 15 }}>
-      <View style={{ paddingBottom: 10 }}>
-        <Text category="h5" style={{ color: "rgb(153 29 29)" }}>
-          Booking Details
-        </Text>
-        <CustomTextInput
-          control={control}
-          errors={errors}
-          label={`Service Type`}
-          message={`Service Type is required`}
-          name={`service_type`}
-          rules={{ required: true }}
+    <ScrollView style={styles.container}>
+      <View style={styles.innerContainer}>
+        <View style={styles.headerContainer}>
+          <IconButton
+            icon={() => <Ionicons name="arrow-back" size={30} color="black" />}
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
+          />
+          <Text style={styles.title}>Booking Details</Text>
+        </View>
+        <Text style={styles.subtitle}>What should we fix today?</Text>
+        <Image
+          source={require("../../../assets/repair.png")}
+          style={styles.image}
         />
-        <Text category="c2" appearance="hint">
-          * Initial cost of booking a mechanic is P100 and would vary depending
-          on the problem issued by the mechanic
-        </Text>
+
+        <Card style={styles.card}>
+          <CustomMultiSelect
+            control={control}
+            errors={errors}
+            label={`Service Type`}
+            message={`Please select at least one service`}
+            my={5}
+            name={`service_type`}
+            options={serviceOptions}
+            rules={{ required: true }}
+            isFull={true}
+          />
+
+          <CustomSimpleSelect
+            control={control}
+            errors={errors}
+            label={`Vehicle Type`}
+            message={`Please select a vehicle type`}
+            my={5}
+            name={`vehicle_type`}
+            options={vehicleTypes}
+            rules={{ required: true }}
+            isFull={true}
+          />
+
+          <CustomTextInput
+            control={control}
+            errors={errors}
+            label={`Vehicle Name`}
+            message={`Vehicle Name is required`}
+            my={5}
+            name={`vehicle_name`}
+            rules={{ required: true }}
+          />
+
+          <CustomSimpleSelect
+            control={control}
+            errors={errors}
+            label={`Payment Method`}
+            message={`Please select a payment method`}
+            my={5}
+            name={`mode_of_payment`}
+            rules={{ required: true }}
+            options={paymentMethods}
+            isFull={true}
+          />
+
+          <Text style={styles.hintText}>
+            * Initial cost of booking a mechanic is P100 and may vary depending
+            on the problem assessed by the mechanic.
+          </Text>
+        </Card>
+
+        <Button
+          appearance="filled"
+          style={styles.buttonStyle}
+          onPress={handleSubmit(onSubmit)}
+        >
+          {() => <Text style={styles.textStyle}>PROCEED</Text>}
+        </Button>
       </View>
-      <View style={{ paddingVertical: 10 }}>
-        <Button onPress={handleSubmit(onSubmit)} style={{ backgroundColor: "#A02828", borderColor: "#A02828" }}>BOOKING NOW</Button>
-      </View>
-    </View>
+    </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    width: "100%",
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+  },
+  innerContainer: {
+    paddingBottom: 100,
+  },
+  headerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingBottom: 10,
+  },
+  title: {
+    fontFamily: "Nunito-Bold",
+    fontSize: 30,
+    marginLeft: 10,
+  },
+  subtitle: {
+    fontFamily: "Nunito-Light",
+    fontSize: 15,
+    marginVertical: 5,
+  },
+  image: {
+    width: 200,
+    height: 200,
+    alignSelf: "center",
+    marginVertical: 25,
+  },
+  card: {
+    width: "100%",
+    padding: 15,
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    borderRadius: 10,
+  },
+  hintText: {
+    marginTop: 10,
+    fontSize: 12,
+    color: "#8f9bb3",
+  },
+  backButton: {
+    padding: 0,
+  },
+  buttonStyle: {
+    width: "80%",
+    alignSelf: "center",
+    marginVertical: 10,
+    marginTop: 50,
+    borderColor: "#EF4141",
+    backgroundColor: "#EF4141",
+    borderRadius: 50,
+    paddingVertical: 15,
+  },
+  textStyle: {
+    fontFamily: "Nunito-Bold",
+    fontSize: 20,
+    color: "#fff",
+  },
+});
 
 export default BookingDetails;

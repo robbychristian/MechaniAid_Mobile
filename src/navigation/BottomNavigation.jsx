@@ -1,4 +1,5 @@
-import * as React from "react";
+import React from "react";
+import { Image } from "react-native";
 import { BottomNavigation, Icon, Text } from "react-native-paper";
 import Home from "../screen/Home";
 import Booking from "../screen/Booking/Booking";
@@ -7,6 +8,14 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import ChatList from "../screen/Chat/ChatList";
 import BookingDetails from "../screen/Booking/BookingDetails";
 import { useSelector } from "react-redux";
+import BookingHistory from "../screen/Booking/BookingHistory";
+
+
+// Import custom icons
+import HomeIcon from "../../assets/home.png";
+import MarketIcon from "../../assets/trolley.png";
+import ChatIcon from "../../assets/chat.png";
+import HistoryIcon from "../../assets/history.png";
 
 const AlbumsRoute = () => <Text>Albums</Text>;
 
@@ -24,7 +33,7 @@ const CustomTabBar = () => {
     { key: "chat", title: "Chat", focusedIcon: "chat" },
     {
       key: "booking",
-      title: "Booking",
+      title: "History",
       focusedIcon: "car-side",
       unfocusedIcon: "car-side",
     },
@@ -52,51 +61,64 @@ const CustomTabBar = () => {
 const BottomNav = () => {
   const {user} = useSelector(state => state.auth)
   return (
-    <BottomTab.Navigator screenOptions={({ route }) => ({
+    <BottomTab.Navigator
+    screenOptions={({ route }) => ({
       headerShown: false,
       tabBarIcon: ({ color, size }) => {
-        let iconName;
+        let iconSource;
+
         switch (route.name) {
-          // case 'Home':
-          //   iconName = 'home';
-          //   break;
-          case 'Market':
-            iconName = 'shopping-cart';
+          case "Home":
+            iconSource = HomeIcon;
             break;
-          case 'ChatList':
-            iconName = 'chat';
+          case "Market":
+            iconSource = MarketIcon;
             break;
-          case 'Booking':
-            iconName = 'directions-car';
+          case "ChatList":
+            iconSource = ChatIcon;
+            break;
+          case "BookingHistory":
+            iconSource = HistoryIcon;
             break;
           default:
-            iconName = 'circle';
+            iconSource = null;
             break;
         }
-        return <Icon name={iconName} size={size} color={color} />;
+
+        return (
+          <Image
+            source={iconSource}
+            style={{ width: size, height: size, tintColor: color }}
+          />
+        );
       },
-      tabBarActiveTintColor: '#fff',
-      tabBarInactiveTintColor: '#000',
+      tabBarActiveTintColor: "#fff",
+      tabBarInactiveTintColor: "#000",
       tabBarStyle: {
-        backgroundColor: '#A02828',
+        backgroundColor: "#EF4444",
         borderTopWidth: 0,
         paddingBottom: 10,
-        height: 60
+        height: 65,
       },
       tabBarLabelStyle: {
         fontSize: 12,
-        fontWeight: 'bold',
+        fontFamily: "Nunito-Bold",
       },
-    })}>
-      <BottomTab.Screen name="Home" component={Home} />
-      <BottomTab.Screen name="Market" component={ProductList} />
-      <BottomTab.Screen name="ChatList" component={ChatList} options={{ tabBarLabel: "Chat" }} />
-      {user.user_role == 3 ? (
-        <BottomTab.Screen name="BookingDetails" component={BookingDetails} options={{ tabBarLabel: "Booking" }} />
-      ) : (
-        <BottomTab.Screen name="BookingDetails" component={Booking} options={{ tabBarLabel: "Booking" }} />
-      )}
-    </BottomTab.Navigator>
+    })}
+  >
+    <BottomTab.Screen name="Home" component={Home} />
+    <BottomTab.Screen name="Market" component={ProductList} />
+    <BottomTab.Screen
+      name="ChatList"
+      component={ChatList}
+      options={{ tabBarLabel: "Chat" }}
+    />
+    <BottomTab.Screen
+      name="BookingHistory"
+      component={BookingHistory}
+      options={{ tabBarLabel: "History" }}
+    />
+  </BottomTab.Navigator>
   );
 };
 

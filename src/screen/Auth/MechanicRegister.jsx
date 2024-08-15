@@ -1,7 +1,13 @@
-import { Button, Text } from "@ui-kitten/components";
-import React, { useState } from "react";
+import { Button, Text, Select, Layout } from "@ui-kitten/components";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { View, ScrollView, TouchableOpacity, Image, StyleSheet } from "react-native";
+import {
+  View,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+} from "react-native";
 import CustomTextInput from "../../components/Inputs/CustomTextInput";
 import * as DocumentPicker from "expo-document-picker";
 import { Toast } from "toastify-react-native";
@@ -11,15 +17,24 @@ import { useNavigation } from "@react-navigation/native";
 import CustomDatePicker from "../../components/Inputs/CustomDatePicker";
 import moment from "moment";
 import { IconButton } from "react-native-paper";
-import Loading from '../../components/Loading'
-
+import Loading from "../../components/Loading";
+import CustomPhoneInput from "../../components/Inputs/CustomPhoneInput";
+import CustomTextInputMultiline from "../../components/Inputs/CustomTextInputMultiline";
+import { CustomSelect } from "../../components/Inputs/CustomSelect";
+import axios from "axios";
 const MechanicRegister = () => {
   const dispatch = useDispatch();
-  const {loading} = useSelector(state => state.auth)
+  const { loading } = useSelector((state) => state.auth);
   const navigation = useNavigation();
   const [page, setPage] = useState(1);
   const [fileUpload, setFileUpload] = useState(null);
   const [displayFileUpload, setDisplayFileUpload] = useState(null);
+
+  const [validIdUpload, setValidIdUpload] = useState(null);
+  const [displayValidIdUpload, setDisplayValidIdUpload] = useState(null);
+  const [professionalCertUpload, setProfessionalCertUpload] = useState(null);
+  const [displayProfessionalCertUpload, setDisplayProfessionalCertUpload] =
+    useState(null);
   const {
     control,
     handleSubmit,
@@ -28,6 +43,78 @@ const MechanicRegister = () => {
     defaultValues: {},
   });
 
+  const [regions, setRegions] = useState([]);
+  const [provinces, setProvinces] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [barangays, setBarangays] = useState([]);
+
+  const [selectedRegion, setSelectedRegion] = useState(null);
+  const [selectedProvince, setSelectedProvince] = useState(null);
+  const [selectedCity, setSelectedCity] = useState(null);
+  const [selectedBarangay, setSelectedBarangay] = useState(null);
+
+  useEffect(() => {
+    axios
+      .get("https://isaacdarcilla.github.io/philippine-addresses/region.json")
+      .then((response) => setRegions(response.data));
+  }, []);
+
+  useEffect(() => {
+    if (selectedRegion) {
+      axios
+        .get(
+          "https://isaacdarcilla.github.io/philippine-addresses/province.json"
+        )
+        .then((response) =>
+          setProvinces(
+            response.data.filter(
+              (p) => p.region_code === selectedRegion.region_code
+            )
+          )
+        );
+      setSelectedProvince(null); // Reset selected province
+      setSelectedCity(null); // Reset selected city
+      setSelectedBarangay(null); // Reset selected barangay
+    } else {
+      setProvinces([]);
+    }
+  }, [selectedRegion]);
+
+  useEffect(() => {
+    if (selectedProvince) {
+      axios
+        .get("https://isaacdarcilla.github.io/philippine-addresses/city.json")
+        .then((response) =>
+          setCities(
+            response.data.filter(
+              (c) => c.province_code === selectedProvince.province_code
+            )
+          )
+        );
+      setSelectedCity(null); // Reset selected city
+      setSelectedBarangay(null); // Reset selected barangay
+    } else {
+      setCities([]);
+    }
+  }, [selectedProvince]);
+
+  useEffect(() => {
+    if (selectedCity) {
+      axios
+        .get(
+          "https://isaacdarcilla.github.io/philippine-addresses/barangay.json"
+        )
+        .then((response) =>
+          setBarangays(
+            response.data.filter((b) => b.city_code === selectedCity.city_code)
+          )
+        );
+      setSelectedBarangay(null); // Reset selected barangay
+    } else {
+      setBarangays([]);
+    }
+  }, [selectedCity]);
+
   const onSubmit = async (data) => {
     const formdata = new FormData();
     const newFile = {
@@ -35,6 +122,16 @@ const MechanicRegister = () => {
       type: "multipart/form-data",
       name: fileUpload.name,
     };
+    const newValidId = {
+      uri: validIdUpload.uri,
+      type: "multipart/form-data",
+      name: validIdUpload.name,
+    };
+    const newProfessionalCert = {
+      uri: professionalCertUpload.uri,
+      type: "multipart/form-data",
+      name: professionalCertUpload.name,
+    };  
     for (const key in data) {
       if (data.hasOwnProperty(key)) {
         if (key == "bday") {
@@ -45,6 +142,8 @@ const MechanicRegister = () => {
       }
     }
     formdata.append("customers_profile_pic", newFile);
+    formdata.append("valid_id", newValidId);
+    formdata.append("certificate", newProfessionalCert);
     try {
       const response = await dispatch(registerUser(formdata));
       if (response.type == "auth/register/fulfilled") {
@@ -65,6 +164,18 @@ const MechanicRegister = () => {
     setDisplayFileUpload(result.assets[0].uri);
   };
 
+  const uploadValidId = async () => {
+    const result = await DocumentPicker.getDocumentAsync({});
+    setValidIdUpload(result.assets[0]);
+    setDisplayValidIdUpload(result.assets[0].uri);
+  };
+
+  const uploadProfessionalCert = async () => {
+    const result = await DocumentPicker.getDocumentAsync({});
+    setProfessionalCertUpload(result.assets[0]);
+    setDisplayProfessionalCertUpload(result.assets[0].uri);
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
       <Loading loading={loading} />
@@ -82,12 +193,20 @@ const MechanicRegister = () => {
               paddingVertical: 20,
             }}
           >
-            <Text  style={{ fontFamily: "Nunito-Bold", fontSize: 30, color: "#fff" }}>
+            <Text
+              style={{ fontFamily: "Nunito-Bold", fontSize: 30, color: "#fff" }}
+            >
               Register As Mechanic!
             </Text>
-            <Text style={{ fontFamily: "Nunito-Regular", fontSize: 15, color: "#fff" }} appearance="hint">
-              You will be able to access mechanic features after
-              registration!
+            <Text
+              style={{
+                fontFamily: "Nunito-Regular",
+                fontSize: 15,
+                color: "#fff",
+              }}
+              appearance="hint"
+            >
+              You will be able to access mechanic features after registration!
             </Text>
           </View>
           <View style={{ paddingHorizontal: 15, paddingVertical: 20 }}>
@@ -109,15 +228,13 @@ const MechanicRegister = () => {
                     style={{ height: "100%", width: "100%", borderRadius: 100 }}
                   />
                 ) : (
-                  <Text style={{ fontFamily: "Nunito-SemiBold", fontSize: 20 }}>Upload Photo Here</Text>
+                  <Text style={{ fontFamily: "Nunito-SemiBold", fontSize: 20 }}>
+                    Upload Photo Here
+                  </Text>
                 )}
               </TouchableOpacity>
             </View>
-            <Text
-              style={styles.title}
-            >
-              Personal Information
-            </Text>
+            <Text style={styles.title}>Personal Information</Text>
             <CustomTextInput
               control={control}
               errors={errors}
@@ -145,11 +262,11 @@ const MechanicRegister = () => {
               name={`lname`}
               rules={{ required: true }}
             />
-            <CustomTextInput
+            <CustomPhoneInput
               control={control}
               errors={errors}
-              label={`Contact No.`}
-              message={`Contact Number is required`}
+              label={`Phone No.`}
+              message={`Mobile Number is required`}
               my={5}
               name={`phone`}
               rules={{ required: true }}
@@ -163,46 +280,62 @@ const MechanicRegister = () => {
               name={`landline`}
               rules={{ required: true }}
             />
-            <Text
-              style={styles.title}
-            >
-              Address Information
-            </Text>
-            <CustomTextInput
+            <CustomTextInputMultiline
               control={control}
               errors={errors}
-              label={`Region`}
-              message={`Region is required`}
+              label={`Description`}
+              message={`Description is required`}
               my={5}
-              name={`region`}
+              name={`description`}
               rules={{ required: true }}
             />
-            <CustomTextInput
-              control={control}
-              errors={errors}
-              label={`State`}
-              message={`State is required`}
+            <Text style={styles.title}>Address Information</Text>
+            <CustomSelect
               my={5}
-              name={`state`}
-              rules={{ required: true }}
+              label="Region"
+              placeholder="Select Region"
+              options={regions.map((region) => ({
+                value: region.region_name,
+                ...region,
+              }))}
+              value={selectedRegion}
+              setValue={setSelectedRegion}
             />
-            <CustomTextInput
-              control={control}
-              errors={errors}
-              label={`City`}
-              message={`City is required`}
+            <CustomSelect
               my={5}
-              name={`city`}
-              rules={{ required: true }}
+              label="Province"
+              placeholder="Select Province"
+              options={provinces.map((province) => ({
+                value: province.province_name,
+                ...province,
+              }))}
+              value={selectedProvince}
+              setValue={setSelectedProvince}
+              disabled={!selectedRegion}
             />
-            <CustomTextInput
-              control={control}
-              errors={errors}
-              label={`Barangay`}
-              message={`Barangay is required`}
+            <CustomSelect
               my={5}
-              name={`barangay`}
-              rules={{ required: true }}
+              label="City"
+              placeholder="Select City"
+              options={cities.map((city) => ({
+                value: city.city_name,
+                ...city,
+              }))}
+              value={selectedCity}
+              setValue={setSelectedCity}
+              disabled={!selectedProvince}
+            />
+            <CustomSelect
+              my={5}
+              label="Barangay"
+              placeholder="Select Barangay"
+              options={barangays.map((barangay) => ({
+                value: barangay.brgy_name,
+                ...barangay,
+              }))}
+              value={selectedBarangay}
+              setValue={setSelectedBarangay}
+              disabled={!selectedCity}
             />
             <CustomTextInput
               control={control}
@@ -213,16 +346,45 @@ const MechanicRegister = () => {
               name={`street`}
               rules={{ required: true }}
             />
-             <Text
-              style={styles.title}
-            >
-              Documents
-            </Text>
-            <Text
-              style={styles.title}
-            >
-              Account Information
-            </Text>
+            <Text style={styles.title}>Documents</Text>
+            <View>
+              <Text style={{ fontFamily: "Nunito-SemiBold", fontSize: 12, marginVertical: 5 }}>Valid ID</Text>
+              <View
+                style={styles.uploadButtonContainer}
+              >
+                <Button
+                onPress={uploadValidId}
+                  style={styles.uploadButton}
+                > Choose File
+                </Button>
+                {validIdUpload !== null ? (
+                    <Image
+                      source={{ uri: displayValidIdUpload }}
+                      style={{ alignSelf: "center", height: "115%", width: "25%", borderRadius: 5 }}
+                      />
+                  ) : (<Text style={{ fontFamily: "Nunito-SemiBold", fontSize: 16, marginTop: 10 }}> No File Choosen </Text> )}
+                  
+              </View>
+              <Text style={{ fontFamily: "Nunito-SemiBold", fontSize: 12, marginVertical: 5 }}>Professional Certificate</Text>
+              <View
+                style={styles.uploadButtonContainer}
+              >
+                <Button
+                onPress={uploadProfessionalCert}
+                  style={styles.uploadButton}
+                > Choose File
+                </Button>
+                {professionalCertUpload !== null ? (
+                    <Image
+                      source={{ uri: displayProfessionalCertUpload }}
+                      style={{ alignSelf: "center", height: "140%", width: "25%", borderRadius: 5 }}
+                      />
+                  ) : (<Text style={{ fontFamily: "Nunito-SemiBold", fontSize: 16, marginTop: 10 }}> No File Choosen </Text> )}
+                  
+              </View>
+            </View>
+
+            <Text style={styles.title}>Account Information</Text>
             <CustomTextInput
               control={control}
               errors={errors}
@@ -255,34 +417,40 @@ const MechanicRegister = () => {
           </View>
         </View>
         <Button
-              appearance="filled"
-              style={styles.buttonStyle}
-              onPress={handleSubmit(onSubmit)}
-            >
-              {() => <Text style={styles.textStyle}>SUBMIT</Text>}
-            </Button>
-            <TouchableOpacity
-              onPress={() => {
-                navigation.navigate("Login");
-              }}
-              style={{
-                justifyContent: "center",
-                alignItems: "center",
-                marginVertical: 10,
-                marginTop: 5,
-              }}
-            >
-              <Text>
-                Already have an account?{" "}
-                <Text
-                  style={{ textDecorationLine: "underline" }}
-                >
-                  Login Here!
-                </Text>
-              </Text>
-            </TouchableOpacity>
+          appearance="filled"
+          style={styles.buttonStyle}
+          onPress={handleSubmit(onSubmit)}
+        >
+          {() => <Text style={styles.textStyle}>SUBMIT</Text>}
+        </Button>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate("Login");
+          }}
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            marginVertical: 10,
+            marginTop: 5,
+          }}
+        >
+          <Text>
+            Already have an account?{" "}
+            <Text style={{ textDecorationLine: "underline" }}>Login Here!</Text>
+          </Text>
+        </TouchableOpacity>
         <View style={{ marginTop: 20 }}>
-          <Text style={{ color: "#8e8888", fontFamily: "Nunito-Bold", fontSize: 15, textAlign: "center", marginBottom: 20 }}>Developed by Data X 2024</Text>
+          <Text
+            style={{
+              color: "#8e8888",
+              fontFamily: "Nunito-Bold",
+              fontSize: 15,
+              textAlign: "center",
+              marginBottom: 20,
+            }}
+          >
+            Developed by Data X 2024
+          </Text>
         </View>
       </ScrollView>
     </View>
@@ -306,12 +474,32 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingVertical: 15,
   },
-  textStyle: { 
+  textStyle: {
     alignItems: "center",
     justifyContent: "center",
-    fontFamily: "Nunito-Bold",  
-    fontSize: 20, 
-    color: "#fff" 
+    fontFamily: "Nunito-Bold",
+    fontSize: 20,
+    color: "#fff",
   },
-})
+  uploadButtonContainer: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    padding: 10,
+    borderRadius: 10,
+    alignItems: "flex-start",
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  uploadButton: 
+  {
+    width: "40%",
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: "#ddd", 
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+
+});
 export default MechanicRegister;
