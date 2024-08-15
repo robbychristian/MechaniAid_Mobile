@@ -6,6 +6,8 @@ import Booking from "../screen/Booking/Booking";
 import ProductList from "../screen/Market/ProductList";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import ChatList from "../screen/Chat/ChatList";
+import BookingDetails from "../screen/Booking/BookingDetails";
+import { useSelector } from "react-redux";
 import BookingHistory from "../screen/Booking/BookingHistory";
 
 
@@ -57,6 +59,7 @@ const CustomTabBar = () => {
 };
 
 const BottomNav = () => {
+  const {user} = useSelector(state => state.auth)
   return (
     <BottomTab.Navigator
     screenOptions={({ route }) => ({
