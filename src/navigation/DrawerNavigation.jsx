@@ -14,6 +14,8 @@ import BookingPayment from "../screen/Payment/BookingPayment";
 import BookingHistory from "../screen/Booking/BookingHistory";
 import Booking from "../screen/Booking/Booking";
 import Profile from "../screen/Auth/Profile";
+import AddProduct from "../screen/Market/AddProduct";
+import EditProduct from "../screen/Market/EditProduct";
 
 const DrawerStack = createDrawerNavigator();
 
@@ -71,8 +73,10 @@ const DrawerNavigation = () => {
       <DrawerStack.Screen name="BookingPayment" component={BookingPayment} />
       <DrawerStack.Screen name="Payment" component={Payment} />
       <DrawerStack.Screen name="BookingHistory" component={BookingHistory} />
-      
-      
+      <DrawerStack.Screen name="AddProduct" component={AddProduct} />
+      <DrawerStack.Screen name="EditProduct" component={EditProduct} />
+
+
       {/* <DrawerStack.Screen
         name="Services"
         component={Services}

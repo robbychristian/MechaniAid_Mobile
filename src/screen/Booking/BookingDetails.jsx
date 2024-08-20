@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import { Button, Text } from "@ui-kitten/components";
-import { View, StyleSheet, Image, ScrollView, BackHandler } from "react-native";
-import { useForm } from "react-hook-form";
+import { Button, Select, SelectItem, Text } from "@ui-kitten/components";
+import { View, StyleSheet, Image, ScrollView, BackHandler, TouchableOpacity } from "react-native";
+import { Controller, useForm } from "react-hook-form";
 import { IconButton, Card } from "react-native-paper";
 import CustomTextInput from "../../components/Inputs/CustomTextInput";
 import CustomMultiSelect from "../../components/Inputs/CustomMultiSelect";
@@ -16,9 +16,29 @@ const BookingDetails = () => {
     handleSubmit,
     formState: { errors },
     watch,
+    resetField
   } = useForm();
 
   const navigation = useNavigation();
+
+  const [selectedTitles, setSelectedTitles] = useState([]);
+
+  const updateFormState = (newSelectedTitles, onChange) => {
+    setSelectedTitles(newSelectedTitles);
+    onChange(newSelectedTitles);
+  };
+
+  const removeSelectedItem = (title, onChange) => {
+    const newSelectedTitles = selectedTitles.filter((item) => item !== title);
+    updateFormState(newSelectedTitles, onChange);
+
+    if (title === "Other") {
+      resetField("other_service_type");
+    }
+  };
+
+  const showCustomTextInput = selectedTitles.includes("Other");
+
 
   const serviceOptions = [
     { title: "Oil Change", value: "oil_change" },
@@ -38,12 +58,22 @@ const BookingDetails = () => {
   ];
 
   const onSubmit = (data) => {
-    navigation.navigate("Booking", {
-      service_type: data.service_type,
-      vehicle_type: data.vehicle_type,
-      vehicle_name: data.vehicle_name,
-      mode_of_payment: data.mode_of_payment
-    });
+    // navigation.navigate("Booking", {
+    //   service_type: data.service_type,
+    //   vehicle_type: data.vehicle_type,
+    //   vehicle_name: data.vehicle_name,
+    //   mode_of_payment: data.mode_of_payment
+    // });
+
+    const objects = [
+      { service_type: data.service_type },
+      { vehicle_type: data.vehicle_type },
+      { vehicle_name: data.vehicle_name },
+      { mode_of_payment: data.mode_of_payment },
+      { other: data.other_service_type || "" }
+    ];
+
+    console.log(objects);
   };
   useFocusEffect(
     React.useCallback(() => {
@@ -76,7 +106,7 @@ const BookingDetails = () => {
         />
 
         <Card style={styles.card}>
-          <CustomMultiSelect
+          {/* <CustomMultiSelect
             control={control}
             errors={errors}
             label={`Service Type`}
@@ -86,8 +116,82 @@ const BookingDetails = () => {
             options={serviceOptions}
             rules={{ required: true }}
             isFull={true}
-          />
+          /> */}
 
+          <Controller
+            control={control}
+            rules={{
+              required: true,
+            }}
+            render={({ field: { onChange, onBlur } }) => (
+              <Select
+                label={`Service Type`}
+                value={selectedTitles.join(", ")}
+                onSelect={(index) => {
+                  const selectedOption = serviceOptions[index.row];
+                  const newSelectedTitles = [...selectedTitles];
+                  const valueIndex = newSelectedTitles.indexOf(selectedOption.title);
+
+                  if (valueIndex > -1) {
+                    // If title is already selected, remove it
+                    newSelectedTitles.splice(valueIndex, 1);
+                  } else {
+                    // If title is not selected, add it
+                    newSelectedTitles.push(selectedOption.title);
+                  }
+
+                  updateFormState(newSelectedTitles, onChange);
+                }}
+                onBlur={onBlur}
+                style={[styles.input]}
+              >
+                {serviceOptions.map((option, idx) => (
+                  <SelectItem key={idx} title={option.title} />
+                ))}
+              </Select>
+            )}
+            name={"service_type"}
+          />
+          {errors["service_type"] && (
+            <Text status="danger" category="label" style={{ marginVertical: 5 }}>
+              Please select at least one service
+            </Text>
+          )}
+          <Text style={styles.selectedItemsLabel}>Selected Services:</Text>
+          <View style={styles.selectedItemsContainer}>
+            {selectedTitles.length > 0 ? (
+              selectedTitles.map((title) => (
+                <View key={title} style={styles.selectedItem}>
+                  <Text style={styles.selectedItemText}>{title}</Text>
+                  <TouchableOpacity
+                    onPress={() => {
+                      removeSelectedItem(title, (newSelectedTitles) => {
+                        control._formValues["service_type"] = newSelectedTitles;
+                      });
+                    }}
+                    style={styles.removeButton}
+                  >
+                    <Ionicons name="close-circle" size={20} color="white" />
+                  </TouchableOpacity>
+                </View>
+              ))
+            ) : (
+              <View style={styles.noItemsTextContainer}>
+                <Text style={styles.noItemsText}>No items selected</Text>
+              </View>
+            )}
+          </View>
+          {showCustomTextInput && (
+            <CustomTextInput
+              control={control}
+              errors={errors}
+              label={`Other Service Type`}
+              message={`This field is required`}
+              my={5}
+              name={`other_service_type`}
+              rules={{ required: true }}
+            />
+          )}
           <CustomSimpleSelect
             control={control}
             errors={errors}
@@ -206,6 +310,50 @@ const styles = StyleSheet.create({
     fontFamily: "Nunito-Bold",
     fontSize: 20,
     color: "#fff",
+  },
+  input: {
+    height: 70,
+  },
+  selectedItemsLabel: {
+    marginTop: 10,
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  selectedItemsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginTop: 10,
+  },
+  selectedItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#EF4141",
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    marginRight: 10,
+    marginBottom: 10,
+  },
+  selectedItemText: {
+    fontSize: 14,
+    color: "#fff",
+    marginRight: 10,
+    fontFamily: "Nunito-Bold",
+  },
+  removeButton: {
+    padding: 5,
+  },
+  noItemsText: {
+    fontSize: 14,
+    color: "#8f9bb3",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
+  },
+  noItemsTextContainer: {
+    flex: 1, // Take up all available space
+    justifyContent: "center", // Center vertically
+    alignItems: "center", // Center horizontally
   },
 });
 

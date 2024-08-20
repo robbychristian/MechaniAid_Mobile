@@ -1,6 +1,6 @@
 import { Select, SelectItem, Text } from "@ui-kitten/components";
 import React, { useState } from "react";
-import { Controller } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import { StyleSheet, View, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import CustomTextInput from "../../components/Inputs/CustomTextInput"; // Adjust the import path as needed
@@ -17,10 +17,20 @@ const CustomMultiSelect = ({
   isFull = true,
 }) => {
   const [selectedTitles, setSelectedTitles] = useState([]);
+  const { resetField } = useFormContext(); // Hook to reset the field
 
-  const removeSelectedItem = (title) => {
-    const newSelectedTitles = selectedTitles.filter((item) => item !== title);
+  const updateFormState = (newSelectedTitles, onChange) => {
     setSelectedTitles(newSelectedTitles);
+    onChange(newSelectedTitles);
+  };
+
+  const removeSelectedItem = (title, onChange) => {
+    const newSelectedTitles = selectedTitles.filter((item) => item !== title);
+    updateFormState(newSelectedTitles, onChange);
+
+    if (title === "Other") {
+      resetField("other_service_type");
+    }
   };
 
   const showCustomTextInput = selectedTitles.includes("Other");
@@ -47,8 +57,7 @@ const CustomMultiSelect = ({
                 newSelectedTitles.push(selectedOption.title);
               }
 
-              setSelectedTitles(newSelectedTitles);
-              onChange(newSelectedTitles); // Update the form field value
+              updateFormState(newSelectedTitles, onChange);
             }}
             onBlur={onBlur}
             style={[styles.input, { width: isFull ? "100%" : "47%" }]}
@@ -72,7 +81,11 @@ const CustomMultiSelect = ({
             <View key={title} style={styles.selectedItem}>
               <Text style={styles.selectedItemText}>{title}</Text>
               <TouchableOpacity
-                onPress={() => removeSelectedItem(title)}
+                onPress={() => {
+                  removeSelectedItem(title, (newSelectedTitles) => {
+                    control._formValues[name] = newSelectedTitles;
+                  });
+                }}
                 style={styles.removeButton}
               >
                 <Ionicons name="close-circle" size={20} color="white" />

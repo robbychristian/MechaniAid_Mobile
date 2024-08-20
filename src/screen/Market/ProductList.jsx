@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import ProductCard from "../../components/Cards/ProductCard";
 import { api } from "../../../config/api";
 import { ScrollView } from "react-native-gesture-handler";
@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { clearProduct, getAllMechanicProducts, getAllProducts } from "../../store/products/Products";
 import Loading from "../../components/Loading";
 import { IconButton } from "react-native-paper";
-import { Card } from "@ui-kitten/components";
+import { Button, Card } from "@ui-kitten/components";
 
 const ProductList = () => {
   const navigation = useNavigation();
@@ -31,34 +31,37 @@ const ProductList = () => {
       }
     });
     return unsubscribe;
-  }, [navigation]);  
+  }, [navigation]);
   return (
-    <View style={{ alignItems: "center", }}>
+    <View>
       <Loading loading={loading} />
       <ScrollView contentContainerStyle={{ flexGrow: 1, }}>
-        <View
-          style={{
-            flexDirection: "row",
-            flexWrap: "wrap",
-            justifyContent: "center",
-            width: "100%"
-          }}
+        <View style={{ paddingHorizontal: 9, paddingVertical: 8 }}
         >
+          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+            <Text style={styles.heading}>Marketplace</Text>
+            {user.user_role == 2 && (
+              <Button size="small" style={{ backgroundColor: "#EF4141", borderColor: "#EF4141" }} onPress={() => navigation.navigate("AddProduct")}>Add Product</Button>
+            )}
+          </View>
+
           {productList.length > 0 ?
             productList.map((item, index) => {
               return (
-                <ProductCard
-                  key={index}
-                  item={item}
-                  onPress={() => {
-                    console.log(item.id);
-                    navigation.navigate("Product", {
-                      id: item.id,
-                    });
-                  }}
-                />
+                <View style={{ alignItems: "center", }}>
+                  <ProductCard
+                    key={index}
+                    item={item}
+                    onPress={() => {
+                      console.log(item.id);
+                      navigation.navigate("Product", {
+                        id: item.id,
+                      });
+                    }}
+                  />
+                </View>
               );
-            }) : <Card style={{ marginTop: 20, width: '90%', justifyContent: 'center', alignItems: "center" }}><Text>No products in listing!</Text></Card>}
+            }) : <Card style={{ marginTop: 20, width: '100%', justifyContent: 'center', alignItems: "center" }}><Text>No products in listing!</Text></Card>}
         </View>
         {/* {user.user_role == 2 && (
           <IconButton
@@ -72,5 +75,12 @@ const ProductList = () => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  heading: {
+    fontFamily: "Nunito-Bold",
+    fontSize: 24, // Adjust the size for emphasis
+  },
+})
 
 export default ProductList;

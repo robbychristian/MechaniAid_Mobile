@@ -22,8 +22,10 @@ const BookingHistory = () => {
       }
 
       const endpoint =
-        user.user_role === 3 ? "getuserbookings" : "getmechanicbookings";
-      const paramKey = user.user_role === 3 ? "user_id" : "mechanics_id";
+        user.user_role == 3 ? "getuserbookings" : "getmechanicbookings";
+      const paramKey = user.user_role == 3 ? "user_id" : "mechanics_id";
+
+      console.log(`${endpoint}?${paramKey}=${user.id}`)
 
       api
         .get(`${endpoint}?${paramKey}=${user.id}`)
