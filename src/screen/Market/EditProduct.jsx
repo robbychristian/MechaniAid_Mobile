@@ -79,7 +79,7 @@ const EditProduct = () => {
         formdata.append('location', data.location);
         formdata.append('price', data.price);
 
-        api.put(`/update-product/${route.params.id}`, formdata, {
+        api.post(`/update-product/${route.params.id}`, formdata, {
             headers: {
                 "Content-Type": "multipart/form-data"
             }
