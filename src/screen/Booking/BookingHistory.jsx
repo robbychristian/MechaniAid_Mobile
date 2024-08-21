@@ -72,7 +72,17 @@ const BookingHistory = () => {
       </View>
       <View style={styles.row}>
         <Text style={styles.customerName}>
-          {item.first_name} {item.last_name}
+          {user.user_role == 2 && (
+            <Text>
+              {item.first_name} {item.last_name}
+            </Text>
+          )}
+          {user.user_role == 3 && (
+            <Text>
+              {item.mechanics.first_name} {item.mechanics.last_name}
+            </Text>
+          )}
+
         </Text>
         <Text style={getStatusStyle(item.status)}>{item.status}</Text>
       </View>
