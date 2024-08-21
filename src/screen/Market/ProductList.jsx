@@ -16,22 +16,40 @@ const ProductList = () => {
   const { loading, productList } = useSelector((state) => state.products);
   const { user } = useSelector((state) => state.auth);
 
-  useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", async () => {
-      console.log(user)
-      try {
-        if (user.user_role == 3) {
-          await dispatch(getAllProducts(1));
-        } else {
-          await dispatch(getAllMechanicProducts(user.id));
-        }
-        await dispatch(clearProduct())
-      } catch (err) {
-        console.log(err);
+  // useEffect(() => {
+  //   const unsubscribe = navigation.addListener("focus", async () => {
+  //     console.log(user)
+  //     try {
+  //       if (user.user_role == 3) {
+  //         await dispatch(getAllProducts(1));
+  //       } else {
+  //         await dispatch(getAllMechanicProducts(user.id));
+  //       }
+  //       await dispatch(clearProduct())
+  //     } catch (err) {
+  //       console.log(err);
+  //     }
+  //   });
+  //   return unsubscribe;
+  // }, [navigation]);
+  const refreshProducts = async () => {
+    try {
+      if (user.user_role == 3) {
+        await dispatch(getAllProducts(1));
+      } else {
+        await dispatch(getAllMechanicProducts(user.id));
       }
-    });
+      await dispatch(clearProduct());
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", refreshProducts);
     return unsubscribe;
   }, [navigation]);
+
   return (
     <View>
       <Loading loading={loading} />
@@ -58,6 +76,7 @@ const ProductList = () => {
                         id: item.id,
                       });
                     }}
+                    onDelete={refreshProducts}
                   />
                 </View>
               );

@@ -175,7 +175,7 @@ const AddProduct = () => {
                     isFull={true}
                 />
 
-                <CustomSimpleSelect
+                {/* <CustomSimpleSelect
                     control={control}
                     errors={errors}
                     label={`Availability`}
@@ -185,7 +185,41 @@ const AddProduct = () => {
                     options={availabilityOptions}
                     rules={{ required: true }}
                     isFull={true}
+                /> */}
+
+                <Controller
+                    control={control}
+                    rules={{
+                        required: "Availability is required!",
+                        pattern: {
+                            value: /^[0-9]+(\.[0-9]{1,2})?$/,
+                            message: "Availability must be a valid number",
+                        },
+                    }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <Input
+                            label={`Availability`}
+                            onChangeText={onChange}
+                            onBlur={() => {
+                                onBlur();
+                                setIsFocused(false);
+                            }}
+                            onFocus={() => setIsFocused(true)}
+                            value={value}
+                            style={[
+                                styles.input,
+                                { width: '100%' },
+                                isFocused && styles.focusedInput
+                            ]}
+                        />
+                    )}
+                    name={`availability`}
                 />
+                {errors['availability'] && (
+                    <Text style={{ marginVertical: 5, fontSize: 12, fontWeight: '700', color: '#FF3D71' }}>
+                        {errors['availability'].message}
+                    </Text>
+                )}
 
                 <Controller
                     control={control}

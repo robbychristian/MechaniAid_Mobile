@@ -5,12 +5,25 @@ import { api } from "../../../config/api";
 import { IconButton } from "react-native-paper";
 import { useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
+import { Toast } from "toastify-react-native";
 
-const ProductCard = ({ item, onPress }) => {
+const ProductCard = ({ item, onPress, onDelete }) => {
   const { user } = useSelector(state => state.auth);
   const navigation = useNavigation();
   const [imageUrl, setImageUrl] = useState("");
   const win = Dimensions.get('window')
+
+  const deleteItem = () => {
+    api.delete(`/delete-product/${item.id}`)
+      .then((response) => {
+        console.log(response);
+        onDelete();
+        Toast.success("Product deleted successfully!");
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+  }
   return (
     <Card onPress={onPress} style={{ width: "100%", height: "50", marginBottom: 10 }}>
       <Image
@@ -45,7 +58,7 @@ const ProductCard = ({ item, onPress }) => {
       <Divider style={{ marginVertical: 10 }} />
       {user.id == item.mechanics_id && <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
         <Button size="tiny" status="warning" style={{ marginRight: 10 }} onPress={() => navigation.navigate("EditProduct", { id: item.id })}>Edit</Button>
-        <Button size="tiny" status="danger" onPress={() => console.log("delete")}>Delete</Button>
+        <Button size="tiny" status="danger" onPress={deleteItem}>Delete</Button>
       </View>}
     </Card>
   );
