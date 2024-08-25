@@ -7,6 +7,7 @@ import { api } from "../../../config/api";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { getChat, sendMessage } from "../../store/chat/Chat";
+import moment from "moment";
 
 const Chat = () => {
   const navigation = useNavigation();
@@ -66,8 +67,8 @@ const Chat = () => {
     <View style={{ width: "100%", height: "100%" }}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         {chatMessages != undefined &&
-        chatMessages.messages != undefined &&
-        chatMessages.messages.length > 0 ? (
+          chatMessages.messages != undefined &&
+          chatMessages.messages.length > 0 ? (
           chatMessages.messages.map((item, index) => {
             if (item.sender_id == user.id) {
               return (
@@ -100,6 +101,7 @@ const Chat = () => {
                     >
                       {item.message}
                     </Text>
+                    <Text style={{ marginTop: 4, color: "#808080" }}>{moment(item.created_at).format("lll")}</Text>
                   </View>
                   <Image
                     source={{
@@ -155,6 +157,7 @@ const Chat = () => {
                     >
                       {item.message}
                     </Text>
+                    <Text style={{ marginTop: 4, color: "#808080" }}>{moment(item.created_at).format("lll")}</Text>
                   </View>
                 </View>
               );

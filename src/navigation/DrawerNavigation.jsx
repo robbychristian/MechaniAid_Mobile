@@ -16,6 +16,10 @@ import Booking from "../screen/Booking/Booking";
 import Profile from "../screen/Auth/Profile";
 import AddProduct from "../screen/Market/AddProduct";
 import EditProduct from "../screen/Market/EditProduct";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { logoutUser } from "../store/auth/User";
+import FavoriteMechanic from "../screen/Booking/FavoriteMechanic";
+import BookingInfo from "../screen/Booking/BookingInfo";
 
 const DrawerStack = createDrawerNavigator();
 
@@ -36,8 +40,18 @@ const DrawerContent = ({ navigation, state }) => {
       <DrawerItem
         title={`Logout`}
         onPress={async () => {
-          navigation.navigate("Login");
-          await dispatch(logout());
+          // navigation.navigate("Login");
+          // await dispatch(logout());
+
+          try {
+            await AsyncStorage.removeItem('jwt_token');
+            await AsyncStorage.removeItem('user_info');
+
+            await dispatch(logoutUser());
+            navigation.navigate("Login")
+          } catch (error) {
+            console.log('Error during logout:', error)
+          }
         }}
       />
     </Drawer>
@@ -75,6 +89,8 @@ const DrawerNavigation = () => {
       <DrawerStack.Screen name="BookingHistory" component={BookingHistory} />
       <DrawerStack.Screen name="AddProduct" component={AddProduct} />
       <DrawerStack.Screen name="EditProduct" component={EditProduct} />
+      <DrawerStack.Screen name="FavoriteMechanic" component={FavoriteMechanic} />
+      <DrawerStack.Screen name="BookingInfo" component={BookingInfo} />
 
 
       {/* <DrawerStack.Screen

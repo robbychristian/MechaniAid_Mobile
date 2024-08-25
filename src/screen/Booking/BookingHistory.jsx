@@ -1,45 +1,39 @@
 import React, { useEffect, useState } from "react";
-import { Text, View, StyleSheet, FlatList } from "react-native";
+import { Text, View, StyleSheet, FlatList, TouchableOpacity } from "react-native";
 import * as Location from "expo-location";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { api } from "../../../config/api";
 import moment from "moment";
 import { useNavigation } from "@react-navigation/native";
-import { Card } from "react-native-paper";
+import { Card, IconButton } from "react-native-paper";
+import { Toast } from "toastify-react-native";
+import { getMechanicBookings, getUserBookings, toggleFavoriteMechanic, unfavoriteMechanic } from "../../store/booking/Booking";
+import Loading from "../../components/Loading";
 
 const BookingHistory = () => {
-  const [errorMsg, setErrorMsg] = useState(null);
   const navigation = useNavigation();
-  const [bookings, setBookings] = useState([]);
+  const dispatch = useDispatch()
   const { user } = useSelector((state) => state.auth);
+  const { loading, bookingList, favoriteMechanic } = useSelector((state) => state.bookings);
+
+  const refreshBookings = async () => {
+    console.log('nag run')
+    try {
+      if (user.user_role == 3) {
+        await dispatch(getUserBookings(user.id));
+      } else {
+        await dispatch(getMechanicBookings(user.id));
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  }
 
   useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        setErrorMsg("Permission to access location was denied");
-        return;
-      }
+    const unsubscribe = navigation.addListener("focus", refreshBookings)
 
-      const endpoint =
-        user.user_role == 3 ? "getuserbookings" : "getmechanicbookings";
-      const paramKey = user.user_role == 3 ? "user_id" : "mechanics_id";
-
-      console.log(`${endpoint}?${paramKey}=${user.id}`)
-
-      api
-        .get(`${endpoint}?${paramKey}=${user.id}`)
-        .then((response) => {
-          const sortedData = response.data.sort(
-            (a, b) => new Date(b.created_at) - new Date(a.created_at)
-          );
-          setBookings(sortedData);
-        })
-        .catch((err) => {
-          console.log(err.response);
-        });
-    })();
-  }, []);
+    return unsubscribe
+  }, [navigation])
 
   const getStatusStyle = (status) => {
     switch (status) {
@@ -56,49 +50,97 @@ const BookingHistory = () => {
     }
   };
 
-  const renderBookingItem = ({ item }) => (
-    <Card
-      style={styles.card}
-      onPress={() =>
-        navigation.navigate("BookingPayment", {
-          user_id: item.user_id,
-          total_price: item.total_price,
-        })
+  const toggleFavorite = async (mechanics_id) => {
+    const isFavorited = favoriteMechanic.includes(`${mechanics_id}`);
+
+    const formdata = {
+      user_id: user.id,
+      mechanics_id: mechanics_id
+    }
+
+    if (isFavorited) {
+      try {
+        await dispatch(unfavoriteMechanic(formdata))
+        Toast.success('Mechanic has been removed to favorites!')
+      } catch (err) {
+        Toast.success('There was a problem handling your transaction.')
       }
-    >
-      <View style={styles.row}>
-        <Text style={styles.serviceType}>{item.service_type}</Text>
-        <Text style={styles.price}>P{item.total_price ?? "N/A"}</Text>
-      </View>
-      <View style={styles.row}>
-        <Text style={styles.customerName}>
-          {user.user_role == 2 && (
-            <Text>
-              {item.first_name} {item.last_name}
+    } else {
+      try {
+        await dispatch(toggleFavoriteMechanic(formdata))
+        Toast.success('Mechanic has been added to favorites!')
+      } catch (err) {
+        Toast.success('There was a problem handling your transaction.')
+      }
+    }
+  }
+
+  const renderBookingItem = ({ item, index }) => {
+    const showIcon = index === bookingList.length - 1 || item.mechanics_id !== bookingList[index + 1]?.mechanics_id;
+    const isFavorited = favoriteMechanic.includes(`${item.mechanics_id}`);
+
+    return (
+
+      <Card
+        style={styles.card}
+      >
+        <TouchableOpacity onPress={() =>
+          navigation.navigate("BookingPayment", {
+            user_id: item.user_id,
+            total_price: item.total_price,
+          })
+        }>
+          <View style={styles.row}>
+            <Text style={styles.serviceType}>{item.service_type}</Text>
+            <Text style={styles.price}>P{item.total_price ?? "N/A"}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.customerName}>
+              {user.user_role == 2 && (
+                <Text>
+                  {item.first_name} {item.last_name}
+                </Text>
+              )}
+              {user.user_role == 3 && (
+                <Text>
+                  {item.mechanics.first_name} {item.mechanics.last_name}
+                </Text>
+              )}
+
             </Text>
-          )}
-          {user.user_role == 3 && (
-            <Text>
-              {item.mechanics.first_name} {item.mechanics.last_name}
+            <Text style={getStatusStyle(item.status)}>{item.status}</Text>
+          </View>
+        </TouchableOpacity>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+          <View>
+            <Text style={styles.date}>{moment(item.created_at).format("LLL")}</Text>
+            <Text style={styles.paymentMethod}>
+              Payment Method: {item.mode_of_payment}
             </Text>
+          </View>
+
+          {showIcon && user.user_role == 3 && (
+            <IconButton
+              size={30}
+              icon={isFavorited ? `heart` : `heart-outline`}
+              iconColor="#A02828"
+              onPress={() => toggleFavorite(item.mechanics_id)}
+            />
           )}
 
-        </Text>
-        <Text style={getStatusStyle(item.status)}>{item.status}</Text>
-      </View>
-      <Text style={styles.date}>{moment(item.created_at).format("LLL")}</Text>
-      <Text style={styles.paymentMethod}>
-        Payment Method: {item.mode_of_payment}
-      </Text>
-    </Card>
-  );
+        </View>
+
+      </Card>
+    )
+  };
 
   return (
     <View style={styles.container}>
+      <Loading loading={loading} />
       <Text style={styles.heading}>Booking History</Text>
-      {bookings.length > 0 ? (
+      {bookingList.length > 0 ? (
         <FlatList
-          data={bookings}
+          data={bookingList}
           renderItem={renderBookingItem}
           keyExtractor={(item, index) => item.id.toString()}
           contentContainerStyle={styles.listContent}

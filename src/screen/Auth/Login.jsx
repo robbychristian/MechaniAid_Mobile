@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { loginUser } from "../../store/auth/User";
 import { api } from "../../../config/api";
 import { Toast } from "toastify-react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Login = () => {
   const navigation = useNavigation();
@@ -29,11 +30,34 @@ const Login = () => {
     try {
       const response = await dispatch(loginUser(inputs));
       if (response.payload == "error") {
-        Toast.error("User does not exist!");
+        Toast.error("User does not exist!")
+      } else if (response.payload.success) {
+        const { token, user } = response.payload;
+        if (token) {
+          await AsyncStorage.setItem('jwt_token', token)
+          await AsyncStorage.setItem('user_info', JSON.stringify(user)); // Store user info
+          Toast.success("Logged in successfully!");
+          navigation.navigate("DrawerStack");
+        } else {
+          console.log("Token is undefined, not saving to AsyncStorage.");
+        }
       } else {
-        Toast.success("Logged in successfully!");
-        navigation.navigate("DrawerStack");
+        Toast.error("User does not exist!");
       }
+      // if (response.payload.success) {
+      //   const token = response.token;
+      //   await AsyncStorage.setItem('jwt_token', token)
+      //   Toast.success("Logged in successfully!");
+      //   navigation.navigate("DrawerStack");
+      // } else {
+      //   Toast.error("User does not exist!");
+      // }
+      // if (response.payload == "error") {
+      //   Toast.error("User does not exist!");
+      // } else {
+      //   Toast.success("Logged in successfully!");
+      //   navigation.navigate("DrawerStack");
+      // }
     } catch (err) {
       console.log(err);
     }
@@ -58,7 +82,7 @@ const Login = () => {
           rules={{ required: true }}
           message={`Email is required!`}
           my={5}
-          />
+        />
         {/* <input type='password' name='email' required> */}
         <CustomTextInput
           control={control}
@@ -75,32 +99,32 @@ const Login = () => {
           style={styles.buttonStyle}
           onPress={handleSubmit(onSubmit)}
         >
-         {() => <Text style={styles.textStyle}>LOGIN</Text>}
+          {() => <Text style={styles.textStyle}>LOGIN</Text>}
         </Button>
         <TouchableOpacity
-              onPress={() => {
-                navigation.navigate("RoleScreen");
-              }}
-              style={{
-                justifyContent: "center",
-                alignItems: "center",
-                marginVertical: 10,
-                marginTop: 5,
-              }}
+          onPress={() => {
+            navigation.navigate("RoleScreen");
+          }}
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            marginVertical: 10,
+            marginTop: 5,
+          }}
+        >
+          <Text>
+            Don't have an account yet?{" "}
+            <Text
+              style={{ textDecorationLine: "underline" }}
             >
-              <Text>
-                Don't have an account yet?{" "}
-                <Text
-                  style={{ textDecorationLine: "underline" }}
-                >
-                  Register Here!
-                </Text>
-              </Text>
-            </TouchableOpacity>
+              Register Here!
+            </Text>
+          </Text>
+        </TouchableOpacity>
       </View>
       <View style={{ marginTop: 20 }}>
-          <Text style={{ color: "#8e8888", fontFamily: "Nunito-Bold", fontSize: 15 }}>Developed by Data X 2024</Text>
-        </View>
+        <Text style={{ color: "#8e8888", fontFamily: "Nunito-Bold", fontSize: 15 }}>Developed by Data X 2024</Text>
+      </View>
     </View>
   );
 };
@@ -121,10 +145,10 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingVertical: 15,
   },
-  textStyle: { 
-    fontFamily: "Nunito-Bold",  
-    fontSize: 20, 
-    color: "#fff" 
+  textStyle: {
+    fontFamily: "Nunito-Bold",
+    fontSize: 20,
+    color: "#fff"
   },
 });
 export default Login;
