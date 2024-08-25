@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { View, Text, StyleSheet } from "react-native";
 import ProductCard from "../../components/Cards/ProductCard";
 import { api } from "../../../config/api";
 import { ScrollView } from "react-native-gesture-handler";

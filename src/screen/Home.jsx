@@ -81,11 +81,11 @@ const Home = () => {
         </View>
 
         <IconButton
-        style={{
-          marginTop: 15,
-          position: "absolute",
-          right: 0,
-        }}
+          style={{
+            marginTop: 15,
+            position: "absolute",
+            right: 0,
+          }}
           icon={() => (
             <MaterialCommunityIcons
               name="account-circle-outline"
@@ -97,32 +97,88 @@ const Home = () => {
         />
       </View>
 
-      <View
-        style={{
-          justifyContent: "left",
-          alignItems: "left",
-          paddingVertical: 5,
-          paddingHorizontal: 30,
-        }}
-      >
-        <TouchableOpacity
-          onPress={() => navigation.navigate("BookingDetails")}
+      <View style={{ flexDirection: "row" }}>
+        <View
           style={{
-            backgroundColor: "#f67070",
-            height: 115,
-            width: 115,
-            justifyContent: "center",
-            alignItems: "center",
-            borderRadius: 100,
-            marginBottom: 5,
+            justifyContent: "left",
+            alignItems: "left",
+            paddingVertical: 5,
+            paddingHorizontal: 30,
           }}
         >
-          <Image
-            source={require("../../assets/mechanic.png")}
-            style={{ width: 70, height: 70 }}
-          />
-        </TouchableOpacity>
-        <Text style={styles.subtitle}>Book A Mechanic</Text>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('BookingDetails')}
+            style={{
+              backgroundColor: "#f67070",
+              height: 115,
+              width: 115,
+              justifyContent: "center",
+              alignItems: "center",
+              borderRadius: 100,
+              marginBottom: 5
+            }}
+          >
+            <Image
+              source={require("../../assets/mechanic.png")}
+              style={{ width: 70, height: 70 }}
+            />
+          </TouchableOpacity>
+          <Text style={styles.subtitle}>Book A Mechanic</Text>
+        </View>
+
+        {user.user_role == 2 && (
+          <View
+            style={{
+              justifyContent: "left",
+              alignItems: "left",
+              paddingVertical: 5,
+              paddingHorizontal: 30,
+            }}
+          >
+            <TouchableOpacity
+              onPress={() => console.log('Rebooking Records')}
+              style={{
+                backgroundColor: "#f67070",
+                height: 115,
+                width: 115,
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: 100,
+                marginBottom: 5
+              }}
+            >
+              <Icon source={`book-refresh`} size={80} color="#58606e" />
+            </TouchableOpacity>
+            <Text style={styles.subtitle}>Rebooking Requests</Text>
+          </View>
+        )}
+
+        {user.user_role == 3 && (
+          <View
+            style={{
+              justifyContent: "left",
+              alignItems: "left",
+              paddingVertical: 5,
+              paddingHorizontal: 30,
+            }}
+          >
+            <TouchableOpacity
+              onPress={() => navigation.navigate('FavoriteMechanic')}
+              style={{
+                backgroundColor: "#f67070",
+                height: 115,
+                width: 115,
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: 100,
+                marginBottom: 5
+              }}
+            >
+              <Icon source={`star`} size={100} color="#FFD403" />
+            </TouchableOpacity>
+            <Text style={styles.subtitle}>Favorite Mechanics</Text>
+          </View>
+        )}
       </View>
     </View>
   );
