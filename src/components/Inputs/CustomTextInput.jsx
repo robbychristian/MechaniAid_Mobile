@@ -18,12 +18,14 @@ const CustomTextInput = ({
 
   return (
     <>
+    {label && (
+        <Text style={styles.label}>{label}</Text> // Display the label above the inputs
+      )}
       <Controller
         control={control}
         rules={rules}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
-            label={label}
             secureTextEntry={secureTextEntry}
             onChangeText={onChange}
             onBlur={() => {
@@ -51,6 +53,11 @@ const CustomTextInput = ({
 };
 
 const styles = StyleSheet.create({
+  label: {
+    marginBottom: 5,
+    fontSize: 15,
+    fontFamily:"Nunito-Bold"
+  },
   input: {
     height: 70, 
     borderWidth: 1,

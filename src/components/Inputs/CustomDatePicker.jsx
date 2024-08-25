@@ -2,7 +2,7 @@ import {Datepicker, Input, Text} from '@ui-kitten/components';
 import moment from 'moment';
 import React from 'react';
 import {Controller} from 'react-hook-form';
-
+import { StyleSheet } from "react-native";
 const CustomDatePicker = ({
   control,
   rules = {},
@@ -19,12 +19,14 @@ const CustomDatePicker = ({
   maxDate.setFullYear(maxDate.getFullYear() - 18);
   return (
     <>
+    {label && (
+        <Text style={styles.label}>{label}</Text> // Display the label above the inputs
+      )}
       <Controller
         control={control}
         rules={rules}
         render={({field: {onChange, onBlur, value}}) => (
           <Datepicker
-            label={label}
             onSelect={onChange}
             onBlur={onBlur}
             max={maxDate}
@@ -40,4 +42,12 @@ const CustomDatePicker = ({
   );
 };
 
+const styles = StyleSheet.create({
+  label: {
+    marginBottom: 5,
+    fontSize: 15,
+    fontFamily:"Nunito-Bold",
+    marginTop: 5
+  },
+});
 export default CustomDatePicker;

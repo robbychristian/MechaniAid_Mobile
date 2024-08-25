@@ -40,6 +40,19 @@ export const registerUser = createAsyncThunk(
   }
 );
 
+export const registerMechanic = createAsyncThunk(
+  "auth/registermechanic",
+  async (inputs, { rejectWithValue }) => {
+    try {
+      const response = await api.post("register-mechanic", inputs);
+      return response.data;
+    } catch (err) {
+      console.log(err.response);
+      return rejectWithValue(err.response);
+    }
+  }
+);
+
 export const updatePersonalInformation = createAsyncThunk(
   "auth/updatepersonalinformation",
   async (inputs, { rejectWithValue }) => {
@@ -101,6 +114,17 @@ const authSlice = createSlice({
     builder.addCase(registerUser.rejected, (state, { payload }) => {
       state.loading = false;
     });
+
+    builder.addCase(registerMechanic.pending, (state) => {
+      state.loading = true;
+    });
+    builder.addCase(registerMechanic.fulfilled, (state, { payload }) => {
+      state.loading = false;
+    });
+    builder.addCase(registerMechanic.rejected, (state, { payload }) => {
+      state.loading = false;
+    });
+
     builder.addCase(updatePersonalInformation.pending, (state) => {
       state.loading = true;
     });

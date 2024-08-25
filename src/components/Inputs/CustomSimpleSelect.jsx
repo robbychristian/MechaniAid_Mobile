@@ -18,12 +18,14 @@ const CustomSimpleSelect = ({
 
   return (
     <>
+    {label && (
+        <Text style={styles.label}>{label}</Text> // Display the label above the inputs
+      )}
       <Controller
         control={control}
         rules={rules}
         render={({ field: { onChange, onBlur, value } }) => (
           <Select
-            label={label}
             value={value || 'Select an option'}
             onSelect={(index) => {
               const selectedOption = options[index.row];
@@ -58,6 +60,11 @@ const CustomSimpleSelect = ({
 const styles = StyleSheet.create({
   input: {
     height: 70,
+  },
+  label: {
+    marginBottom: 5,
+    fontSize: 15,
+    fontFamily:"Nunito-Bold"
   },
 });
 

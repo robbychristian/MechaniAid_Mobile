@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, ActivityIndicator, Image, Text as RNText } from 'react-native';
 import { Input, Text, Layout, Select, SelectItem, IndexPath } from '@ui-kitten/components';
 import { Controller } from 'react-hook-form';
 
@@ -14,7 +14,7 @@ const CustomPhoneInput = ({
   my,
   isFull = true,
 }) => {
-  const [selectedIndex, setSelectedIndex] = useState(new IndexPath(0));
+  const [selectedIndex, setSelectedIndex] = useState(null); // Initialize to null
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isFocused, setIsFocused] = useState(false);
@@ -28,8 +28,13 @@ const CustomPhoneInput = ({
         const sortedCountries = data.sort((a, b) => a.name.common.localeCompare(b.name.common));
         const countryOptions = sortedCountries.map(country => {
           const callingCode = (country.idd.root || '') + (country.idd.suffixes ? country.idd.suffixes[0] : '');
-          return callingCode ? `${callingCode}` : null;
-        }).filter(Boolean);
+          const flagPng = country.flags?.png || ''; // PNG flag URL
+          return {
+            code: callingCode,
+            flag: flagPng, // PNG URL for flag image
+            name: country.name.common, // Country name for internal use
+          };
+        }).filter(item => item.code);
 
         setOptions(countryOptions);
         setLoading(false);
@@ -42,8 +47,40 @@ const CustomPhoneInput = ({
     fetchCountryCodes();
   }, []);
 
+  const CustomSelectItem = ({ item }) => (
+    <View style={styles.selectItem}>
+      {item.flag ? (
+        <Image
+          source={{ uri: item.flag }}
+          style={styles.flagImage}
+        />
+      ) : null}
+      <RNText style={styles.selectItemText}>{item.name}</RNText>
+    </View>
+  );
+
+  const renderSelectedValue = () => {
+    const selectedOption = options[selectedIndex?.row || 0];
+    return selectedOption ? (
+      <View style={styles.selectItem}>
+        {selectedOption.flag ? (
+          <Image
+            source={{ uri: selectedOption.flag }}
+            style={styles.flagImage2}
+          />
+        ) : null}
+        {/* <RNText style={styles.selectItemText}>{selectedOption.name}</RNText> */}
+      </View>
+    ) : (
+      <RNText style={styles.selectItemText}>Select a country</RNText>
+    );
+  };
+
   return (
     <>
+      {label && (
+        <Text style={styles.label}>{label}</Text>
+      )}
       <Controller
         control={control}
         rules={rules}
@@ -54,17 +91,27 @@ const CustomPhoneInput = ({
                 <ActivityIndicator size="small" color="#0000ff" />
               ) : (
                 <Select
-                  label={label}
                   style={styles.select}
                   selectedIndex={selectedIndex}
                   onSelect={(index) => {
                     setSelectedIndex(index);
-                    onChange(options[index.row]);
+                    const selectedOption = options[index.row];
+                    onChange(selectedOption.code); // Pass the selected calling code to the field
                   }}
-                  value={options[selectedIndex.row]}
+                  value={renderSelectedValue()} // Render custom selected value
                 >
                   {options.map((item, index) => (
-                    <SelectItem key={index} title={item} />
+                    <SelectItem
+                      key={index}
+                      title={item.name} // Display country name
+                      accessoryLeft={() => item.flag ? (
+                        <Image
+                          source={{ uri: item.flag }}
+                          style={styles.flagImage}
+                        />
+                      ) : null}
+                      style={styles.selectItem}
+                    />
                   ))}
                 </Select>
               )}
@@ -83,6 +130,7 @@ const CustomPhoneInput = ({
                   styles.input,
                   isFocused && styles.focusedInput,
                 ]}
+                placeholder="Enter number" // Placeholder for the input field
               />
             </View>
           </Layout>
@@ -99,26 +147,45 @@ const CustomPhoneInput = ({
 };
 
 const styles = StyleSheet.create({
+  label: {
+    marginBottom: 5,
+    fontSize: 15,
+    fontFamily: "Nunito-Bold",
+  },
   container: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   selectContainer: {
-    flex: 1,
-    marginRight: -40,
+    flex: 2,
+    marginRight: 10, // Adjust spacing between Select and Input
   },
   select: {
-    height: 70,
     borderColor: '#000',
   },
+  selectItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  flagImage: {
+    width: 24,
+    height: 16, // Adjust size as needed
+    marginRight: 10, // Space between flag and country name
+  },
+  flagImage2: {
+    width: 40,
+    height: 20, // Adjust size as needed
+    borderWidth: 1, // Border thickness
+    borderColor: '#000', // Border color
+    borderRadius: 4, // Optional: Rounded corners
+  },
+  selectItemText: {
+    fontSize: 15,
+  },
   inputContainer: {
-    flex: 2,
-    marginLeft: 45,
+    flex: 4,
   },
   input: {
-    height: 68,
-    width: 235,
-    // borderRadius: 15,
     paddingVertical: 16,
   },
   focusedInput: {

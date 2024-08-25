@@ -121,6 +121,12 @@ const Register = () => {
       }
     }
     formdata.append("customers_profile_pic", newFile);
+
+    formdata.append("region", selectedRegion?.region_name || "");
+    formdata.append("state", selectedProvince?.province_name || "");
+    formdata.append("city", selectedCity?.city_name || "");
+    formdata.append("barangay", selectedBarangay?.brgy_name || "");
+
     try {
       const response = await dispatch(registerUser(formdata));
       if (response.type == "auth/register/fulfilled") {
@@ -254,6 +260,7 @@ const Register = () => {
               }))}
               value={selectedRegion}
               setValue={setSelectedRegion}
+              name={`region`}
             />
             <CustomSelect
               my={5}
@@ -266,6 +273,7 @@ const Register = () => {
               value={selectedProvince}
               setValue={setSelectedProvince}
               disabled={!selectedRegion}
+              name={`state`}
             />
             <CustomSelect
               my={5}
@@ -278,6 +286,7 @@ const Register = () => {
               value={selectedCity}
               setValue={setSelectedCity}
               disabled={!selectedProvince}
+              name={`city`}
             />
             <CustomSelect
               my={5}
@@ -290,6 +299,7 @@ const Register = () => {
               value={selectedBarangay}
               setValue={setSelectedBarangay}
               disabled={!selectedCity}
+              name={`barangay`}
             />
             <CustomTextInput
               control={control}

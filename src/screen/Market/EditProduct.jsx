@@ -197,8 +197,9 @@ const EditProduct = () => {
                             },
                         }}
                         render={({ field: { onChange, onBlur, value } }) => (
+                            <>
+                            <Text style={styles.label}>Availability</Text>
                             <Input
-                                label={`Availability`}
                                 onChangeText={onChange}
                                 onBlur={() => {
                                     onBlur();
@@ -212,6 +213,7 @@ const EditProduct = () => {
                                     isFocused && styles.focusedInput
                                 ]}
                             />
+                            </>
                         )}
                         name={`availability`}
                     />
@@ -231,8 +233,9 @@ const EditProduct = () => {
                             },
                         }}
                         render={({ field: { onChange, onBlur, value } }) => (
+                            <>
+                            <Text style={styles.label}>Price</Text>
                             <Input
-                                label={`Price`}
                                 onChangeText={onChange}
                                 onBlur={() => {
                                     onBlur();
@@ -246,6 +249,7 @@ const EditProduct = () => {
                                     isFocused && styles.focusedInput
                                 ]}
                             />
+                            </>
                         )}
                         name={`price`}
                     />
@@ -277,6 +281,11 @@ const EditProduct = () => {
 }
 
 const styles = StyleSheet.create({
+    label: {
+        marginBottom: 5,
+        fontSize: 15,
+        fontFamily:"Nunito-Bold"
+      },
     heading: {
         fontFamily: "Nunito-Bold",
         marginBottom: 10,

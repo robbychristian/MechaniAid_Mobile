@@ -118,15 +118,15 @@ const BookingDetails = () => {
             rules={{ required: true }}
             isFull={true}
           /> */}
-
           <Controller
             control={control}
             rules={{
               required: true,
             }}
             render={({ field: { onChange, onBlur } }) => (
+              <>
+              <Text style={styles.label}>Service Type</Text>
               <Select
-                label={`Service Type`}
                 value={selectedTitles.join(", ")}
                 onSelect={(index) => {
                   const selectedOption = serviceOptions[index.row];
@@ -150,6 +150,7 @@ const BookingDetails = () => {
                   <SelectItem key={idx} title={option.title} />
                 ))}
               </Select>
+              </>
             )}
             name={"service_type"}
           />
@@ -246,6 +247,11 @@ const BookingDetails = () => {
 };
 
 const styles = StyleSheet.create({
+  label: {
+    marginBottom: 5,
+    fontSize: 15,
+    fontFamily:"Nunito-Bold"
+  },
   container: {
     flex: 1,
     width: "100%",

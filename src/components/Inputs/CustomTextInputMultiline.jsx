@@ -18,12 +18,15 @@ const CustomTextInputMultiline = ({
 
   return (
     <>
+    {label && (
+        <Text style={styles.label}>{label}</Text> // Display the label above the inputs
+      )}
+
       <Controller
         control={control}
         rules={rules}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
-            label={label}
             secureTextEntry={secureTextEntry}
             onChangeText={onChange}
             onBlur={() => {
@@ -53,6 +56,11 @@ const CustomTextInputMultiline = ({
 };
 
 const styles = StyleSheet.create({
+  label: {
+    marginBottom: 5,
+    fontSize: 15,
+    fontFamily:"Nunito-Bold"
+  },
   input: {
     borderWidth: 1,
     borderColor: "#E4E9F2",

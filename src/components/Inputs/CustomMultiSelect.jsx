@@ -37,12 +37,14 @@ const CustomMultiSelect = ({
 
   return (
     <>
+    {label && (
+        <Text style={styles.label}>{label}</Text> // Display the label above the inputs
+      )}
       <Controller
         control={control}
         rules={rules}
         render={({ field: { onChange, onBlur } }) => (
           <Select
-            label={label}
             value={selectedTitles.join(", ")}
             onSelect={(index) => {
               const selectedOption = options[index.row];
@@ -114,6 +116,10 @@ const CustomMultiSelect = ({
 };
 
 const styles = StyleSheet.create({
+  label: {
+    fontSize: 15,
+    fontFamily:"Nunito-Bold"
+  },
   input: {
     height: 70,
   },

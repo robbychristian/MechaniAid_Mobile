@@ -7,11 +7,12 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
+  Dimensions,
 } from "react-native";
 import CustomTextInput from "../../components/Inputs/CustomTextInput";
 import * as DocumentPicker from "expo-document-picker";
 import { Toast } from "toastify-react-native";
-import { registerUser } from "../../store/auth/User";
+import { registerMechanic } from "../../store/auth/User";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import CustomDatePicker from "../../components/Inputs/CustomDatePicker";
@@ -19,6 +20,7 @@ import moment from "moment";
 import { IconButton } from "react-native-paper";
 import Loading from "../../components/Loading";
 import CustomPhoneInput from "../../components/Inputs/CustomPhoneInput";
+import CustomPhoneInputMech from "../../components/Inputs/CustomPhoneInputMech";
 import CustomTextInputMultiline from "../../components/Inputs/CustomTextInputMultiline";
 import { CustomSelect } from "../../components/Inputs/CustomSelect";
 import axios from "axios";
@@ -107,7 +109,7 @@ const MechanicRegister = () => {
       setBarangays([]);
     }
   }, [selectedCity]);
-  
+
   const {
     control,
     handleSubmit,
@@ -142,12 +144,18 @@ const MechanicRegister = () => {
         }
       }
     }
-    formdata.append("customers_profile_pic", newFile);
+    formdata.append("mechanics_profile_pic", newFile);
     formdata.append("valid_id", newValidId);
     formdata.append("certificate", newProfessionalCert);
+
+    formdata.append("region", selectedRegion?.region_name || "");
+    formdata.append("state", selectedProvince?.province_name || "");
+    formdata.append("city", selectedCity?.city_name || "");
+    formdata.append("barangay", selectedBarangay?.brgy_name || "");
+
     try {
-      const response = await dispatch(registerUser(formdata));
-      if (response.type == "auth/register/fulfilled") {
+      const response = await dispatch(registerMechanic(formdata));
+      if (response.type == "auth/registermechanic/fulfilled") {
         Toast.success("Account has been registered!");
         navigation.navigate("Login");
       } else {
@@ -263,7 +271,7 @@ const MechanicRegister = () => {
               name={`lname`}
               rules={{ required: true }}
             />
-            <CustomPhoneInput
+            <CustomPhoneInputMech
               control={control}
               errors={errors}
               label={`Phone No.`}
@@ -290,6 +298,15 @@ const MechanicRegister = () => {
               name={`description`}
               rules={{ required: true }}
             />
+            <CustomDatePicker
+              control={control}
+              errors={errors}
+              label={`Birthday`}
+              message={`Birthday is required`}
+              my={5}
+              name={`bday`}
+              rules={{ required: true }}
+            />
             <Text style={styles.title}>Address Information</Text>
             <CustomSelect
               my={5}
@@ -301,6 +318,7 @@ const MechanicRegister = () => {
               }))}
               value={selectedRegion}
               setValue={setSelectedRegion}
+              name={`region`}
             />
             <CustomSelect
               my={5}
@@ -313,6 +331,7 @@ const MechanicRegister = () => {
               value={selectedProvince}
               setValue={setSelectedProvince}
               disabled={!selectedRegion}
+              name={`state`}
             />
             <CustomSelect
               my={5}
@@ -325,6 +344,7 @@ const MechanicRegister = () => {
               value={selectedCity}
               setValue={setSelectedCity}
               disabled={!selectedProvince}
+              name={`city`}
             />
             <CustomSelect
               my={5}
@@ -337,6 +357,7 @@ const MechanicRegister = () => {
               value={selectedBarangay}
               setValue={setSelectedBarangay}
               disabled={!selectedCity}
+              name={`barangay`}
             />
             <CustomTextInput
               control={control}
@@ -400,19 +421,35 @@ const MechanicRegister = () => {
                   onPress={uploadProfessionalCert}
                   style={styles.uploadButton}
                 >
-                  {" "}
                   Choose File
                 </Button>
                 {professionalCertUpload !== null ? (
-                  <Image
-                    source={{ uri: displayProfessionalCertUpload }}
+                  professionalCertUpload.mimeType === "application/pdf" ? (
+                    <Text
                     style={{
                       alignSelf: "center",
-                      height: "140%",
-                      width: "25%",
-                      borderRadius: 5,
+                      fontFamily: "Nunito-Bold",
+                      fontSize: 12,
+                      marginTop: 10,
+                      textAlign: "center",
+                      flexWrap: "wrap",
                     }}
-                  />
+                    numberOfLines={2} // Number of lines to wrap to
+                    ellipsizeMode="tail" // How the text should be truncated
+                    >
+                      {professionalCertUpload.name}
+                    </Text>
+                  ) : (
+                    <Image
+                      source={{ uri: displayProfessionalCertUpload }}
+                      style={{
+                        alignSelf: "center",
+                        height: 200,
+                        width: 200,
+                        borderRadius: 5,
+                      }}
+                    />
+                  )
                 ) : (
                   <Text
                     style={{
@@ -421,8 +458,7 @@ const MechanicRegister = () => {
                       marginTop: 10,
                     }}
                   >
-                    {" "}
-                    No File Choosen{" "}
+                    No File Chosen
                   </Text>
                 )}
               </View>

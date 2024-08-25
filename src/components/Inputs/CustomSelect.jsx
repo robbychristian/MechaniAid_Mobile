@@ -13,6 +13,7 @@ export const CustomSelect = ({
   setValue,
   disabled,
   loading,
+  name,
 }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
 
@@ -27,11 +28,11 @@ export const CustomSelect = ({
 
   return (
     <View style={{ width: "100", marginVertical: my }}>
-      <Text category="label" style={{ color: "gray", marginBottom: 5 }}>
-        {label}{" "}
-        <Text style={{ color: "#DC3545" }}>{isRequired ? "*" : null}</Text>
-      </Text>
+      {label && (
+        <Text style={styles.label}>{label}</Text> // Display the label above the inputs
+      )}
       <Select
+        name={name}
         style={styles.select}
         placeholder={placeholder}
         selectedIndex={selectedIndex}
@@ -52,7 +53,9 @@ export const CustomSelect = ({
 };
 
 const styles = StyleSheet.create({
-  select: {
-    // Your styles here
+  label: {
+    marginBottom: 5,
+    fontSize: 15,
+    fontFamily:"Nunito-Bold"
   },
 });
