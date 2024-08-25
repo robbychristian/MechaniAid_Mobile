@@ -22,7 +22,8 @@ const Chat = () => {
       try {
         const inputs = {
           user_id: user.user_role == 3 ? user.id : route.params.mechanics_id,
-          mechanics_id: user.user_role == 3 ? route.params.mechanics_id : user.id,
+          mechanics_id:
+            user.user_role == 3 ? route.params.mechanics_id : user.id,
           chat_id: route.params.chat_id,
         };
         await dispatch(getChat(inputs));
@@ -34,7 +35,8 @@ const Chat = () => {
       try {
         const inputs = {
           user_id: user.user_role == 3 ? user.id : route.params.mechanics_id,
-          mechanics_id: user.user_role == 3 ? route.params.mechanics_id : user.id,
+          mechanics_id:
+            user.user_role == 3 ? route.params.mechanics_id : user.id,
           chat_id: route.params.chat_id,
         };
         await dispatch(getChat(inputs));
@@ -57,7 +59,7 @@ const Chat = () => {
         message: message,
       };
       const response = await dispatch(sendMessage(inputs));
-      setMessage("")
+      setMessage("");
     } catch (err) {
       console.log(err);
     }
@@ -186,7 +188,7 @@ const Chat = () => {
           onPress={onSubmit}
           icon={"send"}
           size={20}
-          iconColor="#A02828"
+          iconColor="#EF4141"
         />
       </Surface>
     </View>

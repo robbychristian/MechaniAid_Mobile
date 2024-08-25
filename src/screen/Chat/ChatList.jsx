@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Image, ScrollView, TouchableOpacity, View } from 'react-native'
+import { Image, ScrollView, TouchableOpacity, View, StyleSheet } from 'react-native'
 import { Card, Text } from '@ui-kitten/components'
 import ChatCard from '../../components/Cards/ChatCard';
 import { useNavigation } from '@react-navigation/native';
@@ -28,6 +28,17 @@ const ChatList = () => {
         <View style={{ width: '100%' }}>
             <Loading loading={loading} />
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+            <View
+            style={{
+              justifyContent: "left",
+              alignSelf: "flex-start",
+              paddingVertical: 15,
+              paddingHorizontal: 15,
+            }}
+          >
+            <Text style={styles.title}>Chats</Text>
+            {/* <Text style={styles.subtitle}></Text> */}
+          </View>
                 {chatList.length > 0 ? chatList.map((item, index) => {
                     return (
                         <ChatCard key={index} item={item} onPress={() => navigation.navigate("Chat", {
@@ -44,5 +55,18 @@ const ChatList = () => {
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+    title: {
+        fontFamily: "Nunito-Bold",
+        fontSize: 30,
+        color: "#EF4141",
+      },
+      subtitle: {
+        fontFamily: "Nunito-Light",
+        fontSize: 15,
+        marginLeft: 2,
+      },
+});
 
 export default ChatList;

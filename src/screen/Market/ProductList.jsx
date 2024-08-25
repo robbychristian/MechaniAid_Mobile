@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import ProductCard from "../../components/Cards/ProductCard";
 import { api } from "../../../config/api";
 import { ScrollView } from "react-native-gesture-handler";
@@ -132,11 +133,18 @@ const ProductList = () => {
   );
 };
 
+
+
 const styles = StyleSheet.create({
-  heading: {
+  title: {
     fontFamily: "Nunito-Bold",
-    fontSize: 24, // Adjust the size for emphasis
+    fontSize: 30,
+    color: "#EF4141",
+  },
+  subtitle: {
+    fontFamily: "Nunito-Light",
+    fontSize: 15,
+    marginLeft: 2,
   },
 })
-
 export default ProductList;

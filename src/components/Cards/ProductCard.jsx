@@ -25,14 +25,14 @@ const ProductCard = ({ item, onPress, onDelete }) => {
       })
   }
   return (
-    <Card onPress={onPress} style={{ width: "100%", height: "50", marginBottom: 10 }}>
+    <Card onPress={onPress} style={{ marginHorizontal: 2, marginVertical: 2, width: win.width / 2 - 20 }}>
       <Image
         source={{
           uri: `https://www.mechaniaid.com/api/product-image/${item.product_image}`,
         }}
         style={{ height: 150, width: '100%', objectFit: "contain", marginBottom: 5 }}
       />
-      <Text category="label" style={{ color: "#A02828", marginBottom: 5 }}>
+      <Text style={{ color: "#A02828", fontFamily: "Nunito-Regular", fontSize: 22 }}>
         {item.product_name}
       </Text>
       <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 5 }}>

@@ -65,7 +65,8 @@ const DrawerNavigation = () => {
   return (
     <DrawerStack.Navigator
       drawerContent={(props) => <DrawerContent {...props} />}
-      screenOptions={{
+      screenOptions={{ 
+        headerShown: false,
         headerStyle: {
           backgroundColor: "#EF4444",
         },
