@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import MapView, { Circle, Marker } from "react-native-maps";
 import {
   Alert,
@@ -7,12 +7,16 @@ import {
   Animated,
   Easing,
   StyleSheet,
-  BackHandler
+  BackHandler,
 } from "react-native";
 import { api } from "../../../config/api";
 import Loading from "../../components/Loading";
 import * as Location from "expo-location";
-import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/native";
+import {
+  useNavigation,
+  useRoute,
+  useFocusEffect,
+} from "@react-navigation/native";
 import { Button, Text } from "@ui-kitten/components";
 import { useSelector } from "react-redux";
 import * as geolib from "geolib";
@@ -30,17 +34,20 @@ const Booking = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [nearbySearch, setNearbySearch] = useState([]);
   const rotateAnim = useRef(new Animated.Value(0)).current;
+  const searchRotateAnim = useRef(new Animated.Value(0)).current;
   const animationRef = useRef(null);
+  const [declinedBookings, setDeclinedBookings] = useState([]);
 
-  const { service_type, vehicle_type, vehicle_name, mode_of_payment } =
+  const { service_type, vehicle_type, vehicle_name, mode_of_payment, other } =
     route.params;
   // Log the data received from the previous screen
-  console.log("Received data on Booking screen:", {
-    service_type,
-    vehicle_type,
-    vehicle_name,
-    mode_of_payment,
-  });
+  // console.log("Received data on Booking screen:", {
+  //   service_type,
+  //   vehicle_type,
+  //   vehicle_name,
+  //   mode_of_payment,
+  //   other,
+  // });
 
   const startRotationAnimation = () => {
     if (animationRef.current) {
@@ -58,6 +65,17 @@ const Booking = () => {
     animationRef.current.start();
   };
 
+  const startSearchRotationAnimation = () => {
+    Animated.loop(
+      Animated.timing(searchRotateAnim, {
+        toValue: 1,
+        duration: 2000,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      })
+    ).start();
+  };
+
   useEffect(() => {
     if (isBooking) {
       startRotationAnimation();
@@ -66,6 +84,12 @@ const Booking = () => {
         animationRef.current.stop();
       }
       rotateAnim.setValue(0); // Reset rotation value when not booking
+    }
+
+    if (isSearching) {
+      startSearchRotationAnimation();
+    } else {
+      searchRotateAnim.setValue(0);
     }
 
     const unsubscribe = navigation.addListener("focus", async () => {
@@ -89,44 +113,54 @@ const Booking = () => {
     const interval = setInterval(async () => {
       let loc = await Location.getCurrentPositionAsync({});
       setLocation(loc.coords);
-      console.log(loc.coords);
+      // console.log(loc.coords);
     }, 5000);
+
+    console.log("Declined Bookings Updated:", declinedBookings);
 
     return () => {
       unsubscribe();
       clearInterval(interval);
     };
-  }, [navigation, rotateAnim, isBooking]);
+  }, [navigation, rotateAnim, isBooking, isSearching, declinedBookings]);
 
   const bookNow = () => {
-  if (route.params && route.params.service_type) {
-    const serviceTypeString = route.params.service_type.join(", "); // Convert array to string
+    if (route.params && route.params.service_type) {
+      const serviceTypeString = route.params.service_type.join(", "); // Convert array to string
 
-    api
-      .post("startbooking", {
-        user_id: user.id,
-        first_name: user.first_name,
-        middle_name: user.middle_name,
-        last_name: user.last_name,
-        longitude: location.longitude,
-        latitude: location.latitude,
-        service_type: serviceTypeString, // Pass the string instead of the array
-        radius: 1000,
-      })
-      .then((response) => {
-        setIsBooking(true);
-        console.log(response.data);
-      })
-      .catch((err) => {
-        console.log(err.response);
-      });
-  } else {
-    console.error("Service type is not defined in route params.");
-  }
-};
-
+      api
+        .post("startbooking", {
+          user_id: user.id,
+          first_name: user.first_name,
+          middle_name: user.middle_name,
+          last_name: user.last_name,
+          longitude: location.longitude,
+          latitude: location.latitude,
+          service_type: serviceTypeString, // Pass the string instead of the array
+          other_service_type: route.params.other,
+          vehicle_type: route.params.vehicle_type,
+          vehicle_name: route.params.vehicle_name,
+          mode_of_payment: route.params.mode_of_payment,
+          radius: 1000,
+        })
+        .then((response) => {
+          setIsBooking(true);
+          console.log(response.data);
+        })
+        .catch((err) => {
+          console.log(err.response);
+        });
+    } else {
+      console.error("Service type is not defined in route params.");
+    }
+  };
 
   const rotateInterpolate = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0deg", "360deg"],
+  });
+
+  const searchRotateInterpolate = searchRotateAnim.interpolate({
     inputRange: [0, 1],
     outputRange: ["0deg", "360deg"],
   });
@@ -138,12 +172,12 @@ const Booking = () => {
         return true; // Prevent default behavior
       };
 
-      BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      BackHandler.addEventListener("hardwareBackPress", onBackPress);
 
-      return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+      return () =>
+        BackHandler.removeEventListener("hardwareBackPress", onBackPress);
     }, [navigation])
   );
-
 
   const cancelBooking = () => {
     // setIsBooking(false);
@@ -159,17 +193,111 @@ const Booking = () => {
       });
   };
 
+  // const searchNearby = () => {
+  //   api
+  //     .get("getallnearbybooking")
+  //     .then((response) => {
+  //       console.log(response.data);
+  //       setNearbySearch(response.data);
+  //       setIsSearching(true);
+  //     })
+  //     .catch((err) => {
+  //       console.log(err.response);
+  //     });
+  // };
+
+  // const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  const fetchAndAssignBooking = async () => {
+    try {
+      setIsSearching(true);
+
+      const loc = await Location.getCurrentPositionAsync({});
+      const userLocation = loc.coords;
+
+      const requestPayload = {
+        mechanics_id: user.id,
+        latitude: userLocation.latitude,
+        longitude: userLocation.longitude,
+        declined_booking_ids: declinedBookings,
+      };
+      
+      const response = await api.post("/assign-booking", requestPayload);
+      const { booking, message, wait_time } = response.data;
+
+      if (booking) {
+        Alert.alert(
+          "Booking Found!",
+          `A booking request from ${booking.first_name} ${booking.last_name}.`,
+          [
+            {
+              text: "Decline",
+              onPress: async () => {
+                const updatedDeclinedBookings = [
+                  ...declinedBookings,
+                  booking.id,
+                ];
+                setDeclinedBookings(updatedDeclinedBookings);
+
+                try {
+                  await api.post("/decline-booking", {
+                    booking_id: booking.id,
+                    mechanics_id: user.id,
+                  });
+
+                  // fetchAndAssignBooking();
+                } catch (error) {
+                  console.error("Decline Booking API Error:", error.response);
+                  Toast.error("An error occurred while declining the booking.");
+                }
+              },
+              style: "cancel",
+            },
+            {
+              text: "Accept",
+              onPress: async () => {
+                try {
+                  await api.post("/acceptbooking", {
+                    booking_id: booking.id,
+                    mechanics_id: user.id,
+                  });
+
+                  Alert.alert(
+                    "Booking Accepted",
+                    `Booking Request from ${booking.first_name} ${booking.last_name}.`,
+                    [
+                      {
+                        text: "OK",
+                        onPress: () => {
+                          navigation.navigate("AcceptBooking", {
+                            item: booking,
+                          });
+                        },
+                      },
+                    ]
+                  );
+                } catch (error) {
+                  console.error("Accept Booking API Error:", error.response);
+                  Toast.error("An error occurred while accepting the booking.");
+                }
+              },
+            },
+          ]
+        );
+      } else {
+        // // Continue searching with delay
+        // await delay(Math.max(15000 + Math.random() * 5000, 15000));
+        fetchAndAssignBooking(); // Recursively search again
+        Toast.warn("No bookings within 1 km radius as of the moment.");
+      }
+    } catch (error) {
+      console.error("API Error:", error.response);
+      Toast.error("An error occurred while searching for bookings.");
+    }
+  };
+
   const searchNearby = () => {
-    api
-      .get("getallnearbybooking")
-      .then((response) => {
-        console.log(response.data);
-        setNearbySearch(response.data);
-        setIsSearching(true);
-      })
-      .catch((err) => {
-        console.log(err.response);
-      });
+    fetchAndAssignBooking();
   };
 
   const cancelSearch = () => {
@@ -318,7 +446,7 @@ const Booking = () => {
       ) : (
         <>
           <MapView
-            style={{ width: "100%", height: "90%" }}
+            style={{ width: "100%", height: isSearching ? "70%" : "80%" }} // Adjust height based on isBooking
             initialRegion={{
               latitude: location.latitude,
               longitude: location.longitude,
@@ -334,6 +462,16 @@ const Booking = () => {
               title="Your Current Location"
               pinColor="rgb(14 116 144)"
             />
+            <Circle
+              center={{
+                latitude: location.latitude,
+                longitude: location.longitude,
+              }}
+              radius={1000}
+              fillColor={"rgba(239,68,68,0.2)"}
+              strokeWidth={0}
+            />
+            
             {nearbySearch.length > 0 &&
               nearbySearch.map((item, index) => {
                 if (item.booking_details != null) {
@@ -391,20 +529,67 @@ const Booking = () => {
           </MapView>
           <TouchableOpacity
             style={{
-              height: "10%",
-              width: "100%",
-              backgroundColor: "#A02828",
+              position: "absolute",
+              top: 30,
+              left: 20,
+              backgroundColor: "#ffffff",
+              borderRadius: 25,
+              width: 50,
+              height: 50,
               justifyContent: "center",
               alignItems: "center",
-              borderWidth: 0.5,
-              borderColor: "#fff",
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.8,
+              shadowRadius: 2,
+              elevation: 5,
             }}
-            onPress={isSearching ? cancelSearch : searchNearby}
+            onPress={() => navigation.goBack()}
           >
-            <Text category="h5" style={{ color: "#fff" }}>
-              {isSearching ? "Cancel Search" : "Search Nearby"}
-            </Text>
+            <Ionicons name="arrow-back" size={24} color="black" />
           </TouchableOpacity>
+
+          {isSearching && (
+            <View>
+              <View style={styles.searchContainer}>
+                <Animated.View
+                  style={{ transform: [{ rotate: searchRotateInterpolate }] }}
+                >
+                  <Icon name="cog" size={40} color="#EF4444" />
+                </Animated.View>
+                <Text style={styles.searchText}>
+                  Searching for Customers...
+                </Text>
+              </View>
+            </View>
+          )}
+
+          <View
+            style={{
+              position: "absolute",
+              bottom: 0,
+              width: "100%",
+              paddingHorizontal: 20,
+              paddingVertical: 20,
+              alignSelf: "center",
+              backgroundColor: "#fff",
+            }}
+          >
+            <TouchableOpacity
+              style={{
+                height: 50,
+                backgroundColor: "#EF4444",
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: 50,
+              }}
+              onPress={isSearching ? cancelSearch : searchNearby}
+            >
+              <Text style={{ color: "#fff", fontFamily: "Nunito-Bold" }}>
+                {isSearching ? "Cancel Search" : "SEARCH NOW"}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </>
       )}
     </View>

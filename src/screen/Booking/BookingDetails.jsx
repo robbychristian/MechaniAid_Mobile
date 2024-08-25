@@ -58,12 +58,13 @@ const BookingDetails = () => {
   ];
 
   const onSubmit = (data) => {
-    // navigation.navigate("Booking", {
-    //   service_type: data.service_type,
-    //   vehicle_type: data.vehicle_type,
-    //   vehicle_name: data.vehicle_name,
-    //   mode_of_payment: data.mode_of_payment
-    // });
+    navigation.navigate("Booking", {
+      service_type: data.service_type,
+      vehicle_type: data.vehicle_type,
+      vehicle_name: data.vehicle_name,
+      mode_of_payment: data.mode_of_payment,
+      other: data.other_service_type || ""
+    });
 
     const objects = [
       { service_type: data.service_type },
