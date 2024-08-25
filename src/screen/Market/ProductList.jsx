@@ -8,30 +8,77 @@ import { useDispatch, useSelector } from "react-redux";
 import { clearProduct, getAllMechanicProducts, getAllProducts } from "../../store/products/Products";
 import Loading from "../../components/Loading";
 import { IconButton } from "react-native-paper";
-import { Button, Card } from "@ui-kitten/components";
+import { Button, Card, IndexPath, Input, Select, SelectItem } from "@ui-kitten/components";
 
 const ProductList = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { loading, productList } = useSelector((state) => state.products);
   const { user } = useSelector((state) => state.auth);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredProducts, setFilteredProducts] = useState(productList);
+  const [selectedSortIndex, setSelectedSortIndex] = useState(new IndexPath(0));  // Initialize with an IndexPath object
+
+  const sortOptions = ["Sort by Name", "Sort by Price"];
+
+  // useEffect(() => {
+  //   const unsubscribe = navigation.addListener("focus", async () => {
+  //     console.log(user)
+  //     try {
+  //       if (user.user_role == 3) {
+  //         await dispatch(getAllProducts(1));
+  //       } else {
+  //         await dispatch(getAllMechanicProducts(user.id));
+  //       }
+  //       await dispatch(clearProduct())
+  //     } catch (err) {
+  //       console.log(err);
+  //     }
+  //   });
+  //   return unsubscribe;
+  // }, [navigation]);
+  const refreshProducts = async () => {
+    try {
+      if (user.user_role == 3) {
+        await dispatch(getAllProducts(1));
+      } else {
+        await dispatch(getAllMechanicProducts(user.id));
+      }
+      await dispatch(clearProduct());
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", async () => {
-      console.log(user)
-      try {
-        if (user.user_role == 3) {
-          await dispatch(getAllProducts(1));
-        } else {
-          await dispatch(getAllMechanicProducts(user.id));
-        }
-        await dispatch(clearProduct())
-      } catch (err) {
-        console.log(err);
-      }
-    });
+    const unsubscribe = navigation.addListener("focus", refreshProducts);
     return unsubscribe;
   }, [navigation]);
+
+  useEffect(() => {
+    let filteredProducts = [...productList];
+
+    if (searchQuery.trim() !== "") {
+      filteredProducts = filteredProducts.filter((product) => (
+        product.product_name.toLowerCase().includes(searchQuery.toLowerCase())
+      ))
+    }
+    const selectedSortOption = sortOptions[selectedSortIndex.row];
+
+    switch (selectedSortOption) {
+      case "Sort by Name":
+        filteredProducts.sort((a, b) => a.product_name.localeCompare(b.product_name));
+        break;
+      case "Sort by Price":
+        filteredProducts.sort((a, b) => a.price - b.price);
+        break;
+      default:
+        break;
+    }
+
+    setFilteredProducts(filteredProducts)
+  }, [searchQuery, productList, selectedSortIndex])
+
   return (
     <View>
       <Loading loading={loading} />
@@ -45,12 +92,28 @@ const ProductList = () => {
             )}
           </View>
 
-          {productList.length > 0 ?
-            productList.map((item, index) => {
+          <Input
+            placeholder="Search Products..."
+            style={{ marginVertical: 5 }}
+            onChangeText={(e) => setSearchQuery(e)}
+          />
+
+          <Select
+            selectedIndex={selectedSortIndex}
+            onSelect={(index) => setSelectedSortIndex(index)}
+            value={sortOptions[selectedSortIndex.row]}
+            style={{ marginVertical: 5 }}
+          >
+            {sortOptions.map((option, index) => (
+              <SelectItem title={option} key={index} />
+            ))}
+          </Select>
+
+          {filteredProducts.length > 0 ?
+            filteredProducts.map((item, index) => {
               return (
-                <View style={{ alignItems: "center", }}>
+                <View style={{ alignItems: "center", }} key={index}>
                   <ProductCard
-                    key={index}
                     item={item}
                     onPress={() => {
                       console.log(item.id);
@@ -58,19 +121,12 @@ const ProductList = () => {
                         id: item.id,
                       });
                     }}
+                    onDelete={refreshProducts}
                   />
                 </View>
               );
             }) : <Card style={{ marginTop: 20, width: '100%', justifyContent: 'center', alignItems: "center" }}><Text>No products in listing!</Text></Card>}
         </View>
-        {/* {user.user_role == 2 && (
-          <IconButton
-            onPress={() => console.log('try add')}
-            icon={"plus-box"}
-            size={50}
-            iconColor="#A02828"
-          />
-        )} */}
       </ScrollView>
     </View>
   );
