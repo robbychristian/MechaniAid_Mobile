@@ -208,6 +208,8 @@ const Booking = () => {
 
   // const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+  let toastShown = false; // Add this at the top of your component or module
+
   const fetchAndAssignBooking = async () => {
     try {
       setIsSearching(true);
@@ -221,11 +223,12 @@ const Booking = () => {
         longitude: userLocation.longitude,
         declined_booking_ids: declinedBookings,
       };
-      
+
       const response = await api.post("/assign-booking", requestPayload);
       const { booking, message, wait_time } = response.data;
 
       if (booking) {
+        toastShown = false; // Reset toastShown when a booking is found
         Alert.alert(
           "Booking Found!",
           `A booking request from ${booking.first_name} ${booking.last_name}.`,
@@ -245,7 +248,7 @@ const Booking = () => {
                     mechanics_id: user.id,
                   });
 
-                  // fetchAndAssignBooking();
+                  fetchAndAssignBooking();
                 } catch (error) {
                   console.error("Decline Booking API Error:", error.response);
                   Toast.error("An error occurred while declining the booking.");
@@ -257,25 +260,7 @@ const Booking = () => {
               text: "Accept",
               onPress: async () => {
                 try {
-                  await api.post("/acceptbooking", {
-                    booking_id: booking.id,
-                    mechanics_id: user.id,
-                  });
-
-                  Alert.alert(
-                    "Booking Accepted",
-                    `Booking Request from ${booking.first_name} ${booking.last_name}.`,
-                    [
-                      {
-                        text: "OK",
-                        onPress: () => {
-                          navigation.navigate("AcceptBooking", {
-                            item: booking,
-                          });
-                        },
-                      },
-                    ]
-                  );
+                  await acceptBooking(booking);
                 } catch (error) {
                   console.error("Accept Booking API Error:", error.response);
                   Toast.error("An error occurred while accepting the booking.");
@@ -285,18 +270,26 @@ const Booking = () => {
           ]
         );
       } else {
-        // // Continue searching with delay
-        // await delay(Math.max(15000 + Math.random() * 5000, 15000));
-        fetchAndAssignBooking(); // Recursively search again
-        Toast.warn("No bookings within 1 km radius as of the moment.");
+        if (!toastShown) {
+          Toast.warn("No bookings within 1 km radius as of the moment.");
+          toastShown = true;
+        }
+
+        // Introduce a delay before retrying
+        await new Promise((resolve) => setTimeout(resolve, wait_time || 15000));
+
+        fetchAndAssignBooking(); // Recursively search again after the delay
       }
     } catch (error) {
       console.error("API Error:", error.response);
       Toast.error("An error occurred while searching for bookings.");
+    } finally {
+      setIsSearching(false); // Reset searching state
     }
   };
 
   const searchNearby = () => {
+    toastShown = false;
     fetchAndAssignBooking();
   };
 
@@ -305,45 +298,46 @@ const Booking = () => {
     setNearbySearch([]);
   };
 
-  const acceptBooking = (item) => {
+  const acceptBooking = async (item) => {
     setLoading(true);
-    api
-      .post("acceptbooking", {
+    try {
+      const response = await api.post("acceptbooking", {
         booking_id: item.id,
-        user_id: user.id,
-      })
-      .then((response) => {
-        setLoading(false);
-        const mechanic = response.data.all_mechanics_info.mechanics;
-
-        // Check if the user role is 3 before showing the Alert
-        if (user.user_role === 3) {
-          Alert.alert(
-            "Booking Accepted",
-            `You have accepted a booking for ${mechanic.first_name} ${mechanic.last_name}.`,
-            [
-              {
-                text: "OK",
-                onPress: () => {
-                  // Navigate to the next screen or perform another action
-                  navigation.navigate("AcceptBooking", {
-                    item: item,
-                  });
-                },
-              },
-            ]
-          );
-        } else {
-          // If the role is not 3, just navigate without showing the Alert
-          navigation.navigate("AcceptBooking", {
-            item: item,
-          });
-        }
-      })
-      .catch((err) => {
-        setLoading(false);
-        console.log(err.response);
+        mechanics_id: user.id,
       });
+
+      const mechanic = response.data.all_mechanics_info.mechanics;
+      const mechanicProfilePic =
+        response.data.all_mechanics_info.mechanics_info.mechanics_profile_pic;
+
+      // Check if the user role is 3 before showing the Alert
+      if (user.user_role === 3) {
+        // Create a custom modal or component to show the alert with an image
+        Alert.alert(
+          "Congratulations 🎉",
+          `We found you a mechanic! 🚀\n\nMechanic: ${mechanic.first_name} ${mechanic.last_name}\n\nMode of Payment: ${response.data.all_mechanics_info.mode_of_payment}`,
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                // Navigate to the next screen or perform another action
+                console.log("Accepted");
+              },
+            },
+          ],
+          {
+            cancelable: false,
+          }
+        );
+      } else {
+        // If the role is not 3, just navigate without showing the Alert
+        console.log("You Accepted as a Mechanic");
+      }
+    } catch (err) {
+      console.error(err.response);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -471,7 +465,7 @@ const Booking = () => {
               fillColor={"rgba(239,68,68,0.2)"}
               strokeWidth={0}
             />
-            
+
             {nearbySearch.length > 0 &&
               nearbySearch.map((item, index) => {
                 if (item.booking_details != null) {
