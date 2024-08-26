@@ -136,7 +136,7 @@ const Home = () => {
             }}
           >
             <TouchableOpacity
-              onPress={() => console.log('Rebooking Records')}
+              onPress={() => navigation.navigate('RebookRequests')}
               style={{
                 backgroundColor: "#f67070",
                 height: 115,
@@ -180,6 +180,33 @@ const Home = () => {
           </View>
         )}
       </View>
+
+      {user.user_role == 3 && (
+        <View
+          style={{
+            justifyContent: "left",
+            alignItems: "left",
+            paddingVertical: 5,
+            paddingHorizontal: 30,
+          }}
+        >
+          <TouchableOpacity
+            onPress={() => navigation.navigate('RebookRequests')}
+            style={{
+              backgroundColor: "#f67070",
+              height: 115,
+              width: 115,
+              justifyContent: "center",
+              alignItems: "center",
+              borderRadius: 100,
+              marginBottom: 5
+            }}
+          >
+            <Icon source={`book-refresh`} size={80} color="#58606e" />
+          </TouchableOpacity>
+          <Text style={styles.subtitle}>Rebooking Requests</Text>
+        </View>
+      )}
     </View>
   );
 };

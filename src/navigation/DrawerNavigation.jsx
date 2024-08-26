@@ -20,6 +20,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { logoutUser } from "../store/auth/User";
 import FavoriteMechanic from "../screen/Booking/FavoriteMechanic";
 import BookingInfo from "../screen/Booking/BookingInfo";
+import RebookRequests from "../screen/Booking/RebookRequests";
 
 const DrawerStack = createDrawerNavigator();
 
@@ -65,7 +66,7 @@ const DrawerNavigation = () => {
   return (
     <DrawerStack.Navigator
       drawerContent={(props) => <DrawerContent {...props} />}
-      screenOptions={{ 
+      screenOptions={{
         headerShown: false,
         headerStyle: {
           backgroundColor: "#EF4444",
@@ -92,6 +93,7 @@ const DrawerNavigation = () => {
       <DrawerStack.Screen name="EditProduct" component={EditProduct} />
       <DrawerStack.Screen name="FavoriteMechanic" component={FavoriteMechanic} />
       <DrawerStack.Screen name="BookingInfo" component={BookingInfo} />
+      <DrawerStack.Screen name="RebookRequests" component={RebookRequests} />
 
 
       {/* <DrawerStack.Screen

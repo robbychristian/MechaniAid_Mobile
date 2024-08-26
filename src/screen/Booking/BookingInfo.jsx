@@ -4,8 +4,9 @@ import { useEffect } from "react";
 import { ScrollView, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import Loading from "../../components/Loading";
-import { getBookingsById } from "../../store/booking/Booking";
+import { getBookingsById, rebooking } from "../../store/booking/Booking";
 import { Text } from "react-native-paper";
+import { Toast } from "toastify-react-native";
 
 const BookingInfo = () => {
     const navigation = useNavigation();
@@ -31,7 +32,7 @@ const BookingInfo = () => {
         return () => {
             unsubscribe();
         }
-    }, [navigation, route.params.booking_id])
+    }, [navigation, route.params.booking_id]);
 
     return (
         <View>
@@ -57,8 +58,6 @@ const BookingInfo = () => {
                             <Text>Mode of Payment: {booking.mode_of_payment}</Text>
                             <Text>Total Price: {booking.total_price}</Text>
                         </Card>
-
-                        <Button style={{ marginTop: 10 }}>Rebook</Button>
                     </View>
                 </ScrollView>
             )}
