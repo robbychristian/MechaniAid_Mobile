@@ -22,7 +22,17 @@ const CustomPhoneInput = ({
       )}
       <Controller
         control={control}
-        rules={rules}
+        rules={{
+          ...rules,
+          minLength: {
+            value: 10,
+            message: "Mobile Number must be exactly 10 characters",
+          },
+          maxLength: {
+            value: 10,
+            message: "Mobile Number must be exactly 10 characters",
+          },
+        }}
         render={({ field: { onChange, onBlur, value } }) => (
           <Layout style={[styles.container, { width: isFull ? '100%' : '70%' }]}>
             <View style={styles.prefixContainer}>

@@ -19,7 +19,6 @@ import CustomDatePicker from "../../components/Inputs/CustomDatePicker";
 import moment from "moment";
 import { IconButton } from "react-native-paper";
 import Loading from "../../components/Loading";
-import CustomPhoneInput from "../../components/Inputs/CustomPhoneInput";
 import CustomPhoneInputMech from "../../components/Inputs/CustomPhoneInputMech";
 import CustomTextInputMultiline from "../../components/Inputs/CustomTextInputMultiline";
 import { CustomSelect } from "../../components/Inputs/CustomSelect";
@@ -119,6 +118,39 @@ const MechanicRegister = () => {
   });
 
   const onSubmit = async (data) => {
+    if (data.pwd !== data.confpw) {
+      Toast.error("Password and Confirm Password do not match.");
+      return;
+    }
+    if (!fileUpload) {
+      Toast.error("Profile photo is required.");
+      return;
+    }
+    if (!validIdUpload) {
+      Toast.error("Valid ID is required.");
+      return;
+    }
+    if (!selectedRegion) {
+      Toast.error("Region is required.");
+      return;
+    }
+    if (!selectedProvince) {
+      Toast.error("Province is required.");
+      return;
+    }
+    if (!selectedCity) {
+      Toast.error("City is required.");
+      return;
+    }
+    if (!selectedBarangay) {
+      Toast.error("Barangay is required.");
+      return;
+    }
+    if (!professionalCertUpload) {
+      Toast.error("Professional Certificate is required.");
+      return;
+    }
+
     const formdata = new FormData();
     const newFile = {
       uri: fileUpload.uri,
@@ -135,6 +167,7 @@ const MechanicRegister = () => {
       type: "multipart/form-data",
       name: professionalCertUpload.name,
     };
+
     for (const key in data) {
       if (data.hasOwnProperty(key)) {
         if (key == "bday") {
@@ -144,10 +177,10 @@ const MechanicRegister = () => {
         }
       }
     }
+
     formdata.append("mechanics_profile_pic", newFile);
     formdata.append("valid_id", newValidId);
     formdata.append("certificate", newProfessionalCert);
-
     formdata.append("region", selectedRegion?.region_name || "");
     formdata.append("state", selectedProvince?.province_name || "");
     formdata.append("city", selectedCity?.city_name || "");
@@ -372,8 +405,8 @@ const MechanicRegister = () => {
             <View>
               <Text
                 style={{
-                  fontFamily: "Nunito-SemiBold",
-                  fontSize: 12,
+                  fontFamily: "Nunito-Bold",
+                  fontSize: 15,
                   marginVertical: 5,
                 }}
               >
@@ -381,7 +414,6 @@ const MechanicRegister = () => {
               </Text>
               <View style={styles.uploadButtonContainer}>
                 <Button onPress={uploadValidId} style={styles.uploadButton}>
-                  {" "}
                   Choose File
                 </Button>
                 {validIdUpload !== null ? (
@@ -402,15 +434,14 @@ const MechanicRegister = () => {
                       marginTop: 10,
                     }}
                   >
-                    {" "}
-                    No File Choosen{" "}
+                    No File Chosen
                   </Text>
                 )}
               </View>
               <Text
                 style={{
-                  fontFamily: "Nunito-SemiBold",
-                  fontSize: 12,
+                  fontFamily: "Nunito-Bold",
+                  fontSize: 15,
                   marginVertical: 5,
                 }}
               >
@@ -426,16 +457,16 @@ const MechanicRegister = () => {
                 {professionalCertUpload !== null ? (
                   professionalCertUpload.mimeType === "application/pdf" ? (
                     <Text
-                    style={{
-                      alignSelf: "center",
-                      fontFamily: "Nunito-Bold",
-                      fontSize: 12,
-                      marginTop: 10,
-                      textAlign: "center",
-                      flexWrap: "wrap",
-                    }}
-                    numberOfLines={2} // Number of lines to wrap to
-                    ellipsizeMode="tail" // How the text should be truncated
+                      style={{
+                        alignSelf: "center",
+                        fontFamily: "Nunito-Bold",
+                        fontSize: 12,
+                        textAlign: "center",
+                        flexWrap: "wrap",
+                        width: "50%",
+                      }}
+                      numberOfLines={2}
+                      ellipsizeMode="tail"
                     >
                       {professionalCertUpload.name}
                     </Text>
@@ -444,9 +475,9 @@ const MechanicRegister = () => {
                       source={{ uri: displayProfessionalCertUpload }}
                       style={{
                         alignSelf: "center",
-                        height: 200,
-                        width: 200,
-                        borderRadius: 5,
+                      height: "115%",
+                      width: "25%",
+                      borderRadius: 5,
                       }}
                     />
                   )

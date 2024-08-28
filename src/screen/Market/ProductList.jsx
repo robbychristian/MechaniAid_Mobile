@@ -5,10 +5,21 @@ import { api } from "../../../config/api";
 import { ScrollView } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
-import { clearProduct, getAllMechanicProducts, getAllProducts } from "../../store/products/Products";
+import {
+  clearProduct,
+  getAllMechanicProducts,
+  getAllProducts,
+} from "../../store/products/Products";
 import Loading from "../../components/Loading";
 import { IconButton } from "react-native-paper";
-import { Button, Card, IndexPath, Input, Select, SelectItem } from "@ui-kitten/components";
+import {
+  Button,
+  Card,
+  IndexPath,
+  Input,
+  Select,
+  SelectItem,
+} from "@ui-kitten/components";
 
 const ProductList = () => {
   const navigation = useNavigation();
@@ -17,7 +28,7 @@ const ProductList = () => {
   const { user } = useSelector((state) => state.auth);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredProducts, setFilteredProducts] = useState(productList);
-  const [selectedSortIndex, setSelectedSortIndex] = useState(new IndexPath(0));  // Initialize with an IndexPath object
+  const [selectedSortIndex, setSelectedSortIndex] = useState(new IndexPath(0)); // Initialize with an IndexPath object
 
   const sortOptions = ["Sort by Name", "Sort by Price"];
 
@@ -59,15 +70,17 @@ const ProductList = () => {
     let filteredProducts = [...productList];
 
     if (searchQuery.trim() !== "") {
-      filteredProducts = filteredProducts.filter((product) => (
+      filteredProducts = filteredProducts.filter((product) =>
         product.product_name.toLowerCase().includes(searchQuery.toLowerCase())
-      ))
+      );
     }
     const selectedSortOption = sortOptions[selectedSortIndex.row];
 
     switch (selectedSortOption) {
       case "Sort by Name":
-        filteredProducts.sort((a, b) => a.product_name.localeCompare(b.product_name));
+        filteredProducts.sort((a, b) =>
+          a.product_name.localeCompare(b.product_name)
+        );
         break;
       case "Sort by Price":
         filteredProducts.sort((a, b) => a.price - b.price);
@@ -76,19 +89,31 @@ const ProductList = () => {
         break;
     }
 
-    setFilteredProducts(filteredProducts)
-  }, [searchQuery, productList, selectedSortIndex])
+    setFilteredProducts(filteredProducts);
+  }, [searchQuery, productList, selectedSortIndex]);
 
   return (
     <View>
       <Loading loading={loading} />
-      <ScrollView contentContainerStyle={{ flexGrow: 1, }}>
-        <View style={{ paddingHorizontal: 9, paddingVertical: 8 }}
-        >
-          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.innerContainer}>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: 10,
+            }}
+          >
             <Text style={styles.heading}>Marketplace</Text>
             {user.user_role == 2 && (
-              <Button size="small" style={{ backgroundColor: "#EF4141", borderColor: "#EF4141" }} onPress={() => navigation.navigate("AddProduct")}>Add Product</Button>
+              <Button
+                size="small"
+                style={{ backgroundColor: "#EF4141", borderColor: "#EF4141" }}
+                onPress={() => navigation.navigate("AddProduct")}
+              >
+                Add Product
+              </Button>
             )}
           </View>
 
@@ -109,10 +134,10 @@ const ProductList = () => {
             ))}
           </Select>
 
-          {filteredProducts.length > 0 ?
+          {filteredProducts.length > 0 ? (
             filteredProducts.map((item, index) => {
               return (
-                <View style={{ alignItems: "center", }} key={index}>
+                <View style={styles.cardWrapper} key={index}>
                   <ProductCard
                     item={item}
                     onPress={() => {
@@ -125,16 +150,44 @@ const ProductList = () => {
                   />
                 </View>
               );
-            }) : <Card style={{ marginTop: 20, width: '100%', justifyContent: 'center', alignItems: "center" }}><Text>No products in listing!</Text></Card>}
+            })
+          ) : (
+            <Card
+              style={{
+                marginTop: 20,
+                width: "100%",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Text>No products in listing!</Text>
+            </Card>
+          )}
         </View>
       </ScrollView>
     </View>
   );
 };
 
-
-
 const styles = StyleSheet.create({
+  container: {
+    flexGrow: 1,
+  },
+  innerContainer: { 
+    paddingHorizontal: 9, 
+    paddingVertical: 8 
+  },
+  heading: {
+    fontFamily: "Nunito-Bold",
+    marginBottom: 10,
+    fontSize: 24, // Adjust the size for emphasis
+    textAlign: "center", // Center the header
+  },
+  cardWrapper: { 
+    marginBottom: 10,
+    width: "100%", // Make the card take full width
+    alignItems: "center", 
+  },
   title: {
     fontFamily: "Nunito-Bold",
     fontSize: 30,
@@ -145,5 +198,5 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginLeft: 2,
   },
-})
+});
 export default ProductList;

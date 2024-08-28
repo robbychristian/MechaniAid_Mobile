@@ -8,13 +8,14 @@ import { useNavigation } from "@react-navigation/native";
 import { Toast } from "toastify-react-native";
 
 const ProductCard = ({ item, onPress, onDelete }) => {
-  const { user } = useSelector(state => state.auth);
+  const { user } = useSelector((state) => state.auth);
   const navigation = useNavigation();
   const [imageUrl, setImageUrl] = useState("");
-  const win = Dimensions.get('window')
+  const win = Dimensions.get("window");
 
   const deleteItem = () => {
-    api.delete(`/delete-product/${item.id}`)
+    api
+      .delete(`/delete-product/${item.id}`)
       .then((response) => {
         console.log(response);
         onDelete();
@@ -22,45 +23,87 @@ const ProductCard = ({ item, onPress, onDelete }) => {
       })
       .catch((err) => {
         console.log(err);
-      })
-  }
+      });
+  };
   return (
-    <Card onPress={onPress} style={{ marginHorizontal: 2, marginVertical: 2, width: win.width / 2 - 20 }}>
-      <Image
-        source={{
-          uri: `https://www.mechaniaid.com/api/product-image/${item.product_image}`,
+    <View style={{ flex: 1, flexDirection: "row", alignItems: "center" }}>
+      <Card
+        onPress={onPress}
+        style={{
+          // marginHorizontal: 2,
+          // marginVertical: 2,
+          // width: win.width / 2 - 20,
+          // width: 200,
+          width: "90%", // Take 90% of the available width
+      marginVertical: 5,
         }}
-        style={{ height: 150, width: '100%', objectFit: "contain", marginBottom: 5 }}
-      />
-      <Text style={{ color: "#A02828", fontFamily: "Nunito-Regular", fontSize: 22 }}>
-        {item.product_name}
-      </Text>
-      <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 5 }}>
-        <Text category="label">P{item.price}</Text>
-        <Text
-          category="label"
+      >
+        <Image
+          source={{
+            uri: `https://www.mechaniaid.com/api/product-image/${item.product_image}`,
+          }}
           style={{
-            color:
-              item.availability == "In Stock"
-                ? "rgb(59 130 246)"
-                : item.availability == "Only One"
-                  ? "rgb(249 115 22)"
-                  : "rgb(34 197 94)",
+            height: 150,
+            width: "100%",
+            objectFit: "contain",
+            marginBottom: 5,
+          }}
+        />
+        <Text
+          style={{
+            color: "#A02828",
+            fontFamily: "Nunito-Regular",
+            fontSize: 22,
           }}
         >
-          {item.availability}
+          {item.product_name}
         </Text>
-      </View>
-      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-        <Text category="label">Location: {item.location}</Text>
-      </View>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            marginBottom: 5,
+          }}
+        >
+          <Text category="label">P{item.price}</Text>
+          <Text
+            category="label"
+            style={{
+              color:
+                item.availability == "In Stock"
+                  ? "rgb(59 130 246)"
+                  : item.availability == "Only One"
+                  ? "rgb(249 115 22)"
+                  : "rgb(34 197 94)",
+            }}
+          >
+            {item.availability}
+          </Text>
+        </View>
+        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+          <Text category="label">Location: {item.location}</Text>
+        </View>
 
-      <Divider style={{ marginVertical: 10 }} />
-      {user.id == item.mechanics_id && <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
-        <Button size="tiny" status="warning" style={{ marginRight: 10 }} onPress={() => navigation.navigate("EditProduct", { id: item.id })}>Edit</Button>
-        <Button size="tiny" status="danger" onPress={deleteItem}>Delete</Button>
-      </View>}
-    </Card>
+        <Divider style={{ marginVertical: 10 }} />
+        {user.id == item.mechanics_id && (
+          <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
+            <Button
+              size="tiny"
+              status="warning"
+              style={{ marginRight: 10 }}
+              onPress={() =>
+                navigation.navigate("EditProduct", { id: item.id })
+              }
+            >
+              Edit
+            </Button>
+            <Button size="tiny" status="danger" onPress={deleteItem}>
+              Delete
+            </Button>
+          </View>
+        )}
+      </Card>
+    </View>
   );
 };
 

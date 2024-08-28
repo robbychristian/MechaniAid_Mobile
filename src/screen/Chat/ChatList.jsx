@@ -36,7 +36,7 @@ const ChatList = () => {
               paddingHorizontal: 15,
             }}
           >
-            <Text style={styles.title}>Chats</Text>
+            <Text style={styles.heading}>Chats</Text>
             {/* <Text style={styles.subtitle}></Text> */}
           </View>
                 {chatList.length > 0 ? chatList.map((item, index) => {
@@ -57,6 +57,12 @@ const ChatList = () => {
 }
 
 const styles = StyleSheet.create({
+    heading: {
+        fontFamily: "Nunito-Bold",
+        marginBottom: 10,
+        fontSize: 24, // Adjust the size for emphasis
+        textAlign: "center", // Center the header
+      },
     title: {
         fontFamily: "Nunito-Bold",
         fontSize: 30,

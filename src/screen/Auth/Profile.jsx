@@ -22,7 +22,7 @@ import moment from "moment";
 import { CustomSelect } from "../../components/Inputs/CustomSelect";
 import axios from "axios";
 
-const Profile = () => {
+const Profile = ( {handleLogout}) => {
   const dispatch = useDispatch();
   const { user, loading } = useSelector((state) => state.auth);
   const navigation = useNavigation();
@@ -84,6 +84,12 @@ const Profile = () => {
     }
     formdata.append("id", user.id);
     formdata.append("user_role", user.user_role);
+
+    formdata.append("region", selectedRegion?.region_name || "");
+    formdata.append("state", selectedProvince?.province_name || "");
+    formdata.append("city", selectedCity?.city_name || "");
+    formdata.append("barangay", selectedBarangay?.brgy_name || "");
+
     try {
       // console.log(formdata)
       const response = await dispatch(updateAddressInformation(formdata));
@@ -365,43 +371,6 @@ const Profile = () => {
               setValue={setSelectedBarangay}
               disabled={!selectedCity}
             />
-
-            {/* <CustomTextInput
-              control={controlAddress}
-              errors={errorsAddress}
-              label={`Region`}
-              message={`Region is required`}
-              my={5}
-              name={`region`}
-              rules={{ required: true }}
-            />
-            <CustomTextInput
-              control={controlAddress}
-              errors={errorsAddress}
-              label={`State`}
-              message={`State is required`}
-              my={5}
-              name={`state`}
-              rules={{ required: true }}
-            />
-            <CustomTextInput
-              control={controlAddress}
-              errors={errorsAddress}
-              label={`City`}
-              message={`City is required`}
-              my={5}
-              name={`city`}
-              rules={{ required: true }}
-            />
-            <CustomTextInput
-              control={controlAddress}
-              errors={errorsAddress}
-              label={`Barangay`}
-              message={`Barangay is required`}
-              my={5}
-              name={`barangay`}
-              rules={{ required: true }}
-            />*/}
             <CustomTextInput
               control={controlAddress}
               errors={errorsAddress}
@@ -424,7 +393,7 @@ const Profile = () => {
                 )}
               </Button>
               <Button
-                // onPress={navigation.navigate("Login")}
+                onPress={handleLogout}
                 style={styles.buttonStyle}
               >
                 {() => (

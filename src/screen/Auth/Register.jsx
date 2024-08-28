@@ -1,7 +1,13 @@
 import { Button, Text } from "@ui-kitten/components";
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { View, ScrollView, TouchableOpacity, Image, StyleSheet } from "react-native";
+import {
+  View,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+} from "react-native";
 import CustomTextInput from "../../components/Inputs/CustomTextInput";
 import * as DocumentPicker from "expo-document-picker";
 import { Toast } from "toastify-react-native";
@@ -10,15 +16,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import CustomDatePicker from "../../components/Inputs/CustomDatePicker";
 import moment from "moment";
-import { IconButton } from "react-native-paper";
-import Loading from '../../components/Loading'
+import Loading from "../../components/Loading";
 import CustomPhoneInput from "../../components/Inputs/CustomPhoneInput";
 import { CustomSelect } from "../../components/Inputs/CustomSelect";
-import axios from 'axios'
+import axios from "axios";
 
 const Register = () => {
   const dispatch = useDispatch();
-  const {loading} = useSelector(state => state.auth)
+  const { loading } = useSelector((state) => state.auth);
   const navigation = useNavigation();
   const [page, setPage] = useState(1);
   const [fileUpload, setFileUpload] = useState(null);
@@ -105,6 +110,31 @@ const Register = () => {
   });
 
   const onSubmit = async (data) => {
+    // Check if the password and confirm password match
+    if (data.pwd !== data.confpw) {
+      Toast.error("Password and Confirm Password do not match.");
+      return;
+    }
+    if (!selectedRegion) {
+      Toast.error("Region is required.");
+      return;
+    }
+    if (!selectedProvince) {
+      Toast.error("Province is required.");
+      return;
+    }
+    if (!selectedCity) {
+      Toast.error("City is required.");
+      return;
+    }
+    if (!selectedBarangay) {
+      Toast.error("Barangay is required.");
+      return;
+    }
+    if (!fileUpload) {
+      Toast.error("Profile photo is required.");
+      return;
+    }
     const formdata = new FormData();
     const newFile = {
       uri: fileUpload.uri,
@@ -121,7 +151,6 @@ const Register = () => {
       }
     }
     formdata.append("customers_profile_pic", newFile);
-
     formdata.append("region", selectedRegion?.region_name || "");
     formdata.append("state", selectedProvince?.province_name || "");
     formdata.append("city", selectedCity?.city_name || "");
@@ -164,10 +193,19 @@ const Register = () => {
               paddingVertical: 20,
             }}
           >
-            <Text  style={{ fontFamily: "Nunito-Bold", fontSize: 30, color: "#fff" }}>
+            <Text
+              style={{ fontFamily: "Nunito-Bold", fontSize: 30, color: "#fff" }}
+            >
               Register As Customer!
             </Text>
-            <Text style={{ fontFamily: "Nunito-Regular", fontSize: 15, color: "#fff" }} appearance="hint">
+            <Text
+              style={{
+                fontFamily: "Nunito-Regular",
+                fontSize: 15,
+                color: "#fff",
+              }}
+              appearance="hint"
+            >
               You will be able to access the features of our app after
               registration!
             </Text>
@@ -191,15 +229,13 @@ const Register = () => {
                     style={{ height: "100%", width: "100%", borderRadius: 100 }}
                   />
                 ) : (
-                  <Text style={{ fontFamily: "Nunito-SemiBold", fontSize: 20 }}>Upload Photo Here</Text>
+                  <Text style={{ fontFamily: "Nunito-SemiBold", fontSize: 20 }}>
+                    Upload Photo Here
+                  </Text>
                 )}
               </TouchableOpacity>
             </View>
-            <Text
-              style={styles.title}
-            >
-              Personal Information
-            </Text>
+            <Text style={styles.title}>Personal Information</Text>
             <CustomTextInput
               control={control}
               errors={errors}
@@ -227,7 +263,7 @@ const Register = () => {
               name={`lname`}
               rules={{ required: true }}
             />
-             <CustomPhoneInput
+            <CustomPhoneInput
               control={control}
               errors={errors}
               label={`Phone No.`}
@@ -245,11 +281,7 @@ const Register = () => {
               name={`bday`}
               rules={{ required: true }}
             />
-            <Text
-              style={styles.title}
-            >
-              Address Information
-            </Text>
+            <Text style={styles.title}>Address Information</Text>
             <CustomSelect
               my={5}
               label="Region"
@@ -310,11 +342,7 @@ const Register = () => {
               name={`street`}
               rules={{ required: true }}
             />
-            <Text
-              style={styles.title}
-            >
-              Account Information
-            </Text>
+            <Text style={styles.title}>Account Information</Text>
             <CustomTextInput
               control={control}
               errors={errors}
@@ -347,34 +375,40 @@ const Register = () => {
           </View>
         </View>
         <Button
-              appearance="filled"
-              style={styles.buttonStyle}
-              onPress={handleSubmit(onSubmit)}
-            >
-              {() => <Text style={styles.textStyle}>SUBMIT</Text>}
-            </Button>
-            <TouchableOpacity
-              onPress={() => {
-                navigation.navigate("Login");
-              }}
-              style={{
-                justifyContent: "center",
-                alignItems: "center",
-                marginVertical: 10,
-                marginTop: 5,
-              }}
-            >
-              <Text>
-                Already have an account?{" "}
-                <Text
-                  style={{ textDecorationLine: "underline" }}
-                >
-                  Login Here!
-                </Text>
-              </Text>
-            </TouchableOpacity>
+          appearance="filled"
+          style={styles.buttonStyle}
+          onPress={handleSubmit(onSubmit)}
+        >
+          {() => <Text style={styles.textStyle}>SUBMIT</Text>}
+        </Button>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate("Login");
+          }}
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            marginVertical: 10,
+            marginTop: 5,
+          }}
+        >
+          <Text>
+            Already have an account?{" "}
+            <Text style={{ textDecorationLine: "underline" }}>Login Here!</Text>
+          </Text>
+        </TouchableOpacity>
         <View style={{ marginTop: 20 }}>
-          <Text style={{ color: "#8e8888", fontFamily: "Nunito-Bold", fontSize: 15, textAlign: "center", marginBottom: 20 }}>Developed by Data X 2024</Text>
+          <Text
+            style={{
+              color: "#8e8888",
+              fontFamily: "Nunito-Bold",
+              fontSize: 15,
+              textAlign: "center",
+              marginBottom: 20,
+            }}
+          >
+            Developed by Data X 2024
+          </Text>
         </View>
       </ScrollView>
     </View>
@@ -398,12 +432,20 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingVertical: 15,
   },
-  textStyle: { 
+  textStyle: {
     alignItems: "center",
     justifyContent: "center",
-    fontFamily: "Nunito-Bold",  
-    fontSize: 20, 
-    color: "#fff" 
+    fontFamily: "Nunito-Bold",
+    fontSize: 20,
+    color: "#fff",
   },
-})
+  errorText: {
+    color: "red",
+    fontFamily: "Nunito-Regular",
+    fontSize: 14,
+    marginTop: 10,
+    textAlign: "center",
+  },
+});
+
 export default Register;

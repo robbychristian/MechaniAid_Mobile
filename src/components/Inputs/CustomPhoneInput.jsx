@@ -1,7 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, ActivityIndicator, Image, Text as RNText } from 'react-native';
-import { Input, Text, Layout, Select, SelectItem, IndexPath } from '@ui-kitten/components';
-import { Controller } from 'react-hook-form';
+import React, { useState, useEffect } from "react";
+import {
+  StyleSheet,
+  View,
+  ActivityIndicator,
+  Image,
+  Text as RNText,
+} from "react-native";
+import {
+  Input,
+  Text,
+  Layout,
+  Select,
+  SelectItem,
+  IndexPath,
+} from "@ui-kitten/components";
+import { Controller } from "react-hook-form";
 
 const CustomPhoneInput = ({
   control,
@@ -22,24 +35,30 @@ const CustomPhoneInput = ({
   useEffect(() => {
     const fetchCountryCodes = async () => {
       try {
-        const response = await fetch('https://restcountries.com/v3.1/all');
+        const response = await fetch("https://restcountries.com/v3.1/all");
         const data = await response.json();
 
-        const sortedCountries = data.sort((a, b) => a.name.common.localeCompare(b.name.common));
-        const countryOptions = sortedCountries.map(country => {
-          const callingCode = (country.idd.root || '') + (country.idd.suffixes ? country.idd.suffixes[0] : '');
-          const flagPng = country.flags?.png || ''; // PNG flag URL
-          return {
-            code: callingCode,
-            flag: flagPng, // PNG URL for flag image
-            name: country.name.common, // Country name for internal use
-          };
-        }).filter(item => item.code);
+        const sortedCountries = data.sort((a, b) =>
+          a.name.common.localeCompare(b.name.common)
+        );
+        const countryOptions = sortedCountries
+          .map((country) => {
+            const callingCode =
+              (country.idd.root || "") +
+              (country.idd.suffixes ? country.idd.suffixes[0] : "");
+            const flagPng = country.flags?.png || ""; // PNG flag URL
+            return {
+              code: callingCode,
+              flag: flagPng, // PNG URL for flag image
+              name: country.name.common, // Country name for internal use
+            };
+          })
+          .filter((item) => item.code);
 
         setOptions(countryOptions);
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching country codes:', error);
+        console.error("Error fetching country codes:", error);
         setLoading(false);
       }
     };
@@ -50,10 +69,7 @@ const CustomPhoneInput = ({
   const CustomSelectItem = ({ item }) => (
     <View style={styles.selectItem}>
       {item.flag ? (
-        <Image
-          source={{ uri: item.flag }}
-          style={styles.flagImage}
-        />
+        <Image source={{ uri: item.flag }} style={styles.flagImage} />
       ) : null}
       <RNText style={styles.selectItemText}>{item.name}</RNText>
     </View>
@@ -78,14 +94,24 @@ const CustomPhoneInput = ({
 
   return (
     <>
-      {label && (
-        <Text style={styles.label}>{label}</Text>
-      )}
+      {label && <Text style={styles.label}>{label}</Text>}
       <Controller
         control={control}
-        rules={rules}
+        rules={{
+          ...rules,
+          minLength: {
+            value: 10,
+            message: "Mobile Number must be exactly 10 characters",
+          },
+          maxLength: {
+            value: 10,
+            message: "Mobile Number must be exactly 10 characters",
+          },
+        }}
         render={({ field: { onChange, onBlur, value } }) => (
-          <Layout style={[styles.container, { width: isFull ? '100%' : '70%' }]}>
+          <Layout
+            style={[styles.container, { width: isFull ? "100%" : "70%" }]}
+          >
             <View style={styles.selectContainer}>
               {loading ? (
                 <ActivityIndicator size="small" color="#0000ff" />
@@ -104,12 +130,14 @@ const CustomPhoneInput = ({
                     <SelectItem
                       key={index}
                       title={item.name} // Display country name
-                      accessoryLeft={() => item.flag ? (
-                        <Image
-                          source={{ uri: item.flag }}
-                          style={styles.flagImage}
-                        />
-                      ) : null}
+                      accessoryLeft={() =>
+                        item.flag ? (
+                          <Image
+                            source={{ uri: item.flag }}
+                            style={styles.flagImage}
+                          />
+                        ) : null
+                      }
                       style={styles.selectItem}
                     />
                   ))}
@@ -126,10 +154,7 @@ const CustomPhoneInput = ({
                 }}
                 onFocus={() => setIsFocused(true)}
                 value={value}
-                style={[
-                  styles.input,
-                  isFocused && styles.focusedInput,
-                ]}
+                style={[styles.input, isFocused && styles.focusedInput]}
                 placeholder="Enter number" // Placeholder for the input field
               />
             </View>
@@ -139,7 +164,7 @@ const CustomPhoneInput = ({
       />
       {errors[name] && (
         <Text status="danger" category="label" style={{ marginVertical: my }}>
-          {message}
+          {errors[name].message || message}
         </Text>
       )}
     </>
@@ -153,19 +178,19 @@ const styles = StyleSheet.create({
     fontFamily: "Nunito-Bold",
   },
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   selectContainer: {
     flex: 2,
     marginRight: 10, // Adjust spacing between Select and Input
   },
   select: {
-    borderColor: '#000',
+    borderColor: "#000",
   },
   selectItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   flagImage: {
     width: 24,
@@ -176,7 +201,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 20, // Adjust size as needed
     borderWidth: 1, // Border thickness
-    borderColor: '#000', // Border color
+    borderColor: "#000", // Border color
     borderRadius: 4, // Optional: Rounded corners
   },
   selectItemText: {
@@ -189,7 +214,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   focusedInput: {
-    borderColor: 'red',
+    borderColor: "red",
   },
 });
 

@@ -1,5 +1,5 @@
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { CommonActions, useNavigation, useRoute } from "@react-navigation/native";
 import React from "react";
 import Home from "../screen/Home";
 import { useDispatch } from "react-redux";
@@ -23,7 +23,8 @@ import BookingInfo from "../screen/Booking/BookingInfo";
 
 const DrawerStack = createDrawerNavigator();
 
-const DrawerContent = ({ navigation, state }) => {
+
+const DrawerContent = ({ navigation, state, handleLogout }) => {
   const dispatch = useDispatch();
   return (
     <Drawer
@@ -39,20 +40,7 @@ const DrawerContent = ({ navigation, state }) => {
       <DrawerItem title={`Profile`} />
       <DrawerItem
         title={`Logout`}
-        onPress={async () => {
-          // navigation.navigate("Login");
-          // await dispatch(logout());
-
-          try {
-            await AsyncStorage.removeItem('jwt_token');
-            await AsyncStorage.removeItem('user_info');
-
-            await dispatch(logoutUser());
-            navigation.navigate("Login")
-          } catch (error) {
-            console.log('Error during logout:', error)
-          }
-        }}
+        onPress={handleLogout}
       />
     </Drawer>
   );
@@ -61,10 +49,28 @@ const DrawerContent = ({ navigation, state }) => {
 const DrawerNavigation = () => {
   const navigation = useNavigation();
   const route = useRoute();
+  const dispatch = useDispatch();
+
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('jwt_token');
+      await AsyncStorage.removeItem('user_info');
+      await dispatch(logoutUser());
+
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: "Login" }],
+        })
+      );
+    } catch (error) {
+      console.log('Error during logout:', error);
+    }
+  };
 
   return (
     <DrawerStack.Navigator
-      drawerContent={(props) => <DrawerContent {...props} />}
+      drawerContent={(props) => <DrawerContent {...props} handleLogout={handleLogout}/>}
       screenOptions={{ 
         headerShown: false,
         headerStyle: {
@@ -79,7 +85,9 @@ const DrawerNavigation = () => {
       }}
     >
       <DrawerStack.Screen name="BottomNav" component={BottomNav} />
-      <DrawerStack.Screen name="Profile" component={Profile} />
+      <DrawerStack.Screen name="Profile">
+      {(props) => <Profile {...props} handleLogout={handleLogout} />}
+      </DrawerStack.Screen>
       <DrawerStack.Screen name="Product" component={Product} />
       <DrawerStack.Screen name="Chat" component={Chat} />
       <DrawerStack.Screen name="BookingDetails" component={BookingDetails} />
