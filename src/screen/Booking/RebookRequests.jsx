@@ -4,26 +4,32 @@ import { FlatList } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
-import { clearBooking, getBookingsByFavoriteMechanic, rebooking } from "../../store/booking/Booking";
+import { acceptRebook, clearBooking, completedRebook, declineRebook, getAllMechanicsRebook, getAllUsersRebook, getBookingsByFavoriteMechanic, rebooking } from "../../store/booking/Booking";
 import { Button, Card } from "@ui-kitten/components";
 import moment from "moment";
 import { Toast } from "toastify-react-native";
 
-const FavoriteMechanic = () => {
+const RebookRequests = () => {
     const navigation = useNavigation();
     const dispatch = useDispatch();
     const { user } = useSelector((state) => state.auth);
-    const { loading, favoriteBookings } = useSelector((state) => state.bookings)
+    const { loading, rebookingList } = useSelector((state) => state.bookings)
 
-    useEffect(() => {
-        const unsubscribe = navigation.addListener("focus", async () => {
-            try {
-                await dispatch(getBookingsByFavoriteMechanic(user.id))
-                await dispatch(clearBooking());
-            } catch (err) {
-                console.log(err.response)
+    const refreshRebookings = async () => {
+        console.log("nagrun tong refresh booking")
+        try {
+            if (user.user_role == 3) {
+                await dispatch(getAllUsersRebook(user.id))
+            } else {
+                await dispatch(getAllMechanicsRebook(user.id))
             }
-        })
+            await dispatch(clearBooking());
+        } catch (err) {
+            console.log(err.response)
+        }
+    }
+    useEffect(() => {
+        const unsubscribe = navigation.addListener("focus", refreshRebookings)
 
         return unsubscribe;
     }, [navigation])
@@ -43,14 +49,43 @@ const FavoriteMechanic = () => {
         }
     };
 
-
-    const rebook = async (booking_id) => {
+    const handleDeclineRebook = async (booking_id) => {
         const formdata = {
-            booking_id: booking_id
+            id: booking_id,
+            mechanics_id: user.id
         }
+
         try {
-            await dispatch(rebooking(formdata));
-            Toast.success("Rebooking has been processed successfully!")
+            await dispatch(declineRebook(formdata));
+            Toast.success("Booking has been declined!");
+        } catch (err) {
+            console.log(err.response)
+        }
+    }
+
+    const handleAcceptRebook = async (booking_id) => {
+        const formdata = {
+            id: booking_id,
+            mechanics_id: user.id
+        }
+
+        try {
+            await dispatch(acceptRebook(formdata));
+            Toast.success("Booking has been accepted!");
+        } catch (err) {
+            console.log(err.response)
+        }
+    }
+
+    const handleCompletedRebook = async (booking_id) => {
+        const formdata = {
+            id: booking_id,
+            mechanics_id: user.id
+        }
+
+        try {
+            await dispatch(completedRebook(formdata));
+            Toast.success("Booking has been completed!");
         } catch (err) {
             console.log(err.response)
         }
@@ -74,7 +109,16 @@ const FavoriteMechanic = () => {
                     <View style={styles.row}>
                         <Text style={styles.customerName}>
                             <Text>
-                                {item.mechanics.first_name} {item.mechanics.last_name}
+                                {user.user_role == 2 && (
+                                    <Text>
+                                        {item.first_name} {item.last_name}
+                                    </Text>
+                                )}
+                                {user.user_role == 3 && (
+                                    <Text>
+                                        {item.mechanics.first_name} {item.mechanics.last_name}
+                                    </Text>
+                                )}
                             </Text>
                         </Text>
                         <Text style={getStatusStyle(item.status)}>{item.status}</Text>
@@ -87,10 +131,20 @@ const FavoriteMechanic = () => {
                             Payment Method: {item.mode_of_payment}
                         </Text>
                     </View>
-
-                    <Button size="small" style={{ marginTop: 10 }} onPress={() => { rebook(item.id) }}>Rebook</Button>
-
                 </View>
+
+                {user.user_role == 2 && (
+                    <View style={{ flexDirection: "row", gap: 5, marginTop: 10, justifyContent: "flex-end" }}>
+                        {item.status == "Pending" && (
+                            <>
+
+                                <Button size="small" status="danger" onPress={() => handleDeclineRebook(item.id)}>Decline</Button>
+                                <Button size="small" status="success" onPress={() => handleAcceptRebook(item.id)}>Accept</Button>
+                            </>
+                        )}
+                        {item.status == "Accepted" && <Button size="small" status="success" onPress={() => handleCompletedRebook(item.id)}>Completed</Button>}
+                    </View>
+                )}
 
             </Card>
         )
@@ -98,18 +152,18 @@ const FavoriteMechanic = () => {
     return (
         <View style={styles.container}>
             <Loading loading={loading} />
-            <Text style={styles.heading}>Favorite Mechanics</Text>
-            <Text style={styles.subtitle}>See your previous bookings with your favorite mechanics and rebook!</Text>
-            {favoriteBookings.length > 0 ? (
+            <Text style={styles.heading}>Rebooking Requests</Text>
+            <Text style={styles.subtitle}>See your re-bookings and view its status</Text>
+            {rebookingList.length > 0 ? (
                 <FlatList
-                    data={favoriteBookings}
+                    data={rebookingList}
                     renderItem={renderBookingItem}
                     keyExtractor={(item, index) => item.id.toString()}
                     contentContainerStyle={styles.listContent}
                 />
             ) : (
                 <Card style={styles.emptyCard}>
-                    <Text style={styles.emptyText}>Book now to access your logs!</Text>
+                    <Text style={styles.emptyText}>No rebooking requests!</Text>
                 </Card>
             )}
         </View>
@@ -218,4 +272,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default FavoriteMechanic;
+export default RebookRequests;

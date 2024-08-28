@@ -8,6 +8,7 @@ const initialState = {
   error: undefined,
   favoriteMechanic: [],
   favoriteBookings: [],
+  rebookingList: [],
 };
 
 export const getUserBookings = createAsyncThunk(
@@ -121,6 +122,102 @@ export const getBookingsById = createAsyncThunk(
   }
 );
 
+export const rebooking = createAsyncThunk(
+  "booking/rebook",
+  async (inputs, { rejectWithValue, dispatch }) => {
+    const { booking_id } = inputs;
+    try {
+      await api.post("rebook", inputs);
+      return response.data;
+    } catch (err) {
+      console.log(err.response);
+      return rejectWithValue(err.response);
+    }
+  }
+);
+
+export const getAllUsersRebook = createAsyncThunk(
+  "booking/getAllUsersRebook",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`getAllUsersRebook?user_id=${id}`);
+      const sortedData = response.data.sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      );
+
+      return sortedData;
+    } catch (err) {
+      console.log(err.response);
+      return rejectWithValue(err.response);
+    }
+  }
+);
+
+export const getAllMechanicsRebook = createAsyncThunk(
+  "booking/getAllMechanicsRebook",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await api.get(
+        `getAllMechanicsRebook?mechanics_id=${id}`
+      );
+      const sortedData = response.data.sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      );
+
+      return sortedData;
+    } catch (err) {
+      console.log(err.response);
+      return rejectWithValue(err.response);
+    }
+  }
+);
+
+export const declineRebook = createAsyncThunk(
+  "booking/declineRebook",
+  async (inputs, { rejectWithValue, dispatch }) => {
+    const { mechanics_id } = inputs;
+    console.log("declined by", mechanics_id);
+
+    try {
+      await api.post("declineRebook", inputs);
+      await dispatch(getAllMechanicsRebook(mechanics_id));
+    } catch (err) {
+      console.log(err.response);
+      return rejectWithValue(err.response);
+    }
+  }
+);
+
+export const acceptRebook = createAsyncThunk(
+  "booking/acceptRebook",
+  async (inputs, { rejectWithValue, dispatch }) => {
+    const { mechanics_id } = inputs;
+
+    try {
+      await api.post("acceptRebook", inputs);
+      await dispatch(getAllMechanicsRebook(mechanics_id));
+    } catch (err) {
+      console.log(err.response);
+      return rejectWithValue(err.response);
+    }
+  }
+);
+
+export const completedRebook = createAsyncThunk(
+  "booking/completedRebook",
+  async (inputs, { rejectWithValue, dispatch }) => {
+    const { mechanics_id } = inputs;
+
+    try {
+      await api.post("completedRebook", inputs);
+      await dispatch(getAllMechanicsRebook(mechanics_id));
+    } catch (err) {
+      console.log(err.response);
+      return rejectWithValue(err.response);
+    }
+  }
+);
+
 const bookingSlice = createSlice({
   name: "bookings",
   initialState,
@@ -208,6 +305,68 @@ const bookingSlice = createSlice({
       state.booking = payload;
     });
     builder.addCase(getBookingsById.rejected, (state, { payload }) => {
+      state.loading = false;
+      state.error = payload;
+    });
+    builder.addCase(rebooking.pending, (state) => {
+      state.loading = true;
+    });
+    builder.addCase(rebooking.fulfilled, (state, { payload }) => {
+      state.loading = false;
+    });
+    builder.addCase(rebooking.rejected, (state, { payload }) => {
+      state.loading = false;
+      state.error = payload;
+    });
+    builder.addCase(getAllUsersRebook.pending, (state) => {
+      state.loading = true;
+    });
+    builder.addCase(getAllUsersRebook.fulfilled, (state, { payload }) => {
+      state.loading = false;
+      state.rebookingList = payload;
+    });
+    builder.addCase(getAllUsersRebook.rejected, (state, { payload }) => {
+      state.loading = false;
+      state.error = payload;
+    });
+    builder.addCase(getAllMechanicsRebook.pending, (state) => {
+      state.loading = true;
+    });
+    builder.addCase(getAllMechanicsRebook.fulfilled, (state, { payload }) => {
+      state.loading = false;
+      state.rebookingList = payload;
+    });
+    builder.addCase(getAllMechanicsRebook.rejected, (state, { payload }) => {
+      state.loading = false;
+      state.error = payload;
+    });
+    builder.addCase(declineRebook.pending, (state) => {
+      state.loading = true;
+    });
+    builder.addCase(declineRebook.fulfilled, (state, { payload }) => {
+      state.loading = false;
+    });
+    builder.addCase(declineRebook.rejected, (state, { payload }) => {
+      state.loading = false;
+      state.error = payload;
+    });
+    builder.addCase(acceptRebook.pending, (state) => {
+      state.loading = true;
+    });
+    builder.addCase(acceptRebook.fulfilled, (state, { payload }) => {
+      state.loading = false;
+    });
+    builder.addCase(acceptRebook.rejected, (state, { payload }) => {
+      state.loading = false;
+      state.error = payload;
+    });
+    builder.addCase(completedRebook.pending, (state) => {
+      state.loading = true;
+    });
+    builder.addCase(completedRebook.fulfilled, (state, { payload }) => {
+      state.loading = false;
+    });
+    builder.addCase(completedRebook.rejected, (state, { payload }) => {
       state.loading = false;
       state.error = payload;
     });
