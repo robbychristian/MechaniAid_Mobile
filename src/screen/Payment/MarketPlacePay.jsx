@@ -7,13 +7,13 @@ import WebView from "react-native-webview";
 const MarketPlacePay = () => {
     const navigation = useNavigation();
     const route = useRoute();
-    const { id } = route.params;
+    const { id, user_id } = route.params;
     const webViewRef = useRef(null);
-    const [uri, setUri] = useState(decodeURI(`http://192.168.1.11:8000/api/paymentMarketplace/${id}`));
+    const [uri, setUri] = useState(decodeURI(`http://192.168.1.6:8000/api/paymentMarketplace/${id}/${user_id}`));
     const [key, setKey] = useState(0);
 
     useEffect(() => {
-        const decodUri = decodeURI(`http://192.168.1.11:8000/api/paymentMarketplace/${id}`);
+        const decodUri = decodeURI(`http://192.168.1.6:8000/api/paymentMarketplace/${id}/${user_id}`);
         setUri(decodUri)
 
         const unsubscribe = navigation.addListener("focus", () => {

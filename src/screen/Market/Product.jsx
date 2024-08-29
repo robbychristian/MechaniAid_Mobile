@@ -144,7 +144,7 @@ const Product = () => {
                       //   total_price: product.price,
                       // })
                       navigation.navigate("MarketPlacePay", {
-                        id: product.id
+                        id: product.id, user_id: user.id
                       })
                     }
                     appearance="outline"

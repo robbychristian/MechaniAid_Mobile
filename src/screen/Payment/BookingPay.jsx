@@ -7,11 +7,11 @@ import WebView from "react-native-webview";
 const BookingPay = () => {
     const navigation = useNavigation();
     const webViewRef = useRef(null);
-    const [uri, setUri] = useState(decodeURI(`http://192.168.1.11:8000/api/paymentBooking/51`));
+    const [uri, setUri] = useState(decodeURI(`http://192.168.1.6:8000/api/paymentBooking/39`));
     const [key, setKey] = useState(0);
 
     useEffect(() => {
-        const decodUri = decodeURI(`http://192.168.1.11:8000/api/paymentBooking/51`);
+        const decodUri = decodeURI(`http://192.168.1.6:8000/api/paymentBooking/39`);
         setUri(decodUri)
 
         const unsubscribe = navigation.addListener("focus", () => {
