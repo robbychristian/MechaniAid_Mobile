@@ -63,8 +63,8 @@ const Product = () => {
                         product.availability == "In Stock"
                           ? "rgb(59 130 246)"
                           : product.availability == "Only One"
-                          ? "rgb(249 115 22)"
-                          : "rgb(34 197 94)",
+                            ? "rgb(249 115 22)"
+                            : "rgb(34 197 94)",
                       paddingHorizontal: 10,
                       paddingVertical: 5,
                       borderRadius: 30,
@@ -127,8 +127,8 @@ const Product = () => {
                       borderColor: "#A02828",
                     }}
                     onPress={() => navigation.navigate("Chat", {
-                        mechanics_id: product.mechanics_id,
-                      })}
+                      mechanics_id: product.mechanics_id,
+                    })}
                   >
                     MESSAGE NOW
                   </Button>
@@ -139,9 +139,12 @@ const Product = () => {
                       marginVertical: 10,
                     }}
                     onPress={() =>
-                      navigation.navigate("Payment", {
-                        mechanics_id: product.mechanics_id,
-                        total_price: product.price,
+                      // navigation.navigate("Payment", {
+                      //   mechanics_id: product.mechanics_id,
+                      //   total_price: product.price,
+                      // })
+                      navigation.navigate("MarketPlacePay", {
+                        id: product.id
                       })
                     }
                     appearance="outline"

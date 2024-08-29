@@ -39,7 +39,8 @@
     "react-native-svg": "^15.3.0",
     "react-redux": "^9.1.2",
     "redux": "^5.0.1",
-    "toastify-react-native": "^5.0.0"
+    "toastify-react-native": "^5.0.0",
+    "react-native-webview": "13.6.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

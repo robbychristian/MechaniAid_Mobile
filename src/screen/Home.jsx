@@ -207,6 +207,10 @@ const Home = () => {
           <Text style={styles.subtitle}>Rebooking Requests</Text>
         </View>
       )}
+
+      <TouchableOpacity onPress={() => navigation.navigate('BookingPay')}>
+        <Text>Pay</Text>
+      </TouchableOpacity>
     </View>
   );
 };

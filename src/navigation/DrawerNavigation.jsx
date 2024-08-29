@@ -21,6 +21,8 @@ import { logoutUser } from "../store/auth/User";
 import FavoriteMechanic from "../screen/Booking/FavoriteMechanic";
 import BookingInfo from "../screen/Booking/BookingInfo";
 import RebookRequests from "../screen/Booking/RebookRequests";
+import BookingPay from "../screen/Payment/BookingPay";
+import MarketPlacePay from "../screen/Payment/MarketPlacePay";
 
 const DrawerStack = createDrawerNavigator();
 
@@ -71,8 +73,8 @@ const DrawerNavigation = () => {
 
   return (
     <DrawerStack.Navigator
-      drawerContent={(props) => <DrawerContent {...props} handleLogout={handleLogout}/>}
-      screenOptions={{ 
+      drawerContent={(props) => <DrawerContent {...props} handleLogout={handleLogout} />}
+      screenOptions={{
         headerShown: false,
         headerStyle: {
           backgroundColor: "#EF4444",
@@ -87,7 +89,7 @@ const DrawerNavigation = () => {
     >
       <DrawerStack.Screen name="BottomNav" component={BottomNav} />
       <DrawerStack.Screen name="Profile">
-      {(props) => <Profile {...props} handleLogout={handleLogout} />}
+        {(props) => <Profile {...props} handleLogout={handleLogout} />}
       </DrawerStack.Screen>
       <DrawerStack.Screen name="Product" component={Product} />
       <DrawerStack.Screen name="Chat" component={Chat} />
@@ -102,6 +104,8 @@ const DrawerNavigation = () => {
       <DrawerStack.Screen name="FavoriteMechanic" component={FavoriteMechanic} />
       <DrawerStack.Screen name="BookingInfo" component={BookingInfo} />
       <DrawerStack.Screen name="RebookRequests" component={RebookRequests} />
+      <DrawerStack.Screen name="BookingPay" component={BookingPay} />
+      <DrawerStack.Screen name="MarketPlacePay" component={MarketPlacePay} />
 
 
       {/* <DrawerStack.Screen
