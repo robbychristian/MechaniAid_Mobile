@@ -174,31 +174,73 @@ const Profile = ( {handleLogout}) => {
       setBarangays([]);
     }
   }, [selectedCity]);
+  
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
-      setValue("fname", user.first_name);
-      setValue("mname", user.middle_name);
-      setValue("lname", user.last_name);
+      if (user) {
+        setValue("fname", user.first_name || "");
+        setValue("mname", user.middle_name || "");
+        setValue("lname", user.last_name || "");
+        setValue(
+          "phone",
+          user.user_role == 3
+            ? user.customers?.phone
+            : user.mechanics?.phone
+        );
+        setValue(
+          "street",
+          user.user_role == 3
+            ? user.customers?.street
+            : user.mechanics?.street
+        );
+        if (user.birth_day){
+          const formattedDate = moment(user.birth_day).toDate();
+          setValue("bday", formattedDate);
+        }
+      } else {
+        // If user is undefined, reset form fields
+        setValue("fname", "");
+        setValue("mname", "");
+        setValue("lname", "");
+        setValue("phone", "");
+        setValue("bday", "");
+        setValue("street", "");
+      }
+    });
+  
+    // Initial setting of values if user is defined
+    if (user) {
+      setValue("fname", user.first_name || "");
+      setValue("mname", user.middle_name || "");
+      setValue("lname", user.last_name || "");
       setValue(
         "phone",
-        user.user_role === 3
-          ? user.customers != undefined && user.customers.phone
-          : user.mechanics !== undefined && user.mechanics.phone
+        user.user_role == 3
+          ? user.customers?.phone
+          : user.mechanics?.phone
       );
-    });
-    setValue("fname", user.first_name);
-    setValue("mname", user.middle_name);
-    setValue("lname", user.last_name);
-    setValue(
-      "phone",
-      user.user_role === 3
-        ? user.customers != undefined && user.customers.phone
-        : user.mechanics !== undefined && user.mechanics.phone
-    );
-    // setValue('bday', moment(user.birth_day))
-
+      setValue(
+        "street",
+        user.user_role == 3
+          ? user.customers?.street
+          : user.mechanics?.street
+      );
+      if (user.birth_day){
+        const formattedDate = moment(user.birth_day).toDate();
+        setValue("bday", formattedDate);
+      }
+    } else {
+      // If user is undefined, reset form fields
+      setValue("fname", "");
+      setValue("mname", "");
+      setValue("lname", "");
+      setValue("phone", "");
+      setValue("bday", "");
+      setValue("street", "");
+    }
+  
     return unsubscribe;
-  }, [navigation]);
+  }, [navigation, user]);
 
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -321,7 +363,7 @@ const Profile = ( {handleLogout}) => {
               errors={errorsAddress}
               my={5}
               label="Region"
-              placeholder="Select Region"
+              placeholder={user.user_role == 3 ? user.customers?.region : user.mechanics?.region}
               options={regions.map((region) => ({
                 value: region.region_name,
                 ...region,
@@ -334,7 +376,7 @@ const Profile = ( {handleLogout}) => {
               errors={errorsAddress}
               my={5}
               label="Province"
-              placeholder="Select Province"
+              placeholder={user.user_role == 3 ? user.customers?.state : user.mechanics?.state}
               options={provinces.map((province) => ({
                 value: province.province_name,
                 ...province,
@@ -348,7 +390,7 @@ const Profile = ( {handleLogout}) => {
               errors={errorsAddress}
               my={5}
               label="City"
-              placeholder="Select City"
+              placeholder={user.user_role == 3 ? user.customers?.city : user.mechanics?.city}
               options={cities.map((city) => ({
                 value: city.city_name,
                 ...city,
@@ -362,7 +404,7 @@ const Profile = ( {handleLogout}) => {
               errors={errorsAddress}
               my={5}
               label="Barangay"
-              placeholder="Select Barangay"
+              placeholder={user.user_role == 3 ? user.customers?.barangay : user.mechanics?.barangay}
               options={barangays.map((barangay) => ({
                 value: barangay.brgy_name,
                 ...barangay,
@@ -380,6 +422,15 @@ const Profile = ( {handleLogout}) => {
               name={`street`}
               rules={{ required: true }}
             /> 
+             <CustomTextInput
+              control={controlPersonal}
+              errors={errorsPersonal}
+              label={`Street`}
+              message={`Street is required`}
+              my={5}
+              name={`street`}
+              rules={{ required: true }}
+            />
 
             <View style={{ marginVertical: 15 }}>
               <Button

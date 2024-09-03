@@ -110,9 +110,8 @@ const Register = () => {
   });
 
   const onSubmit = async (data) => {
-    // Check if the password and confirm password match
-    if (data.pwd !== data.confpw) {
-      Toast.error("Password and Confirm Password do not match.");
+    if (!fileUpload) {
+      Toast.error("Profile photo is required.");
       return;
     }
     if (!selectedRegion) {
@@ -131,8 +130,8 @@ const Register = () => {
       Toast.error("Barangay is required.");
       return;
     }
-    if (!fileUpload) {
-      Toast.error("Profile photo is required.");
+    if (data.pwd !== data.confpw) {
+      Toast.error("Password and Confirm Password do not match.");
       return;
     }
     const formdata = new FormData();
