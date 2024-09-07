@@ -19,7 +19,24 @@ const WelcomePage = () => {
         if (token && userInfo) {
           console.log(userInfo)
           dispatch(setUser(JSON.parse(userInfo)))
-          navigation.navigate("DrawerStack")
+          // navigation.navigate("DrawerStack")
+          if (userInfo.user_role == 3) {
+            navigation.navigate("DrawerStack");
+            // navigation.dispatch(
+            //   CommonActions.reset({
+            //     index: 0,
+            //     routes: [{ name: "DrawerStack" }],
+            //   })
+            // );
+          } else if (userInfo.user_role == 2) {
+            navigation.navigate("MechanicDrawerStack");
+            // navigation.dispatch(
+            //   CommonActions.reset({
+            //     index: 0,
+            //     routes: [{ name: "MechanicDrawerStack" }],
+            //   })
+            // );
+          }
         } else {
           console.log("No token and user info retreived")
         }

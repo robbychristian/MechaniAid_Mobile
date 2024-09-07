@@ -10,6 +10,7 @@ import { loginUser } from "../../store/auth/User";
 import { api } from "../../../config/api";
 import { Toast } from "toastify-react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { CommonActions } from '@react-navigation/native';
 
 const Login = () => {
   const navigation = useNavigation();
@@ -37,7 +38,27 @@ const Login = () => {
           await AsyncStorage.setItem('jwt_token', token)
           await AsyncStorage.setItem('user_info', JSON.stringify(user)); // Store user info
           Toast.success("Logged in successfully!");
-          navigation.navigate("DrawerStack");
+          if (user.user_role == 3) {
+            navigation.navigate("DrawerStack");
+            // navigation.dispatch(
+            //   CommonActions.reset({
+            //     index: 0,
+            //     routes: [{ name: "DrawerStack" }],
+            //   })
+            // );
+          }
+          else if (user.user_role == 2) {
+            navigation.navigate("MechanicDrawerStack");
+            // navigation.dispatch(
+            //   CommonActions.reset({
+            //     index: 0,
+            //     routes: [{ name: "MechanicDrawerStack" }],
+            //   })
+            // );
+          }
+          console.log('User Role:', user?.user_role);
+          console.log('Navigating to:', user?.user_role === 3 ? 'DrawerStack' : 'MechanicDrawerStack');                    
+
         } else {
           console.log("Token is undefined, not saving to AsyncStorage.");
         }

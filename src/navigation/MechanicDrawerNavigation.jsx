@@ -9,7 +9,6 @@ import Product from "../screen/Market/Product";
 import Chat from "../screen/Chat/Chat";
 import AcceptBooking from "../screen/Booking/AcceptBooking";
 import Payment from "../screen/Payment/Payment";
-import BookingDetails from "../screen/Booking/BookingDetails";
 import BookingPayment from "../screen/Payment/BookingPayment";
 import BookingHistory from "../screen/Booking/BookingHistory";
 import Booking from "../screen/Booking/Booking";
@@ -18,7 +17,7 @@ import AddProduct from "../screen/Market/AddProduct";
 import EditProduct from "../screen/Market/EditProduct";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { logoutUser } from "../store/auth/User";
-import FavoriteMechanic from "../screen/Booking/FavoriteMechanic";
+import RebookRequests from "../screen/Booking/RebookRequests";
 import BookingInfo from "../screen/Booking/BookingInfo";
 
 const DrawerStack = createDrawerNavigator();
@@ -58,7 +57,7 @@ const DrawerContent = ({ navigation, state }) => {
   );
 };
 
-const DrawerNavigation = () => {
+const MechanicDrawerNavigation = () => {
   const navigation = useNavigation();
   const route = useRoute();
 
@@ -82,7 +81,6 @@ const DrawerNavigation = () => {
       <DrawerStack.Screen name="Profile" component={Profile} />
       <DrawerStack.Screen name="Product" component={Product} />
       <DrawerStack.Screen name="Chat" component={Chat} />
-      <DrawerStack.Screen name="BookingDetails" component={BookingDetails} />
       <DrawerStack.Screen name="Booking" component={Booking} />
       <DrawerStack.Screen name="AcceptBooking" component={AcceptBooking} />
       <DrawerStack.Screen name="BookingPayment" component={BookingPayment} />
@@ -90,10 +88,11 @@ const DrawerNavigation = () => {
       <DrawerStack.Screen name="BookingHistory" component={BookingHistory} />
       <DrawerStack.Screen name="AddProduct" component={AddProduct} />
       <DrawerStack.Screen name="EditProduct" component={EditProduct} />
-      <DrawerStack.Screen name="FavoriteMechanic" component={FavoriteMechanic} />
+      <DrawerStack.Screen name="RebookRequests" component={RebookRequests} />
       <DrawerStack.Screen name="BookingInfo" component={BookingInfo} />
+      
     </DrawerStack.Navigator>
   );
 };
 
-export default DrawerNavigation;
+export default MechanicDrawerNavigation;
