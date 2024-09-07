@@ -118,16 +118,8 @@ const MechanicRegister = () => {
   });
 
   const onSubmit = async (data) => {
-    if (data.pwd !== data.confpw) {
-      Toast.error("Password and Confirm Password do not match.");
-      return;
-    }
     if (!fileUpload) {
       Toast.error("Profile photo is required.");
-      return;
-    }
-    if (!validIdUpload) {
-      Toast.error("Valid ID is required.");
       return;
     }
     if (!selectedRegion) {
@@ -146,8 +138,16 @@ const MechanicRegister = () => {
       Toast.error("Barangay is required.");
       return;
     }
+    if (!validIdUpload) {
+      Toast.error("Valid ID is required.");
+      return;
+    }
     if (!professionalCertUpload) {
       Toast.error("Professional Certificate is required.");
+      return;
+    }
+    if (data.pwd !== data.confpw) {
+      Toast.error("Password and Confirm Password do not match.");
       return;
     }
 
