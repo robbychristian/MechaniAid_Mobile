@@ -36,7 +36,6 @@ const Home = () => {
     })();
   }, []);
 
-
   return (
     // <View style={{ justifyContent: 'center', alignItems: 'center', paddingVertical: 15, paddingHorizontal: 15, backgroundColor: 'red' }}>
     //   <Text category='h3' style={{ fontWeight: 700 }}>Booking Log</Text>
@@ -107,7 +106,7 @@ const Home = () => {
           }}
         >
           <TouchableOpacity
-            onPress={() => navigation.navigate('BookingDetails')}
+            onPress={() => navigation.navigate(user.user_role == 3 ? 'BookingDetails' : 'Booking')}
             style={{
               backgroundColor: "#f67070",
               height: 115,
@@ -115,7 +114,7 @@ const Home = () => {
               justifyContent: "center",
               alignItems: "center",
               borderRadius: 100,
-              marginBottom: 5
+              marginBottom: 5,
             }}
           >
             <Image
@@ -123,7 +122,7 @@ const Home = () => {
               style={{ width: 70, height: 70 }}
             />
           </TouchableOpacity>
-          <Text style={styles.subtitle}>Book A Mechanic</Text>
+          <Text style={styles.subtitle}>{user.user_role == 3 ? 'Book A Mechanic' : 'Find Booking'}</Text>
         </View>
 
         {user.user_role == 2 && (
@@ -136,7 +135,7 @@ const Home = () => {
             }}
           >
             <TouchableOpacity
-              onPress={() => navigation.navigate('RebookRequests')}
+              onPress={() => navigation.navigate("RebookRequests")}
               style={{
                 backgroundColor: "#f67070",
                 height: 115,
@@ -144,7 +143,7 @@ const Home = () => {
                 justifyContent: "center",
                 alignItems: "center",
                 borderRadius: 100,
-                marginBottom: 5
+                marginBottom: 5,
               }}
             >
               <Icon source={`book-refresh`} size={80} color="#58606e" />
@@ -163,7 +162,7 @@ const Home = () => {
             }}
           >
             <TouchableOpacity
-              onPress={() => navigation.navigate('FavoriteMechanic')}
+              onPress={() => navigation.navigate("FavoriteMechanic")}
               style={{
                 backgroundColor: "#f67070",
                 height: 115,
@@ -171,7 +170,7 @@ const Home = () => {
                 justifyContent: "center",
                 alignItems: "center",
                 borderRadius: 100,
-                marginBottom: 5
+                marginBottom: 5,
               }}
             >
               <Icon source={`star`} size={100} color="#FFD403" />
@@ -191,7 +190,7 @@ const Home = () => {
           }}
         >
           <TouchableOpacity
-            onPress={() => navigation.navigate('RebookRequests')}
+            onPress={() => navigation.navigate("RebookRequests")}
             style={{
               backgroundColor: "#f67070",
               height: 115,
@@ -199,7 +198,7 @@ const Home = () => {
               justifyContent: "center",
               alignItems: "center",
               borderRadius: 100,
-              marginBottom: 5
+              marginBottom: 5,
             }}
           >
             <Icon source={`book-refresh`} size={80} color="#58606e" />
@@ -208,7 +207,7 @@ const Home = () => {
         </View>
       )}
 
-      <TouchableOpacity onPress={() => navigation.navigate('BookingPay')}>
+      <TouchableOpacity onPress={() => navigation.navigate("BookingPay")}>
         <Text>Pay</Text>
       </TouchableOpacity>
     </View>
@@ -226,6 +225,7 @@ const styles = StyleSheet.create({
     fontFamily: "Nunito-Light",
     fontSize: 15,
     marginLeft: 2,
+    alignSelf: "center",
   },
 });
 export default Home;

@@ -38,9 +38,10 @@ const Booking = () => {
   const animationRef = useRef(null);
   const [declinedBookings, setDeclinedBookings] = useState([]);
 
-  const { service_type, vehicle_type, vehicle_name, mode_of_payment, other } =
+  if (user.user_role == 3 ) {
+    const { service_type, vehicle_type, vehicle_name, mode_of_payment, other } =
     route.params;
-  // Log the data received from the previous screen
+     // Log the data received from the previous screen
   // console.log("Received data on Booking screen:", {
   //   service_type,
   //   vehicle_type,
@@ -48,6 +49,9 @@ const Booking = () => {
   //   mode_of_payment,
   //   other,
   // });
+  }
+  
+ 
 
   const startRotationAnimation = () => {
     if (animationRef.current) {

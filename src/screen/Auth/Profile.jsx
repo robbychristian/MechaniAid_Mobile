@@ -181,7 +181,7 @@ const Profile = ( {handleLogout}) => {
       setValue("lname", user.last_name);
       setValue(
         "phone",
-        user.user_role === 3
+        user.user_role == 3
           ? user.customers != undefined && user.customers.phone
           : user.mechanics !== undefined && user.mechanics.phone
       );
@@ -191,7 +191,7 @@ const Profile = ( {handleLogout}) => {
     setValue("lname", user.last_name);
     setValue(
       "phone",
-      user.user_role === 3
+      user.user_role == 3
         ? user.customers != undefined && user.customers.phone
         : user.mechanics !== undefined && user.mechanics.phone
     );
