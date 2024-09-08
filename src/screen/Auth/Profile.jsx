@@ -119,62 +119,61 @@ const Profile = ( {handleLogout}) => {
       .then((response) => setRegions(response.data));
   }, []);
 
-  useEffect(() => {
-    if (selectedRegion) {
-      axios
-        .get(
-          "https://isaacdarcilla.github.io/philippine-addresses/province.json"
-        )
-        .then((response) =>
-          setProvinces(
-            response.data.filter(
-              (p) => p.region_code === selectedRegion.region_code
-            )
-          )
-        );
-      setSelectedProvince(null); // Reset selected province
-      setSelectedCity(null); // Reset selected city
-      setSelectedBarangay(null); // Reset selected barangay
-    } else {
-      setProvinces([]);
-    }
-  }, [selectedRegion]);
+  // useEffect(() => {
+  //   if (selectedRegion) {
+  //     axios
+  //       .get(
+  //         "https://isaacdarcilla.github.io/philippine-addresses/province.json"
+  //       )
+  //       .then((response) =>
+  //         setProvinces(
+  //           response.data.filter(
+  //             (p) => p.region_code === selectedRegion.region_code
+  //           )
+  //         )
+  //       );
+  //     setSelectedProvince(null); // Reset selected province
+  //     setSelectedCity(null); // Reset selected city
+  //     setSelectedBarangay(null); // Reset selected barangay
+  //   } else {
+  //     setProvinces([]);
+  //   }
+  // }, [selectedRegion]);
 
-  useEffect(() => {
-    if (selectedProvince) {
-      axios
-        .get("https://isaacdarcilla.github.io/philippine-addresses/city.json")
-        .then((response) =>
-          setCities(
-            response.data.filter(
-              (c) => c.province_code === selectedProvince.province_code
-            )
-          )
-        );
-      setSelectedCity(null); // Reset selected city
-      setSelectedBarangay(null); // Reset selected barangay
-    } else {
-      setCities([]);
-    }
-  }, [selectedProvince]);
+  // useEffect(() => {
+  //   if (selectedProvince) {
+  //     axios
+  //       .get("https://isaacdarcilla.github.io/philippine-addresses/city.json")
+  //       .then((response) =>
+  //         setCities(
+  //           response.data.filter(
+  //             (c) => c.province_code === selectedProvince.province_code
+  //           )
+  //         )
+  //       );
+  //     setSelectedCity(null); // Reset selected city
+  //     setSelectedBarangay(null); // Reset selected barangay
+  //   } else {
+  //     setCities([]);
+  //   }
+  // }, [selectedProvince]);
 
-  useEffect(() => {
-    if (selectedCity) {
-      axios
-        .get(
-          "https://isaacdarcilla.github.io/philippine-addresses/barangay.json"
-        )
-        .then((response) =>
-          setBarangays(
-            response.data.filter((b) => b.city_code === selectedCity.city_code)
-          )
-        );
-      setSelectedBarangay(null); // Reset selected barangay
-    } else {
-      setBarangays([]);
-    }
-  }, [selectedCity]);
-  
+  // useEffect(() => {
+  //   if (selectedCity) {
+  //     axios
+  //       .get(
+  //         "https://isaacdarcilla.github.io/philippine-addresses/barangay.json"
+  //       )
+  //       .then((response) =>
+  //         setBarangays(
+  //           response.data.filter((b) => b.city_code === selectedCity.city_code)
+  //         )
+  //       );
+  //     setSelectedBarangay(null); // Reset selected barangay
+  //   } else {
+  //     setBarangays([]);
+  //   }
+  // }, [selectedCity]);
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
       if (user) {
@@ -183,28 +182,16 @@ const Profile = ( {handleLogout}) => {
         setValue("lname", user.last_name || "");
         setValue(
           "phone",
-          user.user_role == 3
-            ? user.customers?.phone
-            : user.mechanics?.phone
+          user.user_role === 3
+            ? user.customers?.phone || ""
+            : user.mechanics?.phone || ""
         );
-        setValue(
-          "street",
-          user.user_role == 3
-            ? user.customers?.street
-            : user.mechanics?.street
-        );
-        if (user.birth_day){
-          const formattedDate = moment(user.birth_day).toDate();
-          setValue("bday", formattedDate);
-        }
       } else {
         // If user is undefined, reset form fields
         setValue("fname", "");
         setValue("mname", "");
         setValue("lname", "");
         setValue("phone", "");
-        setValue("bday", "");
-        setValue("street", "");
       }
     });
   
@@ -213,34 +200,29 @@ const Profile = ( {handleLogout}) => {
       setValue("fname", user.first_name || "");
       setValue("mname", user.middle_name || "");
       setValue("lname", user.last_name || "");
+      let phoneInput = "";
+      if(user.user_role == 3){
+        phoneInput = user.customers.phone;
+      } else if (user.user_role == 2){
+        phoneInput = user.mechanics.phone;
+      }
       setValue(
         "phone",
-        user.user_role == 3
-          ? user.customers?.phone
-          : user.mechanics?.phone
+        user.user_role === 3
+          ? user.customers?.phone || ""
+          : user.mechanics?.phone || ""
       );
-      setValue(
-        "street",
-        user.user_role == 3
-          ? user.customers?.street
-          : user.mechanics?.street
-      );
-      if (user.birth_day){
-        const formattedDate = moment(user.birth_day).toDate();
-        setValue("bday", formattedDate);
-      }
     } else {
       // If user is undefined, reset form fields
       setValue("fname", "");
       setValue("mname", "");
       setValue("lname", "");
       setValue("phone", "");
-      setValue("bday", "");
-      setValue("street", "");
     }
   
     return unsubscribe;
   }, [navigation, user]);
+  
 
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -363,7 +345,8 @@ const Profile = ( {handleLogout}) => {
               errors={errorsAddress}
               my={5}
               label="Region"
-              placeholder={user.user_role == 3 ? user.customers?.region : user.mechanics?.region}
+              // placeholder={user.user_role == 3 ? user.customers.region : user.mechanics.region}
+              placeholder="Select Region"
               options={regions.map((region) => ({
                 value: region.region_name,
                 ...region,

@@ -8,6 +8,9 @@ import {
   Easing,
   StyleSheet,
   BackHandler,
+  ToastAndroid,
+  Modal,
+  Image,
 } from "react-native";
 import { api } from "../../../config/api";
 import Loading from "../../components/Loading";
@@ -21,8 +24,11 @@ import { Button, Text } from "@ui-kitten/components";
 import { useSelector } from "react-redux";
 import * as geolib from "geolib";
 import { Toast } from "toastify-react-native";
-import { Ionicons } from "@expo/vector-icons"; // Add this for the back icon
+import { Ionicons, FontAwesome } from "@expo/vector-icons"; // Add this for the back icon
 import Icon from "react-native-vector-icons/FontAwesome";
+import Pusher from "pusher-js";
+import { getChatList } from "../../store/chat/Chat";
+import * as Notifications from "expo-notifications";
 
 const Booking = () => {
   const navigation = useNavigation();
@@ -32,11 +38,23 @@ const Booking = () => {
   const [location, setLocation] = useState(null);
   const [isBooking, setIsBooking] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const [isAccepted, setIsAccepted] = useState(false);
   const [nearbySearch, setNearbySearch] = useState([]);
   const rotateAnim = useRef(new Animated.Value(0)).current;
   const searchRotateAnim = useRef(new Animated.Value(0)).current;
   const animationRef = useRef(null);
   const [declinedBookings, setDeclinedBookings] = useState([]);
+  const [mechanicName, setMechanicName] = useState("");
+  const [mechanicProfilePic, setMechanicProfilePic] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [showBookingFoundModal, setShowBookingFoundModal] = useState(false);
+  const [bookingDetails, setBookingDetails] = useState({});
+  const { chatList } = useSelector((state) => state.chat);
+  const [bookingStarted, setBookingStarted] = useState(false);
+  const [bookingCompleted, setBookingCompleted] = useState(false);
+  const [finalBookingDetails, setfinalBookingDetails] = useState([]);
+  const PUSHER_KEY = "4a125bbdc2a8a74fb388";
+  const PUSHER_CLUSTER = "ap1";
 
   if (user.user_role == 3 ) {
     const { service_type, vehicle_type, vehicle_name, mode_of_payment, other } =
@@ -50,8 +68,16 @@ const Booking = () => {
   //   other,
   // });
   }
-  
- 
+
+  const handleBookingStarted = () => {
+    setBookingStarted(true);
+    console.log("Booking started in Parent component!");
+  };
+
+  const handleBookingCompleted = () => {
+    setBookingCompleted(true);
+    console.log("Booking Completed in Parent component!");
+  };
 
   const startRotationAnimation = () => {
     if (animationRef.current) {
@@ -79,8 +105,112 @@ const Booking = () => {
       })
     ).start();
   };
+  useEffect(() => {
+    console.log(user);
+  }, []);
 
   useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", async () => {
+      try {
+        await dispatch(getChatList(user.id));
+      } catch (err) {
+        console.log(err);
+      }
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    if (!user || !user.id) {
+      return; // Exit early if user or user.id is not defined
+    }
+
+    let pusher;
+    let channel;
+    if (user.user_role == 3 && isBooking) {
+      // Initialize Pusher
+      Pusher.logToConsole = true;
+      pusher = new Pusher("b2ef5fd775b4a8cf343c", {
+        cluster: "ap1",
+        encrypted: true,
+      });
+
+      // Subscribe to channel
+      channel = pusher.subscribe(`customer-notifications.${user.id}`);
+      channel.bind("BookingAccepted", (Data) => {
+        if (Data.mechanicName) {
+          setMechanicName(Data.mechanicName);
+          setMechanicProfilePic(Data.mechanicProfilePic);
+          setIsBooking(false);
+          setShowModal(true);
+          setIsAccepted(true);
+        } else {
+          console.log("Data or mechanicName not available.");
+        }
+      });
+
+      channel.bind("BookingDeclined", (Data) => {
+        if (Data.bookingStatus && Data.bookingId) {
+          setTimeout(() => {
+            if (
+              Data.bookingStatus === "Pending" ||
+              Data.bookingStatus === "Declined" ||
+              Data.bookingStatus === "Assigned"
+            ) {
+              cancelBooking();
+              Toast.warn("No Mechanics As of the Moment!");
+            } // Pass the booking ID to checkBookingStatus
+          }, 10000);
+        } else {
+          console.log("Data or mechanicName not available.");
+        }
+      });
+    }
+
+    if (user.user_role == 3 && isAccepted) {
+      Pusher.logToConsole = true;
+      pusher = new Pusher("b2ef5fd775b4a8cf343c", {
+        cluster: "ap1",
+        encrypted: true,
+      });
+
+      // Subscribe to channel
+      channel = pusher.subscribe(`customer-notifications.${user.id}`);
+      channel.bind("BookingStarted", (Data) => {
+        if (Data.bookingStatus && Data.bookingId) {
+          console.log("Booking Started Worked!");
+          setMechanicName(Data.mechanicName);
+          setMechanicProfilePic(Data.mechanicProfilePic);
+          setIsAccepted(false);
+          setBookingStarted(true);
+        } else {
+          console.log("Data or mechanicName not available.");
+        }
+      });
+    }
+
+    if (user.user_role == 3 && bookingStarted) {
+      Pusher.logToConsole = true;
+      pusher = new Pusher("b2ef5fd775b4a8cf343c", {
+        cluster: "ap1",
+        encrypted: true,
+      });
+
+      // Subscribe to channel
+      channel = pusher.subscribe(`customer-notifications.${user.id}`);
+      channel.bind("BookingCompleted", (Data) => {
+        if (Data) {
+          console.log("Booking Completed Worked!");
+          setfinalBookingDetails(Data);
+          setBookingStarted(false);
+          setBookingCompleted(true);
+        } else {
+          console.log("Data or mechanicName not available.");
+        }
+      });
+    }
+
+    // Handle rotation animation
     if (isBooking) {
       startRotationAnimation();
     } else {
@@ -95,38 +225,69 @@ const Booking = () => {
     } else {
       searchRotateAnim.setValue(0);
     }
+    // Fetch current location and check booking status
+    const fetchLocationAndBookingStatus = async () => {
+      try {
+        let loc = await Location.getCurrentPositionAsync({});
+        setLocation(loc.coords);
+        console.log(loc.coords);
 
-    const unsubscribe = navigation.addListener("focus", async () => {
-      let loc = await Location.getCurrentPositionAsync({});
-      setLocation(loc.coords);
-      console.log(loc.coords);
-      api
-        .post("checkbooking", {
-          user_id: user.id,
-        })
-        .then((response) => {
-          if (Number(response.data) > 0) {
-            setIsBooking(true);
-          }
-        })
-        .catch((err) => {
-          console.log(err.response);
-        });
-    });
+        const response = await api.post("checkbooking", { user_id: user.id });
+
+        // Check if the response contains the booking details
+        if (response.data && response.data.id) {
+          const bookingId = response.data.id; // Extract the booking ID
+          console.log("Booking ID:", bookingId); // Log the booking ID to the console
+
+          setIsBooking(true);
+
+          // Optionally, use the booking ID for further logic
+          setTimeout(() => {
+            checkBookingStatus(bookingId); // Pass the booking ID to checkBookingStatus
+          }, 30000); // 30 seconds
+        } else {
+          console.log("No booking found.");
+        }
+      } catch (err) {
+        console.log(err.response);
+      }
+    };
+
+    fetchLocationAndBookingStatus(); // Initial fetch
+
+    const unsubscribe = navigation.addListener(
+      "focus",
+      fetchLocationAndBookingStatus
+    );
 
     const interval = setInterval(async () => {
       let loc = await Location.getCurrentPositionAsync({});
       setLocation(loc.coords);
-      // console.log(loc.coords);
     }, 5000);
-
-    console.log("Declined Bookings Updated:", declinedBookings);
 
     return () => {
       unsubscribe();
       clearInterval(interval);
+      if (channel) {
+        channel.unbind_all();
+        channel.unsubscribe();
+      }
+      if (pusher) {
+        pusher.disconnect();
+      }
     };
-  }, [navigation, rotateAnim, isBooking, isSearching, declinedBookings]);
+  }, [
+    navigation,
+    rotateAnim,
+    isBooking,
+    isSearching,
+    isAccepted,
+    bookingStarted,
+    bookingCompleted,
+    declinedBookings,
+    user.id,
+    user.user_role,
+  ]);
 
   const bookNow = () => {
     if (route.params && route.params.service_type) {
@@ -157,6 +318,26 @@ const Booking = () => {
     } else {
       console.error("Service type is not defined in route params.");
     }
+  };
+
+  const checkBookingStatus = (bookingId) => {
+    api
+      .post("checkbookingstatus", { booking_id: bookingId }) // sending the booking_id
+      .then((response) => {
+        const bookingStatus = response.data.status; // accessing the status from response
+
+        // If the booking is still Pending or Declined after 30 seconds, cancel the booking
+        if (
+          bookingStatus === "Pending" ||
+          bookingStatus === "Declined" ||
+          bookingStatus === "Assigned"
+        ) {
+          cancelBooking();
+        }
+      })
+      .catch((err) => {
+        console.log(err.response); // handling error
+      });
   };
 
   const rotateInterpolate = rotateAnim.interpolate({
@@ -191,24 +372,18 @@ const Booking = () => {
       })
       .then((response) => {
         setIsBooking(false);
+        if (isAccepted) {
+          setIsAccepted(false);
+        }
+        if (bookingStarted) {
+          setIsAccepted(false);
+          setBookingStarted(false);
+        }
       })
       .catch((err) => {
         console.log(err.response);
       });
   };
-
-  // const searchNearby = () => {
-  //   api
-  //     .get("getallnearbybooking")
-  //     .then((response) => {
-  //       console.log(response.data);
-  //       setNearbySearch(response.data);
-  //       setIsSearching(true);
-  //     })
-  //     .catch((err) => {
-  //       console.log(err.response);
-  //     });
-  // };
 
   // const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -231,48 +406,22 @@ const Booking = () => {
       const response = await api.post("/assign-booking", requestPayload);
       const { booking, message, wait_time } = response.data;
 
-      if (booking) {
-        toastShown = false; // Reset toastShown when a booking is found
-        Alert.alert(
-          "Booking Found!",
-          `A booking request from ${booking.first_name} ${booking.last_name}.`,
-          [
-            {
-              text: "Decline",
-              onPress: async () => {
-                const updatedDeclinedBookings = [
-                  ...declinedBookings,
-                  booking.id,
-                ];
-                setDeclinedBookings(updatedDeclinedBookings);
-
-                try {
-                  await api.post("/decline-booking", {
-                    booking_id: booking.id,
-                    mechanics_id: user.id,
-                  });
-
-                  fetchAndAssignBooking();
-                } catch (error) {
-                  console.error("Decline Booking API Error:", error.response);
-                  Toast.error("An error occurred while declining the booking.");
-                }
-              },
-              style: "cancel",
-            },
-            {
-              text: "Accept",
-              onPress: async () => {
-                try {
-                  await acceptBooking(booking);
-                } catch (error) {
-                  console.error("Accept Booking API Error:", error.response);
-                  Toast.error("An error occurred while accepting the booking.");
-                }
-              },
-            },
-          ]
+      // Check if booking is not null and has required properties
+      if (booking && booking.latitude && booking.longitude) {
+        const geocodeResponse = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${booking.latitude}&lon=${booking.longitude}&format=json&zoom=20&addressdetails=11`
         );
+        const geocodeData = await geocodeResponse.json();
+        const locationName = geocodeData.display_name || "Unknown location";
+
+        // Set booking details and show the modal
+        setBookingDetails({
+          ...booking,
+          locationName,
+        });
+        setShowBookingFoundModal(true);
+        const name = `${booking.first_name} ${booking.last_name}`;
+        await schedulePushNotification(name);
       } else {
         if (!toastShown) {
           Toast.warn("No bookings within 1 km radius as of the moment.");
@@ -280,13 +429,30 @@ const Booking = () => {
         }
 
         // Introduce a delay before retrying
-        await new Promise((resolve) => setTimeout(resolve, wait_time || 15000));
+        // await new Promise((resolve) => setTimeout(resolve, wait_time || 15000));
 
-        fetchAndAssignBooking(); // Recursively search again after the delay
+        // fetchAndAssignBooking(); // Recursively search again after the delay
+        cancelSearch();
       }
     } catch (error) {
-      console.error("API Error:", error.response);
-      Toast.error("An error occurred while searching for bookings.");
+      if (error.response) {
+        // Server responded with a status other than 2xx
+        console.error("API Error Response:", error.response.data);
+        Toast.error(
+          `Error: ${
+            error.response.data.message ||
+            "An error occurred while searching for bookings."
+          }`
+        );
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.error("API Error Request:", error.request);
+        Toast.error("No response received from the server.");
+      } else {
+        // Something happened in setting up the request
+        console.error("API Error Message:", error.message);
+        Toast.error("Error: " + error.message);
+      }
     } finally {
       setIsSearching(false); // Reset searching state
     }
@@ -294,10 +460,31 @@ const Booking = () => {
 
   const searchNearby = () => {
     toastShown = false;
+    api
+      .post("mechanic-active", {
+        mechanics_id: user.id,
+      })
+      .then((response) => {
+        console.log("Mechanic Activity Status: ", response.data.message);
+      })
+      .catch((err) => {
+        console.log(err.response);
+      });
     fetchAndAssignBooking();
+    // setIsSearching(true);
   };
 
   const cancelSearch = () => {
+    api
+      .post("mechanic-inactive", {
+        mechanics_id: user.id,
+      })
+      .then((response) => {
+        console.log("Mechanic Inactivity Status: ", response.data.message);
+      })
+      .catch((err) => {
+        console.log(err.response);
+      });
     setIsSearching(false);
     setNearbySearch([]);
   };
@@ -305,42 +492,29 @@ const Booking = () => {
   const acceptBooking = async (item) => {
     setLoading(true);
     try {
+      // Send API request to accept the booking
       const response = await api.post("acceptbooking", {
         booking_id: item.id,
         mechanics_id: user.id,
       });
 
-      const mechanic = response.data.all_mechanics_info.mechanics;
-      const mechanicProfilePic =
-        response.data.all_mechanics_info.mechanics_info.mechanics_profile_pic;
-
-      // Check if the user role is 3 before showing the Alert
-      if (user.user_role === 3) {
-        // Create a custom modal or component to show the alert with an image
-        Alert.alert(
-          "Congratulations 🎉",
-          `We found you a mechanic! 🚀\n\nMechanic: ${mechanic.first_name} ${mechanic.last_name}\n\nMode of Payment: ${response.data.all_mechanics_info.mode_of_payment}`,
-          [
-            {
-              text: "OK",
-              onPress: () => {
-                // Navigate to the next screen or perform another action
-                console.log("Accepted");
-              },
-            },
-          ],
-          {
-            cancelable: false,
-          }
-        );
-      } else {
-        // If the role is not 3, just navigate without showing the Alert
-        console.log("You Accepted as a Mechanic");
-      }
+      // Handle successful response
+      console.log(response.data.message);
+      navigation.navigate("AcceptBooking", {
+        item: item,
+        // onStartBooking: handleBookingStarted,
+      });
     } catch (err) {
       console.error(err.response);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleProfileNavigation = () => {
+    if (user.user_role == 3 && (isAccepted || bookingStarted)) {
+      // navigation.navigate("MechanicProfile", { mechanicName });
+      Alert.alert("Test Screen");
     }
   };
 
@@ -351,53 +525,61 @@ const Booking = () => {
         <Loading loading={location == null} />
       ) : user.user_role == 3 ? (
         <>
-          <MapView
-            style={{ width: "100%", height: isBooking ? "70%" : "80%" }} // Adjust height based on isBooking
-            initialRegion={{
-              latitude: location.latitude,
-              longitude: location.longitude,
-              latitudeDelta: 0.007,
-              longitudeDelta: 0.007,
-            }}
-          >
-            <Marker
-              coordinate={{
-                latitude: location.latitude,
-                longitude: location.longitude,
-              }}
-              title="Your Current Location"
-            />
-            <Circle
-              center={{
-                latitude: location.latitude,
-                longitude: location.longitude,
-              }}
-              radius={1000}
-              fillColor={"rgba(239,68,68,0.2)"}
-              strokeWidth={0}
-            />
-          </MapView>
-          <TouchableOpacity
-            style={{
-              position: "absolute",
-              top: 30,
-              left: 20,
-              backgroundColor: "#ffffff",
-              borderRadius: 25,
-              width: 50,
-              height: 50,
-              justifyContent: "center",
-              alignItems: "center",
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.8,
-              shadowRadius: 2,
-              elevation: 5,
-            }}
-            onPress={() => navigation.goBack()}
-          >
-            <Ionicons name="arrow-back" size={24} color="black" />
-          </TouchableOpacity>
+          {!bookingCompleted && (
+            <>
+              <MapView
+                style={{
+                  width: "100%",
+                  height:
+                    isBooking || isAccepted || bookingStarted ? "70%" : "80%",
+                }} // Adjust height based on isBooking
+                initialRegion={{
+                  latitude: location.latitude,
+                  longitude: location.longitude,
+                  latitudeDelta: 0.007,
+                  longitudeDelta: 0.007,
+                }}
+              >
+                <Marker
+                  coordinate={{
+                    latitude: location.latitude,
+                    longitude: location.longitude,
+                  }}
+                  title="Your Current Location"
+                />
+                <Circle
+                  center={{
+                    latitude: location.latitude,
+                    longitude: location.longitude,
+                  }}
+                  radius={1000}
+                  fillColor={"rgba(239,68,68,0.2)"}
+                  strokeWidth={0}
+                />
+              </MapView>
+              <TouchableOpacity
+                style={{
+                  position: "absolute",
+                  top: 30,
+                  left: 20,
+                  backgroundColor: "#ffffff",
+                  borderRadius: 25,
+                  width: 50,
+                  height: 50,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  shadowColor: "#000",
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.8,
+                  shadowRadius: 2,
+                  elevation: 5,
+                }}
+                onPress={() => navigation.goBack()}
+              >
+                <Ionicons name="arrow-back" size={24} color="black" />
+              </TouchableOpacity>
+            </>
+          )}
 
           {isBooking && (
             <View>
@@ -414,31 +596,262 @@ const Booking = () => {
             </View>
           )}
 
-          <View
-            style={{
-              position: "absolute",
-              bottom: 0,
-              width: "100%",
-              paddingHorizontal: 20,
-              paddingVertical: 20,
-              alignSelf: "center",
-              backgroundColor: "#fff",
-            }}
-          >
-            <TouchableOpacity
-              style={{
-                height: 50,
-                backgroundColor: "#EF4444",
-                justifyContent: "center",
-                alignItems: "center",
-                borderRadius: 50,
-              }}
-              onPress={isBooking ? cancelBooking : bookNow}
-            >
-              <Text style={{ color: "#fff", fontFamily: "Nunito-Bold" }}>
-                {isBooking ? "Cancel Booking" : "BOOK NOW"}
+          {isAccepted && (
+            <View>
+              <Text style={styles.statusText}>
+                Your mechanic will be there shortly
               </Text>
-            </TouchableOpacity>
+              <View style={styles.mechanicInfoContainer}>
+                <TouchableOpacity onPress={handleProfileNavigation}>
+                  <Image
+                    source={{
+                      uri: mechanicProfilePic, // Mechanic's profile picture
+                    }}
+                    style={styles.profileImage}
+                  />
+                </TouchableOpacity>
+                <Text category="h6" style={styles.mechanicName}>
+                  {mechanicName}
+                </Text>
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate("Chat", {
+                      mechanics_id: 2,
+                      chat_id: 2,
+                    })
+                  }
+                  style={styles.button}
+                >
+                  <Icon
+                    name="commenting"
+                    size={35}
+                    color="#EF4444"
+                    style={styles.chatIcon}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+
+          {bookingStarted && (
+            <View>
+              <Text style={styles.statusText}>Booking in Progress..</Text>
+              <View style={styles.mechanicInfoContainer}>
+                <TouchableOpacity onPress={handleProfileNavigation}>
+                  <Image
+                    source={{
+                      uri: mechanicProfilePic, // Mechanic's profile picture
+                    }}
+                    style={styles.profileImage}
+                  />
+                </TouchableOpacity>
+                <Text category="h6" style={styles.mechanicName}>
+                  {mechanicName}
+                </Text>
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate("Chat", {
+                      mechanics_id: 2,
+                      chat_id: 2,
+                    })
+                  }
+                  style={styles.button}
+                >
+                  <Icon
+                    name="commenting"
+                    size={35}
+                    color="#EF4444"
+                    style={styles.chatIcon}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+
+          {bookingCompleted && (
+            <View style={styles2.container}>
+              <>
+                <View style={styles2.card}>
+                  <Text style={styles2.sectionTitle}>Booking Details 🛠️</Text>
+                  <View style={styles2.detailItem}>
+                    <Ionicons name="person" size={24} color="gray" />
+                    <Text style={styles2.detailText}>
+                      Customer Name:{" "}
+                      <Text style={styles2.detailValue}>
+                        {/* {route.params.first_name}{" "}
+                          {route.params.last_name} */}{" "}
+                        {finalBookingDetails.booking.first_name}{" "}
+                        {finalBookingDetails.booking.last_name}
+                      </Text>
+                    </Text>
+                  </View>
+                  <View style={styles2.detailItem}>
+                    <Ionicons name="location" size={24} color="gray" />
+                    <Text style={styles2.detailText}>
+                      Location:{" "}
+                      <Text style={styles2.detailValue}>
+                        {/* {address.display_name} */} Test Address
+                      </Text>
+                    </Text>
+                  </View>
+                  <View style={styles2.detailItem}>
+                    <FontAwesome
+                      name={
+                        route.params.vehicle_type == "Car"
+                          ? "car"
+                          : "motorcycle"
+                      }
+                      size={24}
+                      color="gray"
+                    />
+                    <Text style={styles2.detailText}>
+                      Vehicle Type:{" "}
+                      <Text style={styles2.detailValue}>
+                        {" "}
+                        {finalBookingDetails.booking.vehicle_type}
+                      </Text>
+                    </Text>
+                  </View>
+                  <View style={styles2.detailItem}>
+                    <FontAwesome name="file-text" size={24} color="gray" />
+                    <Text style={styles2.detailText2}>
+                      Vehicle Name:{" "}
+                      <Text style={styles2.detailValue}>
+                        {" "}
+                        {finalBookingDetails.booking.vehicle_name}
+                      </Text>
+                    </Text>
+                  </View>
+                  <View style={styles2.detailItem}>
+                    <FontAwesome name="wrench" size={24} color="gray" />
+                    <Text style={styles2.detailText2}>
+                      Service Type:{" "}
+                      <Text style={styles2.detailValue}>
+                        {" "}
+                        {finalBookingDetails.booking.service_type}
+                      </Text>
+                    </Text>
+                  </View>
+                  {finalBookingDetails.other_service_type &&
+                    finalBookingDetails.other_service_type.trim() !== "" && (
+                      <View style={styles.detailItem}>
+                        <FontAwesome name="list-alt" size={24} color="gray" />
+                        <Text style={styles.detailText2}>
+                          Other Service Type:{" "}
+                          <Text style={styles.detailValue}>
+                            {" "}
+                            {finalBookingDetails.other_service_type}
+                          </Text>
+                        </Text>
+                      </View>
+                    )}
+                  <View style={styles2.detailItem}>
+                    <FontAwesome name="credit-card" size={24} color="gray" />
+                    <Text style={styles2.detailText2}>
+                      Payment Method:{" "}
+                      <Text style={styles2.detailValue}>
+                        {" "}
+                        {finalBookingDetails.booking.mode_of_payment}
+                      </Text>
+                    </Text>
+                  </View>
+
+                  <View style={styles2.detailItem}>
+                    <FontAwesome name="money" size={24} color="gray" />
+                    <Text style={styles2.detailText2}>
+                      Total Price:{" "}
+                      <Text style={styles2.detailValue}>
+                        {" "}
+                        {finalBookingDetails.booking.total_price}
+                      </Text>
+                    </Text>
+                  </View>
+                </View>
+
+                <TouchableOpacity
+                  style={styles2.startButton}
+                  onPress={() => {
+                    if (finalBookingDetails.booking.mode_of_payment == "Cash") {
+                      Toast.success("Booking Completed!");
+                      navigation.navigate("Home"); // Logic for Cash payment
+                    } else {
+                      Alert.alert("Insert Paymongo Payment Page"); // Logic for other payment methods
+                    }
+                  }}
+                >
+                  <Text style={styles2.buttonText}>
+                    {finalBookingDetails.booking.mode_of_payment == "Cash"
+                      ? "Finish Booking"
+                      : "Proceed to Payment"}
+                  </Text>
+                </TouchableOpacity>
+              </>
+            </View>
+          )}
+
+          {!bookingCompleted && (
+            <>
+              <View
+                style={{
+                  position: "absolute",
+                  bottom: 0,
+                  width: "100%",
+                  paddingHorizontal: 20,
+                  paddingVertical: 20,
+                  alignSelf: "center",
+                  backgroundColor: "#fff",
+                }}
+              >
+                <TouchableOpacity
+                  style={{
+                    height: 50,
+                    backgroundColor: "#EF4444",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    borderRadius: 50,
+                  }}
+                  onPress={
+                    isBooking || isAccepted || bookingStarted
+                      ? cancelBooking
+                      : bookNow
+                  }
+                >
+                  <Text style={{ color: "#fff", fontFamily: "Nunito-Bold" }}>
+                    {isBooking || isAccepted || bookingStarted
+                      ? "Cancel Booking"
+                      : "BOOK NOW"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
+
+          <View style={styles.modalContainer}>
+            <Modal
+              visible={showModal}
+              transparent={true}
+              animationType="slide"
+              onRequestClose={() => setShowModal(false)}
+            >
+              <View style={styles.modalBackground}>
+                <View style={styles.modalContent}>
+                  <Text style={styles.modalText}>
+                    Congratulations 🎉{"\n"}We Found You A Mechanic!
+                  </Text>
+                  <Image
+                    source={{ uri: mechanicProfilePic }}
+                    style={styles.profilePic}
+                  />
+                  <Text style={styles.modalText}>🎉 {mechanicName}! 🎉</Text>
+                  <TouchableOpacity
+                    style={styles.customButton}
+                    onPress={() => setShowModal(false)}
+                  >
+                    <Text style={styles.buttonText}>OK</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
           </View>
         </>
       ) : (
@@ -525,6 +938,7 @@ const Booking = () => {
                 }
               })}
           </MapView>
+
           <TouchableOpacity
             style={{
               position: "absolute",
@@ -562,6 +976,120 @@ const Booking = () => {
             </View>
           )}
 
+          <Modal
+            visible={showBookingFoundModal}
+            transparent={true}
+            animationType="slide"
+            onRequestClose={() => setShowBookingFoundModal(false)}
+          >
+            <View style={styles.bookingModalContainer}>
+              <View style={styles.bookingModalContent}>
+                <Text style={styles.bookingModalTitle}>Booking Found! 👨‍🔧</Text>
+                <Text style={styles.bookingModalText}>
+                  Customer Name:{" "}
+                  <Text style={styles.bookingModalSubtext}>
+                    {bookingDetails.first_name} {bookingDetails.last_name}
+                  </Text>
+                </Text>
+                <Text style={styles.bookingModalText}>
+                  Location:{" "}
+                  <Text style={styles.bookingModalSubtext}>
+                    {bookingDetails.locationName}
+                  </Text>
+                </Text>
+                <Text style={styles.bookingModalText}>
+                  Vehicle Type:{" "}
+                  <Text style={styles.bookingModalSubtext}>
+                    {bookingDetails.vehicle_type}
+                  </Text>
+                </Text>
+                <Text style={styles.bookingModalText}>
+                  Vehicle Name:{" "}
+                  <Text style={styles.bookingModalSubtext}>
+                    {bookingDetails.vehicle_name}
+                  </Text>
+                </Text>
+                <Text style={styles.bookingModalText}>
+                  Service Type:{" "}
+                  <Text style={styles.bookingModalSubtext}>
+                    {bookingDetails.service_type}
+                  </Text>
+                </Text>
+                {bookingDetails.other_service_type &&
+                  bookingDetails.other_service_type.trim() !== "" && (
+                    <Text style={styles.bookingModalText}>
+                      Other Service Type:{" "}
+                      <Text style={styles.bookingModalSubtext}>
+                        {bookingDetails.other_service_type}
+                      </Text>
+                    </Text>
+                  )}
+                <Text style={styles.bookingModalText}>
+                  Payment Method:{" "}
+                  <Text style={styles.bookingModalSubtext}>
+                    {bookingDetails.mode_of_payment}
+                  </Text>
+                </Text>
+                <View style={styles.bookingModalButtons}>
+                  <TouchableOpacity
+                    style={styles.bookingDeclineButton}
+                    onPress={async () => {
+                      const updatedDeclinedBookings = [
+                        ...declinedBookings,
+                        bookingDetails.id,
+                      ];
+                      setDeclinedBookings(updatedDeclinedBookings);
+
+                      try {
+                        await api.post("/decline-booking", {
+                          booking_id: bookingDetails.id,
+                          mechanics_id: user.id,
+                        });
+
+                        setShowBookingFoundModal(false);
+                        // fetchAndAssignBooking();
+                        cancelSearch();
+                      } catch (error) {
+                        console.error(
+                          "Decline Booking API Error:",
+                          error.response
+                        );
+                        Toast.error(
+                          "An error occurred while declining the booking."
+                        );
+                      }
+                    }}
+                  >
+                    <Text style={{ color: "white", fontFamily: "Nunito-Bold" }}>
+                      Decline
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.bookingAcceptButton}
+                    onPress={async () => {
+                      try {
+                        await acceptBooking(bookingDetails);
+                        setShowBookingFoundModal(false);
+                      } catch (error) {
+                        console.error(
+                          "Accept Booking API Error:",
+                          error.response
+                        );
+                        Toast.error(
+                          "An error occurred while accepting the booking."
+                        );
+                      }
+                    }}
+                  >
+                    <Text style={{ color: "white", fontFamily: "Nunito-Bold" }}>
+                      Accept
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
+
           <View
             style={{
               position: "absolute",
@@ -594,6 +1122,17 @@ const Booking = () => {
   );
 };
 
+async function schedulePushNotification(name) {
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "Booking found!",
+      body: `A booking request from ${name}`,
+      data: { data: "goes here" },
+    },
+    trigger: null,
+  });
+}
+
 const styles = StyleSheet.create({
   searchContainer: {
     justifyContent: "center",
@@ -606,6 +1145,197 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Nunito-Bold",
     color: "#000",
+  },
+
+  modalContainer: {
+    flex: 1,
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    width: 280,
+    padding: 20,
+    backgroundColor: "white",
+    borderRadius: 12,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  profilePic: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    marginVertical: 10,
+  },
+  modalText: {
+    fontSize: 18,
+    fontFamily: "Nunito-Bold",
+    textAlign: "center",
+    marginVertical: 10,
+  },
+  customButton: {
+    backgroundColor: "#EF4444",
+    padding: 15,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+    fontFamily: "Nunito-Bold",
+  },
+  mechanicInfoContainer: {
+    flexDirection: "row", // Align items horizontally
+    alignItems: "center", // Vertically center the items
+    justifyContent: "space-between", // Distribute space between items
+    marginVertical: 30,
+    alignSelf: "center",
+    width: "85%", // Ensure it doesn't take full width
+  },
+
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    marginRight: 10, // Add margin to the right for spacing
+    borderWidth: 1,
+    borderColor: "black",
+  },
+
+  mechanicName: {
+    fontWeight: "bold",
+    fontSize: 18,
+    flex: 1, // Allow name to take available space
+  },
+
+  chatIcon: {
+    marginLeft: 10, // Add margin to the left for spacing
+  },
+
+  statusText: {
+    marginTop: 10,
+    fontSize: 16,
+    fontFamily: "Nunito-Bold",
+    color: "#000",
+    textAlign: "center", // Center the status text
+  },
+
+  bookingModalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  bookingModalContent: {
+    width: 300,
+    padding: 20,
+    backgroundColor: "white",
+    borderRadius: 10,
+  },
+  bookingModalTitle: {
+    textAlign: "center",
+    fontSize: 20,
+    fontFamily: "Nunito-Bold",
+    marginBottom: 10,
+  },
+  bookingModalText: {
+    fontSize: 16,
+    fontFamily: "Nunito-Bold",
+    marginBottom: 10,
+  },
+  bookingModalSubtext: {
+    fontSize: 16,
+    fontFamily: "Nunito-Regular",
+    marginBottom: 10,
+  },
+  bookingModalButtons: {
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    marginTop: 20,
+  },
+  bookingDeclineButton: {
+    backgroundColor: "#FF4D4D",
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 5,
+    marginRight: 10,
+  },
+  bookingAcceptButton: {
+    backgroundColor: "#4CAF50",
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 5,
+  },
+});
+
+const styles2 = StyleSheet.create({
+  container: {
+    paddingVertical: 30,
+    paddingHorizontal: 15,
+  },
+  card: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  sectionTitle: {
+    fontSize: 22,
+    fontFamily: "Nunito-Bold",
+    marginBottom: 15,
+    color: "#333",
+  },
+  detailItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  detailText: {
+    fontSize: 16,
+    marginLeft: 10,
+    fontFamily: "Nunito-Regular",
+  },
+  detailText2: {
+    fontSize: 16,
+    marginLeft: 17,
+    fontFamily: "Nunito-Regular",
+  },
+  detailValue: {
+    fontFamily: "Nunito-Bold",
+    color: "#444",
+  },
+  completeButton: {
+    height: 50,
+    backgroundColor: "#EF4444",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 50,
+    marginTop: 15,
+  },
+  startButton: {
+    height: 50,
+    backgroundColor: "#EF4444",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 50,
+    marginTop: 15,
+  },
+  buttonText: {
+    color: "#fff",
+    fontFamily: "Nunito-Bold",
   },
 });
 

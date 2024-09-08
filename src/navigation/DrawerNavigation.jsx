@@ -21,6 +21,8 @@ import { logoutUser } from "../store/auth/User";
 import FavoriteMechanic from "../screen/Booking/FavoriteMechanic";
 import BookingInfo from "../screen/Booking/BookingInfo";
 import RebookRequests from "../screen/Booking/RebookRequests";
+import BookingPay from "../screen/Payment/BookingPay";
+import MarketPlacePay from "../screen/Payment/MarketPlacePay";
 
 const DrawerStack = createDrawerNavigator();
 
@@ -95,6 +97,8 @@ const DrawerNavigation = () => {
       <DrawerStack.Screen name="RebookRequests" component={RebookRequests} />
 
       <DrawerStack.Screen name="BookingInfo" component={BookingInfo} />
+      <DrawerStack.Screen name="BookingPay" component={BookingPay} />
+      <DrawerStack.Screen name="MarketPlacePay" component={MarketPlacePay} />
     </DrawerStack.Navigator>
   );
 };
