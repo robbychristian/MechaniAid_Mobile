@@ -22,10 +22,26 @@ const BookingDetails = () => {
   const navigation = useNavigation();
 
   const [selectedTitles, setSelectedTitles] = useState([]);
+  const [initialPrice, setInitialPrice] = useState(100);
+  const [totalPrice, setTotalPrice] = useState(100); // Track total price
+
+  // Define prices for each service
+  const servicePrices = {
+    "Oil Change": 0,
+    "Tire Replacement": 0,
+    "Brake Inspection": 0,
+    "Other": 0
+  };
 
   const updateFormState = (newSelectedTitles, onChange) => {
     setSelectedTitles(newSelectedTitles);
     onChange(newSelectedTitles);
+
+    const additionalPrice = newSelectedTitles.reduce(
+      (total, service) => total + servicePrices[service] || 0,
+      0
+    );
+    setTotalPrice(initialPrice + additionalPrice);
   };
 
   const removeSelectedItem = (title, onChange) => {
@@ -227,10 +243,9 @@ const BookingDetails = () => {
             options={paymentMethods}
             isFull={true}
           />
-
+          <Text style={styles.label}>Initial Price: P{totalPrice}</Text>
           <Text style={styles.hintText}>
-            * Initial cost of booking a mechanic is P100 and may vary depending
-            on the problem assessed by the mechanic.
+            * The initial cost of booking a mechanic is P100, and the total price will vary based on the final assessment made by the mechanic. There will be a detailed breakdown of prices provided at the end of the booking, with the total price being determined by the mechanic depending on the nature and extent of the problem assessed.
           </Text>
         </Card>
 

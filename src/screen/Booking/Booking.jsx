@@ -29,6 +29,7 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import Pusher from "pusher-js";
 import { getChatList } from "../../store/chat/Chat";
 import * as Notifications from "expo-notifications";
+import { ScrollView } from "react-native-gesture-handler";
 
 const Booking = () => {
   const navigation = useNavigation();
@@ -56,17 +57,17 @@ const Booking = () => {
   const PUSHER_KEY = "4a125bbdc2a8a74fb388";
   const PUSHER_CLUSTER = "ap1";
 
-  if (user.user_role == 3 ) {
+  if (user.user_role == 3) {
     const { service_type, vehicle_type, vehicle_name, mode_of_payment, other } =
-    route.params;
-     // Log the data received from the previous screen
-  // console.log("Received data on Booking screen:", {
-  //   service_type,
-  //   vehicle_type,
-  //   vehicle_name,
-  //   mode_of_payment,
-  //   other,
-  // });
+      route.params;
+    // Log the data received from the previous screen
+    // console.log("Received data on Booking screen:", {
+    //   service_type,
+    //   vehicle_type,
+    //   vehicle_name,
+    //   mode_of_payment,
+    //   other,
+    // });
   }
 
   const handleBookingStarted = () => {
@@ -669,7 +670,7 @@ const Booking = () => {
           )}
 
           {bookingCompleted && (
-            <View style={styles2.container}>
+            <ScrollView style={styles2.container}>
               <>
                 <View style={styles2.card}>
                   <Text style={styles2.sectionTitle}>Booking Details 🛠️</Text>
@@ -756,13 +757,31 @@ const Booking = () => {
                     </Text>
                   </View>
 
+                  <View style={styles2.breakdown}>
+                    <Text style={styles2.breakdownHeader}>Payment Details 🧾</Text>
+                    <View style={styles2.detailItem}>
+                      <Text style={styles2.detailText}>
+                          Initial Booking Fee:{" "}
+                            <Text style={styles2.detailValue}>P100</Text>
+                      </Text>
+                    </View>
+                    {finalBookingDetails.feeItems.map((item, index) => (
+                      <View key={index} style={styles2.detailItem}>
+                        <Text style={styles2.detailText}>
+                          {item.description}:{" "}
+                          <Text style={styles2.detailValue}>P{item.price}</Text>
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+
                   <View style={styles2.detailItem}>
                     <FontAwesome name="money" size={24} color="gray" />
                     <Text style={styles2.detailText2}>
                       Total Price:{" "}
                       <Text style={styles2.detailValue}>
                         {" "}
-                        {finalBookingDetails.booking.total_price}
+                        P{finalBookingDetails.booking.total_price}
                       </Text>
                     </Text>
                   </View>
@@ -775,7 +794,9 @@ const Booking = () => {
                       Toast.success("Booking Completed!");
                       navigation.navigate("Home"); // Logic for Cash payment
                     } else {
-                      Alert.alert("Insert Paymongo Payment Page"); // Logic for other payment methods
+                      navigation.navigate("BookingPay", {
+                        id: finalBookingDetails.booking.id, user_id: finalBookingDetails.booking.user_id
+                      }) // Logic for other payment methods
                     }
                   }}
                 >
@@ -786,7 +807,7 @@ const Booking = () => {
                   </Text>
                 </TouchableOpacity>
               </>
-            </View>
+            </ScrollView>
           )}
 
           {!bookingCompleted && (
@@ -1280,17 +1301,18 @@ const styles2 = StyleSheet.create({
   container: {
     paddingVertical: 30,
     paddingHorizontal: 15,
+    backgroundColor: "#F5F5F5",
   },
   card: {
-    backgroundColor: "white",
+    backgroundColor: "#FFFFFF",
     borderRadius: 10,
-    padding: 15,
+    padding: 20,
     marginBottom: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
+    // shadowColor: "#000",
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.1,
+    // shadowRadius: 10,
+    // elevation: 5,
   },
   sectionTitle: {
     fontSize: 22,
@@ -1302,28 +1324,25 @@ const styles2 = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 10,
+    paddingVertical: 10,
+    borderBottomColor: "#EEE",
+    
   },
   detailText: {
     fontSize: 16,
     marginLeft: 10,
     fontFamily: "Nunito-Regular",
+    color: "#555",
   },
   detailText2: {
     fontSize: 16,
     marginLeft: 17,
     fontFamily: "Nunito-Regular",
+    color: "#555",
   },
   detailValue: {
     fontFamily: "Nunito-Bold",
     color: "#444",
-  },
-  completeButton: {
-    height: 50,
-    backgroundColor: "#EF4444",
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 50,
-    marginTop: 15,
   },
   startButton: {
     height: 50,
@@ -1332,11 +1351,24 @@ const styles2 = StyleSheet.create({
     alignItems: "center",
     borderRadius: 50,
     marginTop: 15,
+    marginBottom: 100,
   },
   buttonText: {
     color: "#fff",
     fontFamily: "Nunito-Bold",
   },
+  breakdown: {
+    marginBottom: 16,
+    paddingVertical: 15,
+    borderTopColor: "#EEE",
+    borderTopWidth: 1,
+  },
+  breakdownHeader: {
+    fontSize: 20,
+    fontFamily: 'Nunito-Bold',
+    marginBottom: 8,
+    color: "#333",
+  }
 });
 
 export default Booking;

@@ -4,14 +4,21 @@ import {
   useFocusEffect,
 } from "@react-navigation/native";
 import { Button, Text } from "@ui-kitten/components";
-import React, { useState, useCallback } from "react";
-import { View, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useState, useCallback, useEffect } from "react";
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  FlatList,
+} from "react-native";
 import CustomTextInput from "../../components/Inputs/CustomTextInput";
 import { useForm } from "react-hook-form";
 import Loading from "../../components/Loading";
 import { api } from "../../../config/api";
 import { Toast } from "toastify-react-native";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
+import { ScrollView } from "react-native-gesture-handler";
 
 const AcceptBooking = () => {
   const route = useRoute();
@@ -19,6 +26,11 @@ const AcceptBooking = () => {
   const [loading, setLoading] = useState(false);
   const [address, setAddress] = useState(null);
   const [bookingDetails, setBookingDetails] = useState(null);
+  const [feeItems, setFeeItems] = useState([]);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
+
   const {
     control,
     handleSubmit,
@@ -56,24 +68,54 @@ const AcceptBooking = () => {
           console.log("Error fetching address:", err);
         });
 
-      // Use the cleanup function directly
       const focusListenerCleanup = navigation.addListener("focus", () => {
         console.log("Focused route params:", route.params.item);
       });
 
       return () => {
-        // Cleanup on component unmount
-        focusListenerCleanup(); // Call the cleanup function directly
+        focusListenerCleanup();
       };
     }, [route.params.item, navigation])
   );
 
+  useEffect(() => {
+    calculateTotalPrice();
+  }, [feeItems]);
+
+  const calculateTotalPrice = () => {
+    const sum = feeItems.reduce(
+      (total, item) => total + parseFloat(item.price || 0),
+      0
+    );
+    setTotalPrice(sum + 100); // Add default fee of 100
+  };
+
+  const addFeeItem = () => {
+    if (description && price) {
+      setFeeItems([...feeItems, { description, price }]);
+      setDescription("");
+      setPrice("");
+    } else {
+      Toast.error("Please enter both description and price.");
+    }
+  };
+
+  const removeFeeItem = (index) => {
+    const updatedItems = feeItems.filter((_, i) => i !== index);
+    setFeeItems(updatedItems);
+  };
+
   const onSubmit = async (data) => {
+    if (feeItems.length === 0) {
+      Toast.error("Please add at least one fee item before completing the booking.");
+      return;
+    }
     setLoading(true);
     try {
       await api.post("submitbooking", {
         booking_id: route.params.item.id,
-        total_price: data.total_price,
+        total_price: totalPrice, // Use the calculated total price
+        fee_items: feeItems,
       });
       setLoading(false);
       Toast.success("Booking Completed!");
@@ -99,7 +141,6 @@ const AcceptBooking = () => {
       setLoading(false);
       Toast.success("Booking started!");
 
-      // Notify the parent component (or handle it here)
       if (route.params.onStartBooking) {
         route.params.onStartBooking();
       }
@@ -111,7 +152,7 @@ const AcceptBooking = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       {address == null ? (
         <Loading loading={loading} />
       ) : (
@@ -191,19 +232,49 @@ const AcceptBooking = () => {
           </View>
 
           {bookingDetails?.booking_details.status !== "Accepted" ? (
-            <View style={styles.card}>
-              <Text style={styles.sectionTitle}>Set Total Price 💸</Text>
-              <CustomTextInput
-                control={control}
-                errors={errors}
-                label="Total Price"
-                message="Total Price is required"
-                name="total_price"
-                rules={{ required: true }}
+            <View style={styles.card2}>
+              <Text style={styles.sectionTitle}>Add Fees 💸</Text>
+              {feeItems.map((item, index) => (
+                <View key={index} style={styles.feeItem}>
+                  <Text style={styles.feeDescription}>{item.description}</Text>
+                  <Text style={styles.feePrice}>P{item.price}</Text>
+                  <TouchableOpacity onPress={() => removeFeeItem(index)}>
+                    <Ionicons name="trash-outline" size={24} color="red" />
+                  </TouchableOpacity>
+                </View>
+              ))}
+
+              <TextInput
+                style={styles.input}
+                placeholder="Fee Description"
+                value={description}
+                onChangeText={setDescription}
               />
+              <TextInput
+                style={styles.input}
+                placeholder="Price"
+                value={price}
+                onChangeText={setPrice}
+                keyboardType="numeric"
+              />
+              <TouchableOpacity style={styles.addFeeButton} onPress={addFeeItem}><Text style={styles.buttonText}>Add Fees</Text></TouchableOpacity>
+
+              <View style={styles.totalPriceContainer}>
+                <Text style={styles.totalPriceText}>
+                  Total Price: P{totalPrice}
+                </Text>
+                <Text style={styles.hintText}>
+                  * The initial booking fee of P100 is automatically added in the total price.
+                </Text>
+              </View>
+
               <TouchableOpacity
-                style={styles.completeButton}
+                style={[
+                  styles.completeButton,
+                  { backgroundColor: feeItems.length > 0 ? "#EF4444" : "#D3D3D3" },
+                ]}
                 onPress={handleSubmit(onSubmit)}
+                disabled={feeItems.length === 0}
               >
                 <Text style={styles.buttonText}>Complete Booking</Text>
               </TouchableOpacity>
@@ -215,7 +286,7 @@ const AcceptBooking = () => {
           )}
         </>
       )}
-    </View>
+    </ScrollView>
   );
 };
 
@@ -229,6 +300,17 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 15,
     marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  card2: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 100,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -260,6 +342,39 @@ const styles = StyleSheet.create({
     fontFamily: "Nunito-Bold",
     color: "#444",
   },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 10,
+    borderRadius: 5,
+    marginVertical: 10,
+  },
+  feeItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
+  feeDescription: {
+    flex: 1,
+    fontSize: 16,
+    fontFamily: "Nunito-Regular",
+  },
+  feePrice: {
+    fontSize: 16,
+    fontFamily: "Nunito-Regular",
+    marginRight: 10, 
+  },
+  totalPriceContainer: {
+    marginVertical: 10,
+  },
+  totalPriceText: {
+    fontSize: 18,
+    fontFamily: "Nunito-Bold",
+  },
   completeButton: {
     height: 50,
     backgroundColor: "#EF4444",
@@ -267,6 +382,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 50,
     marginTop: 15,
+  },
+  addFeeButton: {
+    height: 50,
+    backgroundColor: "#EF4444",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 50,
+    marginTop: 15,
+    width: '50%',
+    alignSelf: 'center',  // This centers the button horizontally
+    textAlign: 'center'   // Center the text inside the button
   },
   startButton: {
     height: 50,
@@ -279,6 +405,11 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontFamily: "Nunito-Bold",
+  },
+  hintText: {
+    marginTop: 10,
+    fontSize: 12,
+    color: "#8f9bb3",
   },
 });
 
