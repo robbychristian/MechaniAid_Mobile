@@ -414,15 +414,6 @@ const Profile = ( {handleLogout}) => {
               disabled={!selectedCity}
             />
             <CustomTextInput
-              control={controlAddress}
-              errors={errorsAddress}
-              label={`Street`}
-              message={`Street is required`}
-              my={5}
-              name={`street`}
-              rules={{ required: true }}
-            /> 
-             <CustomTextInput
               control={controlPersonal}
               errors={errorsPersonal}
               label={`Street`}
@@ -430,7 +421,16 @@ const Profile = ( {handleLogout}) => {
               my={5}
               name={`street`}
               rules={{ required: true }}
-            />
+            /> 
+             {/* <CustomTextInput
+              control={controlAddress}
+              errors={errorsAddress}
+              label={`Street`}
+              message={`Street is required`}
+              my={5}
+              name={`street`}
+              rules={{ required: true }}
+            /> */}
 
             <View style={{ marginVertical: 15 }}>
               <Button

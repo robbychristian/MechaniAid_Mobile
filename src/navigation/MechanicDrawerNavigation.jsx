@@ -22,7 +22,7 @@ import BookingInfo from "../screen/Booking/BookingInfo";
 
 const DrawerStack = createDrawerNavigator();
 
-const DrawerContent = ({ navigation, state }) => {
+const DrawerContent = ({ navigation, state, handleLogout }) => {
   const dispatch = useDispatch();
   return (
     <Drawer
@@ -39,8 +39,8 @@ const DrawerContent = ({ navigation, state }) => {
       <DrawerItem
         title={`Logout`}
         onPress={async () => {
-          // navigation.navigate("Login");
-          // await dispatch(logout());
+          navigation.navigate("Login");
+          await dispatch(logout());
 
           try {
             await AsyncStorage.removeItem('jwt_token');
@@ -60,10 +60,22 @@ const DrawerContent = ({ navigation, state }) => {
 const MechanicDrawerNavigation = () => {
   const navigation = useNavigation();
   const route = useRoute();
+  const dispatch = useDispatch();
+
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('jwt_token');
+      await AsyncStorage.removeItem('user_info');
+      await dispatch(logoutUser());
+      navigation.navigate("Login");
+    } catch (error) {
+      console.log('Error during logout:', error);
+    }
+  };
 
   return (
     <DrawerStack.Navigator
-      drawerContent={(props) => <DrawerContent {...props} />}
+      drawerContent={(props) => <DrawerContent {...props} handleLogout={handleLogout} />}
       screenOptions={{ 
         headerShown: false,
         headerStyle: {
@@ -78,7 +90,9 @@ const MechanicDrawerNavigation = () => {
       }}
     >
       <DrawerStack.Screen name="BottomNav" component={BottomNav} />
-      <DrawerStack.Screen name="Profile" component={Profile} />
+      <DrawerStack.Screen name="Profile">
+        {(props) => <Profile {...props} handleLogout={handleLogout} />}
+      </DrawerStack.Screen>
       <DrawerStack.Screen name="Product" component={Product} />
       <DrawerStack.Screen name="Chat" component={Chat} />
       <DrawerStack.Screen name="Booking" component={Booking} />

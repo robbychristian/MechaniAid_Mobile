@@ -20,11 +20,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { logoutUser } from "../store/auth/User";
 import FavoriteMechanic from "../screen/Booking/FavoriteMechanic";
 import BookingInfo from "../screen/Booking/BookingInfo";
+import RebookRequests from "../screen/Booking/RebookRequests";
 
 const DrawerStack = createDrawerNavigator();
 
-const DrawerContent = ({ navigation, state }) => {
-  const dispatch = useDispatch();
+const DrawerContent = ({ navigation, state, handleLogout }) => {
   return (
     <Drawer
       selectedIndex={new IndexPath(state.index)}
@@ -39,20 +39,7 @@ const DrawerContent = ({ navigation, state }) => {
       <DrawerItem title={`Profile`} />
       <DrawerItem
         title={`Logout`}
-        onPress={async () => {
-          // navigation.navigate("Login");
-          // await dispatch(logout());
-
-          try {
-            await AsyncStorage.removeItem('jwt_token');
-            await AsyncStorage.removeItem('user_info');
-
-            await dispatch(logoutUser());
-            navigation.navigate("Login")
-          } catch (error) {
-            console.log('Error during logout:', error)
-          }
-        }}
+        onPress={handleLogout}
       />
     </Drawer>
   );
@@ -61,11 +48,23 @@ const DrawerContent = ({ navigation, state }) => {
 const DrawerNavigation = () => {
   const navigation = useNavigation();
   const route = useRoute();
+  const dispatch = useDispatch();
+
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('jwt_token');
+      await AsyncStorage.removeItem('user_info');
+      await dispatch(logoutUser());
+      navigation.navigate("Login");
+    } catch (error) {
+      console.log('Error during logout:', error);
+    }
+  };
 
   return (
-    <DrawerStack.Navigator
-      drawerContent={(props) => <DrawerContent {...props} />}
-      screenOptions={{ 
+   <DrawerStack.Navigator
+      drawerContent={(props) => <DrawerContent {...props} handleLogout={handleLogout} />}
+      screenOptions={{
         headerShown: false,
         headerStyle: {
           backgroundColor: "#EF4444",
@@ -79,7 +78,9 @@ const DrawerNavigation = () => {
       }}
     >
       <DrawerStack.Screen name="BottomNav" component={BottomNav} />
-      <DrawerStack.Screen name="Profile" component={Profile} />
+      <DrawerStack.Screen name="Profile">
+        {(props) => <Profile {...props} handleLogout={handleLogout} />}
+      </DrawerStack.Screen>
       <DrawerStack.Screen name="Product" component={Product} />
       <DrawerStack.Screen name="Chat" component={Chat} />
       <DrawerStack.Screen name="BookingDetails" component={BookingDetails} />
@@ -91,6 +92,8 @@ const DrawerNavigation = () => {
       <DrawerStack.Screen name="AddProduct" component={AddProduct} />
       <DrawerStack.Screen name="EditProduct" component={EditProduct} />
       <DrawerStack.Screen name="FavoriteMechanic" component={FavoriteMechanic} />
+      <DrawerStack.Screen name="RebookRequests" component={RebookRequests} />
+
       <DrawerStack.Screen name="BookingInfo" component={BookingInfo} />
     </DrawerStack.Navigator>
   );

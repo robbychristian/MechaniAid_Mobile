@@ -180,6 +180,7 @@ const Home = () => {
         )}
       </View>
 
+      <View style={{ flexDirection: "row" }}>
       {user.user_role == 3 && (
         <View
           style={{
@@ -207,10 +208,13 @@ const Home = () => {
         </View>
       )}
 
+      </View>
+
       <TouchableOpacity onPress={() => navigation.navigate("BookingPay")}>
         <Text>Pay</Text>
       </TouchableOpacity>
     </View>
+    
   );
 };
 const styles = StyleSheet.create({
