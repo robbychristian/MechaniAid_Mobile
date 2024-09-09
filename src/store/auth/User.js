@@ -47,8 +47,13 @@ export const registerMechanic = createAsyncThunk(
       const response = await api.post("register-mechanic", inputs);
       return response.data;
     } catch (err) {
-      console.log(err.response);
-      return rejectWithValue(err.response);
+      // console.log(err.response);
+      // return rejectWithValue(err.response);
+      // Check if the error response contains validation errors
+      if (err.response && err.response.data && err.response.data.errors) {
+        return rejectWithValue(err.response.data.errors);
+      }
+      return rejectWithValue({ general: "There was an error registering your account" });
     }
   }
 );

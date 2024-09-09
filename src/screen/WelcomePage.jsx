@@ -8,46 +8,34 @@ import { setUser } from "../store/auth/User";
 
 const WelcomePage = () => {
   const navigation = useNavigation();
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const checkLogin = async () => {
       try {
-        const token = await AsyncStorage.getItem("jwt_token")
-        const userInfo = await AsyncStorage.getItem("user_info")
+        const token = await AsyncStorage.getItem("jwt_token");
+        const userInfoString = await AsyncStorage.getItem("user_info");
 
-        if (token && userInfo) {
-          console.log(userInfo)
-          dispatch(setUser(JSON.parse(userInfo)))
-          // navigation.navigate("DrawerStack")
-          if (userInfo.user_role == 3) {
-            navigation.navigate("DrawerStack");
-            // navigation.dispatch(
-            //   CommonActions.reset({
-            //     index: 0,
-            //     routes: [{ name: "DrawerStack" }],
-            //   })
-            // );
-          } else if (userInfo.user_role == 2) {
-            navigation.navigate("MechanicDrawerStack");
-            // navigation.dispatch(
-            //   CommonActions.reset({
-            //     index: 0,
-            //     routes: [{ name: "MechanicDrawerStack" }],
-            //   })
-            // );
-          }
+        if (token && userInfoString) {
+          const userInfo = JSON.parse(userInfoString); // Parse only if we have the string
+          console.log("User Info: ", userInfo);
+          dispatch(setUser(userInfo));
+
+          // Parsing in the if-else directly
+          userInfo.user_role === "3"
+            ? navigation.navigate("DrawerStack")
+            : userInfo.user_role === "2" &&
+              navigation.navigate("MechanicDrawerStack");
         } else {
-          console.log("No token and user info retreived")
+          console.log("No token and user info retrieved");
         }
       } catch (err) {
-        console.log("Error checking login status:", error)
+        console.log("Error checking login status:", err);
       }
-    }
+    };
 
     checkLogin();
-  }, [])
-
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -71,7 +59,15 @@ const WelcomePage = () => {
           {() => <Text style={styles.textStyle}>REGISTER</Text>}
         </Button>
         <View style={{ marginTop: 20 }}>
-          <Text style={{ color: "#8e8888", fontFamily: "Nunito-Bold", fontSize: 15 }}>Developed by Data X 2024</Text>
+          <Text
+            style={{
+              color: "#8e8888",
+              fontFamily: "Nunito-Bold",
+              fontSize: 15,
+            }}
+          >
+            Developed by Data X 2024
+          </Text>
         </View>
       </View>
     </View>
@@ -82,7 +78,7 @@ const styles = StyleSheet.create({
   container: {
     justifyContent: "center",
     alignItems: "center",
-    flex: 1
+    flex: 1,
   },
   buttonStyle: {
     width: "80%",
@@ -95,7 +91,7 @@ const styles = StyleSheet.create({
   textStyle: {
     fontFamily: "Nunito-Bold",
     fontSize: 20,
-    color: "#fff"
+    color: "#fff",
   },
 });
 
