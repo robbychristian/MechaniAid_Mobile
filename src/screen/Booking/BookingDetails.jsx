@@ -16,6 +16,7 @@ const BookingDetails = () => {
     handleSubmit,
     formState: { errors },
     watch,
+    reset,
     resetField
   } = useForm();
 
@@ -94,15 +95,24 @@ const BookingDetails = () => {
   };
   useFocusEffect(
     React.useCallback(() => {
+      reset();
+      setSelectedTitles([]);
+      setTotalPrice(initialPrice);
+
       const onBackPress = () => {
+        reset();
+        setSelectedTitles([]);
         navigation.goBack();
         return true; // Prevent default behavior
       };
 
-      BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
 
-      return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-    }, [navigation])
+      return () => {
+        // Cleanup the back handler
+        backHandler.remove();
+      };
+    }, [navigation, reset, initialPrice])
   );
 
   return (
@@ -111,7 +121,11 @@ const BookingDetails = () => {
         <View style={styles.headerContainer}>
           <IconButton
             icon={() => <Ionicons name="arrow-back" size={30} color="black" />}
-            onPress={() => navigation.goBack()}
+            onPress={() => {
+              reset(); // Reset the form fields when pressing the back button
+              setSelectedTitles([]);
+              navigation.goBack();
+            }}
             style={styles.backButton}
           />
           <Text style={styles.title}>Booking Details</Text>

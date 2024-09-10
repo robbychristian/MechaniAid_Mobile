@@ -354,14 +354,21 @@ const Booking = () => {
   useFocusEffect(
     React.useCallback(() => {
       const onBackPress = () => {
-        navigation.goBack();
+        if(user.user_role == 3){
+          navigation.navigate("BookingDetails");
+        } else {
+          navigation.goBack();
+        }
+        
         return true; // Prevent default behavior
       };
 
-      BackHandler.addEventListener("hardwareBackPress", onBackPress);
+      const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
 
-      return () =>
-        BackHandler.removeEventListener("hardwareBackPress", onBackPress);
+      return () => {
+        // Cleanup the back handler
+        backHandler.remove();
+      };
     }, [navigation])
   );
 
@@ -575,7 +582,7 @@ const Booking = () => {
                   shadowRadius: 2,
                   elevation: 5,
                 }}
-                onPress={() => navigation.goBack()}
+                onPress={() => navigation.navigate("BookingDetails")}
               >
                 <Ionicons name="arrow-back" size={24} color="black" />
               </TouchableOpacity>
@@ -793,10 +800,18 @@ const Booking = () => {
                     if (finalBookingDetails.booking.mode_of_payment == "Cash") {
                       Toast.success("Booking Completed!");
                       navigation.navigate("Home"); // Logic for Cash payment
+                      setIsBooking(false);
+                      setIsAccepted(false);
+                      setBookingStarted(false);
+                      setBookingCompleted(false);
                     } else {
                       navigation.navigate("BookingPay", {
                         id: finalBookingDetails.booking.id, user_id: finalBookingDetails.booking.user_id
                       }) // Logic for other payment methods
+                      setIsBooking(false);
+                      setIsAccepted(false);
+                      setBookingStarted(false);
+                      setBookingCompleted(false);
                     }
                   }}
                 >

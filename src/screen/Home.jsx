@@ -244,10 +244,6 @@ const Home = () => {
       )}
 
       </View>
-
-      <TouchableOpacity onPress={() => navigation.navigate("BookingPay")}>
-        <Text>Pay</Text>
-      </TouchableOpacity>
     </View>
     
   );
