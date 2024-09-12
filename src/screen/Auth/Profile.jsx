@@ -182,16 +182,28 @@ const Profile = ( {handleLogout}) => {
         setValue("lname", user.last_name || "");
         setValue(
           "phone",
-          user.user_role === 3
+          user.user_role == 3
             ? user.customers?.phone || ""
-            : user.mechanics?.phone || ""
+            : user.mechanics?.phone || "" 
         );
+        setValue(
+          "street",
+          user.user_role == 3
+            ? user.customers?.street
+            : user.mechanics?.street
+        );
+        if (user.birth_day){
+          const formattedDate = moment(user.birth_day).toDate();
+          setValue("bday", formattedDate);
+        }
       } else {
         // If user is undefined, reset form fields
         setValue("fname", "");
         setValue("mname", "");
         setValue("lname", "");
         setValue("phone", "");
+        setValue("bday", "");
+        setValue("street", "");
       }
     });
   
@@ -208,16 +220,28 @@ const Profile = ( {handleLogout}) => {
       }
       setValue(
         "phone",
-        user.user_role === 3
+        user.user_role == 3
           ? user.customers?.phone || ""
           : user.mechanics?.phone || ""
       );
+      setValue(
+        "street",
+        user.user_role == 3
+          ? user.customers?.street
+          : user.mechanics?.street
+      );
+      if (user.birth_day){
+        const formattedDate = moment(user.birth_day).toDate();
+        setValue("bday", formattedDate);
+      }
     } else {
       // If user is undefined, reset form fields
       setValue("fname", "");
       setValue("mname", "");
       setValue("lname", "");
       setValue("phone", "");
+      setValue("bday", "");
+      setValue("street", "");
     }
   
     return unsubscribe;
@@ -345,8 +369,8 @@ const Profile = ( {handleLogout}) => {
               errors={errorsAddress}
               my={5}
               label="Region"
-              // placeholder={user.user_role == 3 ? user.customers.region : user.mechanics.region}
-              placeholder="Select Region"
+              placeholder={user.user_role == 3 ? user.customers.region : user.mechanics.region}
+              // placeholder="Select Region"
               options={regions.map((region) => ({
                 value: region.region_name,
                 ...region,

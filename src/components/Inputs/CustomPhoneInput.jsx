@@ -101,11 +101,7 @@ const CustomPhoneInput = ({
           ...rules,
           minLength: {
             value: 10,
-            message: "Mobile Number must be exactly 10 characters",
-          },
-          maxLength: {
-            value: 10,
-            message: "Mobile Number must be exactly 10 characters",
+            message: "Mobile Number must be atleast 10 characters",
           },
         }}
         render={({ field: { onChange, onBlur, value } }) => (
@@ -154,6 +150,7 @@ const CustomPhoneInput = ({
                 }}
                 onFocus={() => setIsFocused(true)}
                 value={value}
+                keyboardType="numeric"
                 style={[styles.input, isFocused && styles.focusedInput]}
                 placeholder="Enter number" // Placeholder for the input field
               />
