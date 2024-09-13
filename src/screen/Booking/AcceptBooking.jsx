@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   TextInput,
   FlatList,
+  Modal
 } from "react-native";
 import CustomTextInput from "../../components/Inputs/CustomTextInput";
 import { useForm } from "react-hook-form";
@@ -19,7 +20,8 @@ import { api } from "../../../config/api";
 import { Toast } from "toastify-react-native";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { ScrollView } from "react-native-gesture-handler";
-
+import Icon from "react-native-vector-icons/FontAwesome";
+import BookingChat from "../Chat/BookingChat";
 const AcceptBooking = () => {
   const route = useRoute();
   const navigation = useNavigation();
@@ -30,6 +32,18 @@ const AcceptBooking = () => {
   const [totalPrice, setTotalPrice] = useState(0);
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [chatId, setChatId] = useState("");
+  const [chatMechId, setChatMechId] = useState("");
+  const [isModalVisible, setModalVisible] = useState(false);
+
+  const toggleModal = (mechanics_id, chat_id) => {
+    setChatMechId(mechanics_id);
+    setChatId(chat_id);
+    console.log("Props Mech Id: ", mechanics_id);
+    console.log("Props Chat Id: ", chat_id);
+    setModalVisible(!isModalVisible);
+  };
+
 
   const {
     control,
@@ -41,6 +55,9 @@ const AcceptBooking = () => {
 
   useFocusEffect(
     useCallback(() => {
+      setFeeItems([]);
+      setPrice("");
+      setDescription("");
       const fetchBookingDetails = async () => {
         try {
           const response = await api.get(
@@ -157,8 +174,44 @@ const AcceptBooking = () => {
         <Loading loading={loading} />
       ) : (
         <>
+        <Modal
+            animationType="slide"
+            transparent={false}
+            visible={isModalVisible}
+            onRequestClose={() => setModalVisible(false)} // Close modal
+          >
+            <View style={{ flex: 1 }}>
+              <TouchableOpacity
+                onPress={() => setModalVisible(false)} // Close modal
+                style={styles.closeButton}
+              >
+                <Icon name="close" size={30} color="#000" />
+              </TouchableOpacity>
+              {/* Pass the state values as props to BookingChat */}
+              <BookingChat mechanics_id={chatMechId} chat_id={chatId} />
+            </View>
+          </Modal>
+
           <View style={styles.card}>
             <Text style={styles.sectionTitle}>Booking Details 🛠️</Text>
+            <TouchableOpacity
+                  // onPress={() =>
+                  //   navigation.navigate("BookingChat", {
+                  //     mechanics_id: chatMechId,
+                  //     chat_id: chatId,
+                  //   })
+                  // }
+                  onPress={() => toggleModal(bookingDetails.booking_details.user_id, bookingDetails.chat_id)}
+                  // style={styles.button}
+                >
+                  <Icon
+                    name="commenting"
+                    size={35}
+                    color="#EF4444"
+                    // style={styles.chatIcon}
+                  />
+                </TouchableOpacity>
+
             <View style={styles.detailItem}>
               <Ionicons name="person" size={24} color="gray" />
               <Text style={styles.detailText}>

@@ -13,6 +13,7 @@ import BookingDetails from "../screen/Booking/BookingDetails";
 import BookingPayment from "../screen/Payment/BookingPayment";
 import BookingHistory from "../screen/Booking/BookingHistory";
 import Booking from "../screen/Booking/Booking";
+import BookingChat from "../screen/Chat/BookingChat";
 import Profile from "../screen/Auth/Profile";
 import AddProduct from "../screen/Market/AddProduct";
 import EditProduct from "../screen/Market/EditProduct";
@@ -87,6 +88,7 @@ const DrawerNavigation = () => {
       <DrawerStack.Screen name="Chat" component={Chat} />
       <DrawerStack.Screen name="BookingDetails" component={BookingDetails} />
       <DrawerStack.Screen name="Booking" component={Booking} />
+      <DrawerStack.Screen name="BookingChat" component={BookingChat} />
       <DrawerStack.Screen name="AcceptBooking" component={AcceptBooking} />
       <DrawerStack.Screen name="BookingPayment" component={BookingPayment} />
       <DrawerStack.Screen name="Payment" component={Payment} />

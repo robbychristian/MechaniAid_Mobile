@@ -30,6 +30,7 @@ import Pusher from "pusher-js";
 import { getChatList } from "../../store/chat/Chat";
 import * as Notifications from "expo-notifications";
 import { ScrollView } from "react-native-gesture-handler";
+import BookingChat from "../Chat/BookingChat";
 
 const Booking = () => {
   const navigation = useNavigation();
@@ -54,8 +55,19 @@ const Booking = () => {
   const [bookingStarted, setBookingStarted] = useState(false);
   const [bookingCompleted, setBookingCompleted] = useState(false);
   const [finalBookingDetails, setfinalBookingDetails] = useState([]);
+  const [chatId, setChatId] = useState("");
+  const [chatMechId, setChatMechId] = useState("");
+
   const PUSHER_KEY = "4a125bbdc2a8a74fb388";
   const PUSHER_CLUSTER = "ap1";
+
+  const [isModalVisible, setModalVisible] = useState(false);
+
+  const toggleModal = (mechanics_id, chat_id) => {
+    setChatMechId(mechanics_id);
+    setChatId(chat_id);
+    setModalVisible(!isModalVisible);
+  };
 
   if (user.user_role == 3) {
     const { service_type, vehicle_type, vehicle_name, mode_of_payment, other } =
@@ -142,6 +154,8 @@ const Booking = () => {
         if (Data.mechanicName) {
           setMechanicName(Data.mechanicName);
           setMechanicProfilePic(Data.mechanicProfilePic);
+          setChatId(Data.chatId);
+          setChatMechId(Data.mechanicId);
           setIsBooking(false);
           setShowModal(true);
           setIsAccepted(true);
@@ -240,7 +254,7 @@ const Booking = () => {
           const bookingId = response.data.id; // Extract the booking ID
           console.log("Booking ID:", bookingId); // Log the booking ID to the console
 
-          setIsBooking(true);
+          // setIsBooking(true);
 
           // Optionally, use the booking ID for further logic
           setTimeout(() => {
@@ -354,16 +368,19 @@ const Booking = () => {
   useFocusEffect(
     React.useCallback(() => {
       const onBackPress = () => {
-        if(user.user_role == 3){
+        if (user.user_role == 3) {
           navigation.navigate("BookingDetails");
         } else {
           navigation.goBack();
         }
-        
+
         return true; // Prevent default behavior
       };
 
-      const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      const backHandler = BackHandler.addEventListener(
+        "hardwareBackPress",
+        onBackPress
+      );
 
       return () => {
         // Cleanup the back handler
@@ -479,7 +496,6 @@ const Booking = () => {
         console.log(err.response);
       });
     fetchAndAssignBooking();
-    // setIsSearching(true);
   };
 
   const cancelSearch = () => {
@@ -622,12 +638,13 @@ const Booking = () => {
                   {mechanicName}
                 </Text>
                 <TouchableOpacity
-                  onPress={() =>
-                    navigation.navigate("Chat", {
-                      mechanics_id: 2,
-                      chat_id: 2,
-                    })
-                  }
+                  // onPress={() =>
+                  //   navigation.navigate("BookingChat", {
+                  //     mechanics_id: chatMechId,
+                  //     chat_id: chatId,
+                  //   })
+                  // }
+                  onPress={() => toggleModal(chatMechId, chatId)}
                   style={styles.button}
                 >
                   <Icon
@@ -640,6 +657,24 @@ const Booking = () => {
               </View>
             </View>
           )}
+
+          <Modal
+            animationType="slide"
+            transparent={false}
+            visible={isModalVisible}
+            onRequestClose={() => setModalVisible(false)} // Close modal
+          >
+            <View style={{ flex: 1 }}>
+              <TouchableOpacity
+                onPress={() => setModalVisible(false)} // Close modal
+                style={styles.closeButton}
+              >
+                <Icon name="close" size={30} color="#000" />
+              </TouchableOpacity>
+              {/* Pass the state values as props to BookingChat */}
+              <BookingChat mechanics_id={chatMechId} chat_id={chatId} />
+            </View>
+          </Modal>
 
           {bookingStarted && (
             <View>
@@ -657,12 +692,7 @@ const Booking = () => {
                   {mechanicName}
                 </Text>
                 <TouchableOpacity
-                  onPress={() =>
-                    navigation.navigate("Chat", {
-                      mechanics_id: 2,
-                      chat_id: 2,
-                    })
-                  }
+                  onPress={() => toggleModal(chatMechId, chatId)}
                   style={styles.button}
                 >
                   <Icon
@@ -740,15 +770,16 @@ const Booking = () => {
                       </Text>
                     </Text>
                   </View>
-                  {finalBookingDetails.other_service_type &&
-                    finalBookingDetails.other_service_type.trim() !== "" && (
-                      <View style={styles.detailItem}>
+                  {finalBookingDetails.booking.other_service_type &&
+                    finalBookingDetails.booking.other_service_type.trim() !==
+                      "" && (
+                      <View style={styles2.detailItem}>
                         <FontAwesome name="list-alt" size={24} color="gray" />
-                        <Text style={styles.detailText2}>
+                        <Text style={styles2.detailText2}>
                           Other Service Type:{" "}
-                          <Text style={styles.detailValue}>
+                          <Text style={styles2.detailValue}>
                             {" "}
-                            {finalBookingDetails.other_service_type}
+                            {finalBookingDetails.booking.other_service_type}
                           </Text>
                         </Text>
                       </View>
@@ -765,11 +796,13 @@ const Booking = () => {
                   </View>
 
                   <View style={styles2.breakdown}>
-                    <Text style={styles2.breakdownHeader}>Payment Details 🧾</Text>
+                    <Text style={styles2.breakdownHeader}>
+                      Payment Details 🧾
+                    </Text>
                     <View style={styles2.detailItem}>
                       <Text style={styles2.detailText}>
-                          Initial Booking Fee:{" "}
-                            <Text style={styles2.detailValue}>P100</Text>
+                        Initial Booking Fee:{" "}
+                        <Text style={styles2.detailValue}>P100</Text>
                       </Text>
                     </View>
                     {finalBookingDetails.feeItems.map((item, index) => (
@@ -800,18 +833,13 @@ const Booking = () => {
                     if (finalBookingDetails.booking.mode_of_payment == "Cash") {
                       Toast.success("Booking Completed!");
                       navigation.navigate("Home"); // Logic for Cash payment
-                      setIsBooking(false);
-                      setIsAccepted(false);
-                      setBookingStarted(false);
                       setBookingCompleted(false);
                     } else {
-                      navigation.navigate("BookingPay", {
-                        id: finalBookingDetails.booking.id, user_id: finalBookingDetails.booking.user_id
-                      }) // Logic for other payment methods
-                      setIsBooking(false);
-                      setIsAccepted(false);
-                      setBookingStarted(false);
                       setBookingCompleted(false);
+                      navigation.navigate("BookingPay", {
+                        id: finalBookingDetails.booking.id,
+                        user_id: finalBookingDetails.booking.user_id,
+                      }); // Logic for other payment methods
                     }
                   }}
                 >
@@ -1341,7 +1369,6 @@ const styles2 = StyleSheet.create({
     marginBottom: 10,
     paddingVertical: 10,
     borderBottomColor: "#EEE",
-    
   },
   detailText: {
     fontSize: 16,
@@ -1380,10 +1407,10 @@ const styles2 = StyleSheet.create({
   },
   breakdownHeader: {
     fontSize: 20,
-    fontFamily: 'Nunito-Bold',
+    fontFamily: "Nunito-Bold",
     marginBottom: 8,
     color: "#333",
-  }
+  },
 });
 
 export default Booking;
