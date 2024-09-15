@@ -69,6 +69,7 @@ const DrawerNavigation = () => {
       drawerContent={(props) => <DrawerContent {...props} handleLogout={handleLogout} />}
       screenOptions={{
         headerShown: false,
+        swipeEnabled: false,
         headerStyle: {
           backgroundColor: "#EF4444",
         },
