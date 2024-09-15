@@ -31,6 +31,13 @@ const BookingDetails = () => {
     "Oil Change": 0,
     "Tire Replacement": 0,
     "Brake Inspection": 0,
+    "Battery Inspection": 0,
+    "Alternator Inspection": 0,
+    "Electrical Problems": 0,
+    "Coolant Inspection": 0,
+    "Car Diagnostics": 0,
+    "Throttle Body Cleaning": 0,
+    "Intake Cleaning":0,
     "Other": 0
   };
 
@@ -61,6 +68,13 @@ const BookingDetails = () => {
     { title: "Oil Change", value: "oil_change" },
     { title: "Tire Replacement", value: "tire_replacement" },
     { title: "Brake Inspection", value: "brake_inspection" },
+    { title: "Battery Inspection", value: "battery_inspection" },
+    { title: "Alternator Inspection", value: "alternator_inspection" },
+    { title: "Electrical Problems", value: "electrical_problems" },
+    { title: "Coolant Inspection", value: "coolant_inspection" },
+    { title: "Car Diagnostics", value: "car_diagnostics" },
+    { title: "Throttle Body Cleaning", value: "throt_bod_clean" },
+    { title: "Intake Cleaning", value: "intake_cleaning" },
     { title: "Other", value: "other" },
   ];
 

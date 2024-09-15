@@ -671,7 +671,7 @@ const Booking = () => {
                 Your mechanic will be there shortly
               </Text>
               <View style={styles.mechanicInfoContainer}>
-                <TouchableOpacity onPress={handleProfileNavigation}>
+                <TouchableOpacity>
                   <Image
                     source={{
                       uri: mechanicProfilePic, // Mechanic's profile picture
@@ -768,15 +768,7 @@ const Booking = () => {
                       </Text>
                     </Text>
                   </View>
-                  <View style={styles2.detailItem}>
-                    <Ionicons name="location" size={24} color="gray" />
-                    <Text style={styles2.detailText}>
-                      Location:{" "}
-                      <Text style={styles2.detailValue}>
-                        {/* {address.display_name} */} Test Address
-                      </Text>
-                    </Text>
-                  </View>
+                  
                   <View style={styles2.detailItem}>
                     <FontAwesome
                       name={
@@ -1435,6 +1427,9 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 5,
   },
+  closeButton: {
+    marginLeft: 20
+  }
 });
 
 const styles2 = StyleSheet.create({
@@ -1523,7 +1518,7 @@ const styles2 = StyleSheet.create({
     color: "#fff", // White text
     fontSize: 12, // Smaller font size
     fontWeight: "bold",
-  },
+  }
 });
 
 export default Booking;

@@ -24,6 +24,7 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import BookingChat from "../Chat/BookingChat";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import Pusher from "pusher-js";
+import { useSelector } from "react-redux";
 const AcceptBooking = () => {
   const route = useRoute();
   const navigation = useNavigation();
@@ -38,6 +39,8 @@ const AcceptBooking = () => {
   const [chatMechId, setChatMechId] = useState("");
   const [isModalVisible, setModalVisible] = useState(false);
   const [newMessage, setNewMessage] = useState(false);
+  const { user } = useSelector((state) => state.auth);
+
   const toggleModal = (mechanics_id, chat_id) => {
     setChatMechId(mechanics_id);
     setChatId(chat_id);
@@ -107,7 +110,7 @@ const AcceptBooking = () => {
       encrypted: true,
     });
 
-    channel = pusher.subscribe(`customer-notifications.${bookingDetails.booking_details.mechanics_id}`);
+    channel = pusher.subscribe(`customer-notifications.${user.id}`);
     channel.bind("MessageSent", async (Data) => {
       setNewMessage(true);
     });
@@ -161,6 +164,16 @@ const AcceptBooking = () => {
       });
       setLoading(false);
       Toast.success("Booking Completed!");
+      api
+      .post("mechanic-inactive", {
+        mechanics_id: user.id,
+      })
+      .then((response) => {
+        console.log("Mechanic Inactivity Status: ", response.data.message);
+      })
+      .catch((err) => {
+        console.log(err.response);
+      });
       navigation.navigate("Home");
     } catch (err) {
       setLoading(false);

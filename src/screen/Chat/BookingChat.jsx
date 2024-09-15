@@ -4,7 +4,11 @@ import { Input, Text } from "@ui-kitten/components";
 import { IconButton, Surface } from "react-native-paper";
 import CustomTextInput from "../../components/Inputs/CustomTextInput";
 import { api } from "../../../config/api";
-import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/native";
+import {
+  useNavigation,
+  useRoute,
+  useFocusEffect,
+} from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { getChat, sendMessage } from "../../store/chat/Chat";
 import moment from "moment";
@@ -21,10 +25,10 @@ const BookingChat = ({ mechanics_id, chat_id }) => {
   useFocusEffect(
     React.useCallback(() => {
       const onBackPress = () => {
-        if(user.user_role == 3){
+        if (user.user_role == 3) {
           navigation.navigate("Booking");
-        } 
-        
+        }
+
         // else {
         //   navigation.goBack();
         // }
@@ -32,7 +36,10 @@ const BookingChat = ({ mechanics_id, chat_id }) => {
         return true; // Prevent default behavior
       };
 
-      const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      const backHandler = BackHandler.addEventListener(
+        "hardwareBackPress",
+        onBackPress
+      );
 
       return () => {
         // Cleanup the back handler
@@ -46,8 +53,7 @@ const BookingChat = ({ mechanics_id, chat_id }) => {
       try {
         const inputs = {
           user_id: user.user_role == 3 ? user.id : mechanics_id,
-          mechanics_id:
-            user.user_role == 3 ? mechanics_id : user.id,
+          mechanics_id: user.user_role == 3 ? mechanics_id : user.id,
           chat_id: chat_id,
         };
         await dispatch(getChat(inputs));
@@ -59,8 +65,7 @@ const BookingChat = ({ mechanics_id, chat_id }) => {
       try {
         const inputs = {
           user_id: user.user_role == 3 ? user.id : mechanics_id,
-          mechanics_id:
-            user.user_role == 3 ? mechanics_id : user.id,
+          mechanics_id: user.user_role == 3 ? mechanics_id : user.id,
           chat_id: chat_id,
         };
         await dispatch(getChat(inputs));
@@ -86,7 +91,7 @@ const BookingChat = ({ mechanics_id, chat_id }) => {
   //   // Determine the receiver ID
   //   const receiverId = user.user_role == 3 ? mechanics_id : user.id;
   //   console.log("Subscribing to channel for receiverId: ", receiverId);
-    
+
   //   // Subscribe to the correct channel
   //   channel = pusher.subscribe(`customer-notifications.${receiverId}`);
   //   // Handle new message event
@@ -117,7 +122,6 @@ const BookingChat = ({ mechanics_id, chat_id }) => {
   //   };
   // }, [mechanics_id, user.id]);
 
-
   const onSubmit = async () => {
     try {
       const inputs = {
@@ -137,108 +141,127 @@ const BookingChat = ({ mechanics_id, chat_id }) => {
     <View style={{ width: "100%", height: "100%" }}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         {chatMessages != undefined &&
-          chatMessages.messages != undefined &&
-          chatMessages.messages.length > 0 ? (
-          chatMessages.messages.map((item, index) => {
-            if (item.sender_id == user.id) {
-              return (
-                <View
-                  key={index}
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "flex-end",
-                    justifyContent: "flex-end",
-                    marginTop: 10,
-                  }}
-                >
+        chatMessages.messages != undefined &&
+        chatMessages.messages.length > 0
+          ? chatMessages.messages.map((item, index) => {
+              const sender =
+                item.sender_id == chatMessages.user1.id
+                  ? chatMessages.user1
+                  : chatMessages.user2;
+
+              if (item.sender_id == user.id) {
+                return (
                   <View
+                    key={index}
                     style={{
-                      justifyContent: "center",
-                      maxWidth: 310,
-                      paddingHorizontal: 10,
+                      flexDirection: "row",
+                      alignItems: "flex-end",
+                      justifyContent: "flex-end",
+                      marginTop: 10,
                     }}
                   >
-                    <Text
+                    <View
                       style={{
-                        color: "#A02828",
-                        backgroundColor: "#fff",
-                        borderWidth: 0.5,
-                        borderColor: "#A02828",
-                        paddingVertical: 10,
-                        paddingHorizontal: 10,
-                        borderRadius: 10,
+                        justifyContent: "center",
+                        maxWidth: 310,
+                        paddingHorizontal: 40,
                       }}
                     >
-                      {item.message}
-                    </Text>
-                    <Text style={{ marginTop: 4, color: "#808080" }}>{moment(item.created_at).format("lll")}</Text>
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          fontFamily: "Nunito-Bold",
+                          color: "#333",
+                          marginVertical: 5,
+                        }}
+                      >
+                        {`${sender.first_name} ${sender.last_name}`}
+                      </Text>
+                      <Text
+                        style={{
+                          color: "#A02828",
+                          backgroundColor: "#fff",
+                          borderWidth: 0.5,
+                          borderColor: "#A02828",
+                          paddingVertical: 10,
+                          paddingHorizontal: 10,
+                          borderRadius: 10,
+                          fontFamily: "Nunito-SemiBold",
+                        }}
+                      >
+                        {item.message}
+                      </Text>
+                      <Text
+                        style={{
+                          marginTop: 4,
+                          color: "#808080",
+                          fontFamily: "Nunito-Regular",
+                        }}
+                      >
+                        {moment(item.created_at).format("lll")}
+                      </Text>
+                    </View>
                   </View>
-                  <Image
-                    source={{
-                      uri: `https://mechaniaid.com/api/seller-image/1718212902_pic1.jpg`,
-                    }}
-                    style={{
-                      height: 50,
-                      width: 50,
-                      marginHorizontal: 10,
-                      marginVertical: 5,
-                      borderRadius: 50,
-                    }}
-                  />
-                </View>
-              );
-            } else {
-              return (
-                <View
-                  key={index}
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "flex-end",
-                    marginTop: 10,
-                  }}
-                >
-                  <Image
-                    source={{
-                      uri: `https://mechaniaid.com/api/seller-image/1718212902_pic1.jpg`,
-                    }}
-                    style={{
-                      height: 50,
-                      width: 50,
-                      marginHorizontal: 10,
-                      marginVertical: 5,
-                      borderRadius: 50,
-                    }}
-                  />
+                );
+              } else {
+                return (
                   <View
+                    key={index}
                     style={{
-                      justifyContent: "center",
-                      maxWidth: 310,
-                      paddingHorizontal: 10,
+                      flexDirection: "row",
+                      alignItems: "flex-end",
+                      marginTop: 10,
                     }}
                   >
-                    <Text
+                    <View
                       style={{
-                        color: "#fff",
-                        backgroundColor: "#A02828",
-                        paddingVertical: 10,
-                        paddingHorizontal: 10,
-                        borderRadius: 10,
+                        justifyContent: "center",
+                        maxWidth: 310,
+                        paddingHorizontal: 40,
                       }}
                     >
-                      {item.message}
-                    </Text>
-                    <Text style={{ marginTop: 4, color: "#808080" }}>{moment(item.created_at).format("lll")}</Text>
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          fontFamily: "Nunito-Bold",
+                          color: "#333",
+                          marginVertical: 5,
+                        }}
+                      >
+                        {`${sender.first_name} ${sender.last_name}`}
+                      </Text>
+                      <Text
+                        style={{
+                          color: "#fff",
+                          backgroundColor: "#A02828",
+                          paddingVertical: 10,
+                          paddingHorizontal: 10,
+                          borderRadius: 10,
+                          fontFamily: "Nunito-SemiBold",
+                        }}
+                      >
+                        {item.message}
+                      </Text>
+                      <Text
+                        style={{
+                          marginTop: 4,
+                          color: "#808080",
+                          fontFamily: "Nunito-Regular",
+                        }}
+                      >
+                        {moment(item.created_at).format("lll")}
+                      </Text>
+                    </View>
                   </View>
-                </View>
-              );
-            }
-          })
-        ) : null}
+                );
+              }
+            })
+          : null}
       </ScrollView>
       <Surface
         style={{
-          paddingVertical: 20,
-          paddingHorizontal: 15,
+          paddingVertical: 40,
+          paddingHorizontal: 25,
           justifyContent: "center",
           alignItems: "center",
           backgroundColor: "#fff",

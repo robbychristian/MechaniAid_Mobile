@@ -62,9 +62,10 @@ const Chat = () => {
     });
 
     // Determine the receiver ID
-    const receiverId = user.user_role == 3 ? route.params.mechanics_id : user.id;
+    const receiverId =
+      user.user_role == 3 ? route.params.mechanics_id : user.id;
     console.log("Subscribing to channel for receiverId: ", receiverId);
-    
+
     // Subscribe to the correct channel
     channel = pusher.subscribe(`customer-notifications.${receiverId}`);
     setChannel(channel);
@@ -105,7 +106,7 @@ const Chat = () => {
       };
       console.log("Inputs", inputs);
       const response = await dispatch(sendMessage(inputs));
-      
+
       setMessage("");
     } catch (err) {
       console.log(err);
@@ -116,43 +117,84 @@ const Chat = () => {
     <View style={{ width: "100%", height: "100%" }}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         {chatMessages != undefined &&
-          chatMessages.messages != undefined &&
-          chatMessages.messages.length > 0 ? (
-          chatMessages.messages.map((item, index) => {
-            if (item.sender_id == user.id) {
-              return (
-                <View
-                  key={index}
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "flex-end",
-                    justifyContent: "flex-end",
-                    marginTop: 10,
-                  }}
-                >
+        chatMessages.messages != undefined &&
+        chatMessages.messages.length > 0
+          ? chatMessages.messages.map((item, index) => {
+              const sender =
+                item.sender_id == chatMessages.user1.id
+                  ? chatMessages.user1
+                  : chatMessages.user2;
+              if (item.sender_id == user.id) {
+                return (
                   <View
+                    key={index}
                     style={{
-                      justifyContent: "center",
-                      maxWidth: 310,
-                      paddingHorizontal: 10,
+                      flexDirection: "row",
+                      alignItems: "flex-end",
+                      justifyContent: "flex-end",
+                      marginTop: 10,
                     }}
                   >
-                    <Text
+                    <View
                       style={{
-                        color: "#A02828",
-                        backgroundColor: "#fff",
-                        borderWidth: 0.5,
-                        borderColor: "#A02828",
-                        paddingVertical: 10,
+                        justifyContent: "center",
+                        maxWidth: 310,
                         paddingHorizontal: 10,
-                        borderRadius: 10,
                       }}
                     >
-                      {item.message}
-                    </Text>
-                    <Text style={{ marginTop: 4, color: "#808080" }}>{moment(item.created_at).format("lll")}</Text>
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          fontFamily: 'Nunito-Bold',
+                          color: "#333",
+                          marginVertical: 5
+                        }}
+                      >
+                        {`${sender.first_name} ${sender.last_name}`}
+                      </Text>
+                      <Text
+                        style={{
+                          color: "#A02828",
+                          backgroundColor: "#fff",
+                          borderWidth: 0.5,
+                          borderColor: "#A02828",
+                          paddingVertical: 10,
+                          paddingHorizontal: 10,
+                          borderRadius: 10,
+                          fontFamily: 'Nunito-SemiBold'
+                        }}
+                      >
+                        {item.message}
+                      </Text>
+                      <Text style={{ marginTop: 4, color: "#808080", fontFamily: 'Nunito-Regular' }}>
+                        {moment(item.created_at).format("lll")}
+                      </Text>
+                    </View>
+                    {/* <Image
+                    source={{
+                      uri: `https://mechaniaid.com/api/seller-image/test.png`,
+                    }}
+                    style={{
+                      height: 50,
+                      width: 50,
+                      marginHorizontal: 10,
+                      marginVertical: 5,
+                      borderRadius: 50,
+                    }}
+                  /> */}
                   </View>
-                  <Image
+                );
+              } else {
+                return (
+                  <View
+                    key={index}
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "flex-end",
+                      marginTop: 10,
+                    }}
+                  >
+                    {/* <Image
                     source={{
                       uri: `https://mechaniaid.com/api/seller-image/1718212902_pic1.jpg`,
                     }}
@@ -163,56 +205,45 @@ const Chat = () => {
                       marginVertical: 5,
                       borderRadius: 50,
                     }}
-                  />
-                </View>
-              );
-            } else {
-              return (
-                <View
-                  key={index}
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "flex-end",
-                    marginTop: 10,
-                  }}
-                >
-                  <Image
-                    source={{
-                      uri: `https://mechaniaid.com/api/seller-image/1718212902_pic1.jpg`,
-                    }}
-                    style={{
-                      height: 50,
-                      width: 50,
-                      marginHorizontal: 10,
-                      marginVertical: 5,
-                      borderRadius: 50,
-                    }}
-                  />
-                  <View
-                    style={{
-                      justifyContent: "center",
-                      maxWidth: 310,
-                      paddingHorizontal: 10,
-                    }}
-                  >
-                    <Text
+                  /> */}
+                    <View
                       style={{
-                        color: "#fff",
-                        backgroundColor: "#A02828",
-                        paddingVertical: 10,
+                        justifyContent: "center",
+                        maxWidth: 310,
                         paddingHorizontal: 10,
-                        borderRadius: 10,
                       }}
                     >
-                      {item.message}
-                    </Text>
-                    <Text style={{ marginTop: 4, color: "#808080" }}>{moment(item.created_at).format("lll")}</Text>
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          fontFamily: 'Nunito-Bold',
+                          color: "#333",
+                          marginVertical: 5
+                        }}
+                      >
+                        {`${sender.first_name} ${sender.last_name}`}
+                      </Text>
+                      <Text
+                        style={{
+                          color: "#fff",
+                          backgroundColor: "#A02828",
+                          paddingVertical: 10,
+                          paddingHorizontal: 10,
+                          borderRadius: 10,
+                          fontFamily: 'Nunito-SemiBold'
+                        }}
+                      >
+                        {item.message}
+                      </Text>
+                      <Text style={{ marginTop: 4, color: "#808080", fontFamily: 'Nunito-Regular' }}>
+                        {moment(item.created_at).format("lll")}
+                      </Text>
+                    </View>
                   </View>
-                </View>
-              );
-            }
-          })
-        ) : null}
+                );
+              }
+            })
+          : null}
       </ScrollView>
       <Surface
         style={{
