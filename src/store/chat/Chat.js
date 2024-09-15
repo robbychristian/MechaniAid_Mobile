@@ -16,8 +16,10 @@ export const getChatList = createAsyncThunk(
             console.log(response.data)
             return response.data
         } catch (err) {
-            console.log(err.response)
-            return rejectWithValue;
+            if (err.response && err.response.data && err.response.data.errors) {
+                return rejectWithValue(err.response.data.errors);
+            }
+            return rejectWithValue({ general: "There was an error in getchatlist" });
         }
     }
 )
@@ -30,8 +32,10 @@ export const getChat = createAsyncThunk(
             const response = await api.get(`getchat/${user_id}/${mechanics_id}`)
             return response.data
         } catch (err) {
-            console.log(err.response)
-            return rejectWithValue;
+            if (err.response && err.response.data && err.response.data.errors) {
+                return rejectWithValue(err.response.data.errors);
+            }
+            return rejectWithValue({ general: "There was an error in getchat" });
         }
     }
 )
@@ -43,8 +47,10 @@ export const sendMessage = createAsyncThunk(
             const response = await api.post('sendmessage', inputs)
             return response.data
         } catch(err) {
-            console.log(err.response)
-            return rejectWithValue
+            if (err.response && err.response.data && err.response.data.errors) {
+                return rejectWithValue(err.response.data.errors);
+            }
+            return rejectWithValue({ general: "There was an error in chat" });
         }
     }
 )

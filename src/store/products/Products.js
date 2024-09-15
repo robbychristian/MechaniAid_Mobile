@@ -15,8 +15,10 @@ export const getAllProducts = createAsyncThunk(
             const response = await api.get("getAllProducts")
             return response.data.product_details
         } catch (err) {
-            console.log(err.response)
-            return rejectWithValue(err.response)
+            if (err.response && err.response.data && err.response.data.errors) {
+                return rejectWithValue(err.response.data.errors);
+            }
+            return rejectWithValue({ general: "There was an error in getallproducts" });
         }
     }
 )
@@ -28,8 +30,10 @@ export const getAllMechanicProducts = createAsyncThunk(
             const response = await api.get(`getAllMechanicProducts/${id}`)
             return response.data.product_details
         } catch (err) {
-            console.log(err.response)
-            return rejectWithValue(err.response)
+            if (err.response && err.response.data && err.response.data.errors) {
+                return rejectWithValue(err.response.data.errors);
+            }
+            return rejectWithValue({ general: "There was an error in getallmechanicproducts" });
         }
     }
 )
@@ -42,8 +46,10 @@ export const getProduct = createAsyncThunk(
             console.log(response.data.product_details.product_image)
             return response.data.product_details
         } catch (err) {
-            console.log(err.response)
-            return rejectWithValue(err.response)
+            if (err.response && err.response.data && err.response.data.errors) {
+                return rejectWithValue(err.response.data.errors);
+            }
+            return rejectWithValue({ general: "There was an error in getproducts" });
         }
     }
 )

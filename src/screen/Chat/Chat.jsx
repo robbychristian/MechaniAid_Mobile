@@ -8,7 +8,8 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { getChat, sendMessage } from "../../store/chat/Chat";
 import moment from "moment";
-
+import Pusher from "pusher-js";
+import * as Notifications from "expo-notifications";
 const Chat = () => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -16,6 +17,7 @@ const Chat = () => {
   const { user } = useSelector((state) => state.auth);
   const { chatMessages } = useSelector((state) => state.chat);
   const [message, setMessage] = useState("");
+  const [channel, setChannel] = useState(null);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", async () => {
@@ -50,6 +52,49 @@ const Chat = () => {
     };
   }, [navigation, route.params.mechanics_id, route.params.chat_id]);
 
+  useEffect(() => {
+    let pusher;
+    let channel;
+    Pusher.logToConsole = true;
+    pusher = new Pusher("b2ef5fd775b4a8cf343c", {
+      cluster: "ap1",
+      encrypted: true,
+    });
+
+    // Determine the receiver ID
+    const receiverId = user.user_role == 3 ? route.params.mechanics_id : user.id;
+    console.log("Subscribing to channel for receiverId: ", receiverId);
+    
+    // Subscribe to the correct channel
+    channel = pusher.subscribe(`customer-notifications.${receiverId}`);
+    setChannel(channel);
+
+    // Handle new message event
+    channel.bind("MessageSent", async (Data) => {
+      console.log("Message data received: ", Data);
+      if (Data) {
+        // Dynamically show notification based on the role
+        if (user.id == Data.receiverId) {
+          try {
+            await newMessagePushNotification(Data.senderName);
+          } catch (error) {
+            console.error("Error sending push notification:", error);
+          }
+        }
+      }
+    });
+
+    return () => {
+      if (channel) {
+        channel.unbind_all();
+        channel.unsubscribe();
+      }
+      if (pusher) {
+        pusher.disconnect();
+      }
+    };
+  }, [route.params.mechanics_id, user.id]);
+
   const onSubmit = async () => {
     try {
       const inputs = {
@@ -58,7 +103,9 @@ const Chat = () => {
         is_mechanic: user.user_role == 2 ? user.id : null,
         message: message,
       };
+      console.log("Inputs", inputs);
       const response = await dispatch(sendMessage(inputs));
+      
       setMessage("");
     } catch (err) {
       console.log(err);
@@ -194,5 +241,14 @@ const Chat = () => {
     </View>
   );
 };
-
+async function newMessagePushNotification(receiver_name) {
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "New Message Received!",
+      body: `${receiver_name} sent a new message`,
+      data: { data: "goes here" },
+    },
+    trigger: null,
+  });
+}
 export default Chat;

@@ -31,6 +31,7 @@ import { getChatList } from "../../store/chat/Chat";
 import * as Notifications from "expo-notifications";
 import { ScrollView } from "react-native-gesture-handler";
 import BookingChat from "../Chat/BookingChat";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 const Booking = () => {
   const navigation = useNavigation();
@@ -57,16 +58,23 @@ const Booking = () => {
   const [finalBookingDetails, setfinalBookingDetails] = useState([]);
   const [chatId, setChatId] = useState("");
   const [chatMechId, setChatMechId] = useState("");
-
+  // const [senderName, setSenderName] = useState("");
+  // const [receiverId, setReceiverId] = useState(null);
   const PUSHER_KEY = "4a125bbdc2a8a74fb388";
   const PUSHER_CLUSTER = "ap1";
 
   const [isModalVisible, setModalVisible] = useState(false);
+  const [newMessage, setNewMessage] = useState(false);
+  
+  const handleSenderName = () => {
+    setNewMessage(true);
+  };
 
   const toggleModal = (mechanics_id, chat_id) => {
     setChatMechId(mechanics_id);
     setChatId(chat_id);
     setModalVisible(!isModalVisible);
+    setNewMessage(false);
   };
 
   if (user.user_role == 3) {
@@ -159,7 +167,7 @@ const Booking = () => {
           setIsBooking(false);
           setShowModal(true);
           setIsAccepted(true);
-          
+
           // Await the notification call
           try {
             await bookingAcceptedPushNotification(Data.mechanicName);
@@ -211,7 +219,6 @@ const Booking = () => {
           } catch (error) {
             console.error("Error sending push notification:", error);
           }
-
         } else {
           console.log("Data or mechanicName not available.");
         }
@@ -238,6 +245,29 @@ const Booking = () => {
         }
       });
     }
+
+    // if(bookingStarted || isAccepted){
+    Pusher.logToConsole = true;
+    pusher = new Pusher("b2ef5fd775b4a8cf343c", {
+      cluster: "ap1",
+      encrypted: true,
+    });
+
+    channel = pusher.subscribe(`customer-notifications.${user.id}`);
+    channel.bind("MessageSent", async (Data) => {
+      if (Data) {
+        // Dynamically show notification based on the role
+        setNewMessage(true);
+        if (user.id === Data.receiverId) {
+          try {
+            await newMessagePushNotification(Data.senderName);
+          } catch (error) {
+            console.error("Error sending push notification:", error);
+          }
+        }
+      }
+    });
+    // }
 
     // Handle rotation animation
     if (isBooking) {
@@ -316,6 +346,7 @@ const Booking = () => {
     declinedBookings,
     user.id,
     user.user_role,
+    newMessage,
   ]);
 
   const bookNow = () => {
@@ -661,11 +692,11 @@ const Booking = () => {
                   onPress={() => toggleModal(chatMechId, chatId)}
                   style={styles.button}
                 >
-                  <Icon
-                    name="commenting"
-                    size={35}
-                    color="#EF4444"
-                    style={styles.chatIcon}
+                  <MaterialCommunityIcons
+                    name={newMessage ? "message-badge" : "message"}// Name of the icon
+                    size={35} // Size of the icon
+                    color="#EF4444" // Color of the icon
+                    style={styles.chatIcon} // Any additional styling
                   />
                 </TouchableOpacity>
               </View>
@@ -709,11 +740,11 @@ const Booking = () => {
                   onPress={() => toggleModal(chatMechId, chatId)}
                   style={styles.button}
                 >
-                  <Icon
-                    name="commenting"
-                    size={35}
-                    color="#EF4444"
-                    style={styles.chatIcon}
+                  <MaterialCommunityIcons
+                    name={newMessage ? "message-badge" : "message"} // Name of the icon
+                    size={35} // Size of the icon
+                    color="#EF4444" // Color of the icon
+                    style={styles.chatIcon} // Any additional styling
                   />
                 </TouchableOpacity>
               </View>
@@ -851,7 +882,10 @@ const Booking = () => {
                       try {
                         await bookingCompletedPushNotification();
                       } catch (error) {
-                        console.error("Error sending push notification:", error);
+                        console.error(
+                          "Error sending push notification:",
+                          error
+                        );
                       }
                     } else {
                       setBookingCompleted(false);
@@ -1249,6 +1283,17 @@ async function bookingCompletedPushNotification() {
   });
 }
 
+async function newMessagePushNotification(receiver_name) {
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "New Message Received!",
+      body: `${receiver_name} sent a new message`,
+      data: { data: "goes here" },
+    },
+    trigger: null,
+  });
+}
+
 const styles = StyleSheet.create({
   searchContainer: {
     justifyContent: "center",
@@ -1462,6 +1507,22 @@ const styles2 = StyleSheet.create({
     fontFamily: "Nunito-Bold",
     marginBottom: 8,
     color: "#333",
+  },
+  badgeContainer: {
+    position: "absolute", // Positioned relative to the chat icon
+    top: -5, // Adjust to position it on the top right
+    right: -5, // Adjust to position it on the top right
+    backgroundColor: "red", // Red background
+    borderRadius: 10, // Rounded badge
+    height: 20,
+    width: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  badgeText: {
+    color: "#fff", // White text
+    fontSize: 12, // Smaller font size
+    fontWeight: "bold",
   },
 });
 

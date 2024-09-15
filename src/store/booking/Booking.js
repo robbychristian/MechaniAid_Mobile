@@ -166,8 +166,10 @@ export const getAllMechanicsRebook = createAsyncThunk(
 
       return sortedData;
     } catch (err) {
-      console.log(err.response);
-      return rejectWithValue(err.response);
+      if (err.response && err.response.data && err.response.data.errors) {
+        return rejectWithValue(err.response.data.errors);
+    }
+    return rejectWithValue({ general: "There was an error in getallmechanicsrebook" });
     }
   }
 );
@@ -182,8 +184,10 @@ export const declineRebook = createAsyncThunk(
       await api.post("declineRebook", inputs);
       await dispatch(getAllMechanicsRebook(mechanics_id));
     } catch (err) {
-      console.log(err.response);
-      return rejectWithValue(err.response);
+      if (err.response && err.response.data && err.response.data.errors) {
+        return rejectWithValue(err.response.data.errors);
+    }
+    return rejectWithValue({ general: "There was an error in declinerebook" });
     }
   }
 );
@@ -197,8 +201,10 @@ export const acceptRebook = createAsyncThunk(
       await api.post("acceptRebook", inputs);
       await dispatch(getAllMechanicsRebook(mechanics_id));
     } catch (err) {
-      console.log(err.response);
-      return rejectWithValue(err.response);
+      if (err.response && err.response.data && err.response.data.errors) {
+        return rejectWithValue(err.response.data.errors);
+    }
+    return rejectWithValue({ general: "There was an error in acceptrebook" });
     }
   }
 );
@@ -212,8 +218,10 @@ export const completedRebook = createAsyncThunk(
       await api.post("completedRebook", inputs);
       await dispatch(getAllMechanicsRebook(mechanics_id));
     } catch (err) {
-      console.log(err.response);
-      return rejectWithValue(err.response);
+      if (err.response && err.response.data && err.response.data.errors) {
+        return rejectWithValue(err.response.data.errors);
+    }
+    return rejectWithValue({ general: "There was an error in completedrebook" });
     }
   }
 );

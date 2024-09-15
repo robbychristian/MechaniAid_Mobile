@@ -11,7 +11,7 @@ import {
   TouchableOpacity,
   TextInput,
   FlatList,
-  Modal
+  Modal,
 } from "react-native";
 import CustomTextInput from "../../components/Inputs/CustomTextInput";
 import { useForm } from "react-hook-form";
@@ -22,6 +22,8 @@ import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { ScrollView } from "react-native-gesture-handler";
 import Icon from "react-native-vector-icons/FontAwesome";
 import BookingChat from "../Chat/BookingChat";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import Pusher from "pusher-js";
 const AcceptBooking = () => {
   const route = useRoute();
   const navigation = useNavigation();
@@ -35,15 +37,15 @@ const AcceptBooking = () => {
   const [chatId, setChatId] = useState("");
   const [chatMechId, setChatMechId] = useState("");
   const [isModalVisible, setModalVisible] = useState(false);
-
+  const [newMessage, setNewMessage] = useState(false);
   const toggleModal = (mechanics_id, chat_id) => {
     setChatMechId(mechanics_id);
     setChatId(chat_id);
     console.log("Props Mech Id: ", mechanics_id);
     console.log("Props Chat Id: ", chat_id);
     setModalVisible(!isModalVisible);
+    setNewMessage(false);
   };
-
 
   const {
     control,
@@ -97,7 +99,28 @@ const AcceptBooking = () => {
 
   useEffect(() => {
     calculateTotalPrice();
-  }, [feeItems]);
+    let pusher;
+    let channel;
+    Pusher.logToConsole = true;
+    pusher = new Pusher("b2ef5fd775b4a8cf343c", {
+      cluster: "ap1",
+      encrypted: true,
+    });
+
+    channel = pusher.subscribe(`customer-notifications.${bookingDetails.booking_details.mechanics_id}`);
+    channel.bind("MessageSent", async (Data) => {
+      setNewMessage(true);
+    });
+    return () => {
+      if (channel) {
+        channel.unbind_all();
+        channel.unsubscribe();
+      }
+      if (pusher) {
+        pusher.disconnect();
+      }
+    };
+  }, [feeItems,newMessage]);
 
   const calculateTotalPrice = () => {
     const sum = feeItems.reduce(
@@ -124,7 +147,9 @@ const AcceptBooking = () => {
 
   const onSubmit = async (data) => {
     if (feeItems.length === 0) {
-      Toast.error("Please add at least one fee item before completing the booking.");
+      Toast.error(
+        "Please add at least one fee item before completing the booking."
+      );
       return;
     }
     setLoading(true);
@@ -174,7 +199,7 @@ const AcceptBooking = () => {
         <Loading loading={loading} />
       ) : (
         <>
-        <Modal
+          <Modal
             animationType="slide"
             transparent={false}
             visible={isModalVisible}
@@ -193,25 +218,26 @@ const AcceptBooking = () => {
           </Modal>
 
           <View style={styles.card}>
-            <Text style={styles.sectionTitle}>Booking Details 🛠️</Text>
-            <TouchableOpacity
-                  // onPress={() =>
-                  //   navigation.navigate("BookingChat", {
-                  //     mechanics_id: chatMechId,
-                  //     chat_id: chatId,
-                  //   })
-                  // }
-                  onPress={() => toggleModal(bookingDetails.booking_details.user_id, bookingDetails.chat_id)}
-                  // style={styles.button}
-                >
-                  <Icon
-                    name="commenting"
-                    size={35}
-                    color="#EF4444"
-                    // style={styles.chatIcon}
-                  />
-                </TouchableOpacity>
-
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle2}>Booking Details 🛠️</Text>
+              <TouchableOpacity
+                onPress={() =>
+                  toggleModal(
+                    bookingDetails.booking_details.user_id,
+                    bookingDetails.chat_id
+                  )
+                }
+                style={styles.chatIcon}
+              >
+                <MaterialCommunityIcons
+                  name={newMessage ? "message-badge" : "message"} // Conditional icon name
+                  // name={"message"}
+                  size={35} // Size of the icon
+                  color="#EF4444" // Color of the icon
+                  style={styles.chatIcon} // Any additional styling
+                />
+              </TouchableOpacity>
+            </View>
             <View style={styles.detailItem}>
               <Ionicons name="person" size={24} color="gray" />
               <Text style={styles.detailText}>
@@ -310,21 +336,30 @@ const AcceptBooking = () => {
                 onChangeText={setPrice}
                 keyboardType="numeric"
               />
-              <TouchableOpacity style={styles.addFeeButton} onPress={addFeeItem}><Text style={styles.buttonText}>Add Fees</Text></TouchableOpacity>
+              <TouchableOpacity
+                style={styles.addFeeButton}
+                onPress={addFeeItem}
+              >
+                <Text style={styles.buttonText}>Add Fees</Text>
+              </TouchableOpacity>
 
               <View style={styles.totalPriceContainer}>
                 <Text style={styles.totalPriceText}>
                   Total Price: P{totalPrice}
                 </Text>
                 <Text style={styles.hintText}>
-                  * The initial booking fee of P100 is automatically added in the total price.
+                  * The initial booking fee of P100 is automatically added in
+                  the total price.
                 </Text>
               </View>
 
               <TouchableOpacity
                 style={[
                   styles.completeButton,
-                  { backgroundColor: feeItems.length > 0 ? "#EF4444" : "#D3D3D3" },
+                  {
+                    backgroundColor:
+                      feeItems.length > 0 ? "#EF4444" : "#D3D3D3",
+                  },
                 ]}
                 onPress={handleSubmit(onSubmit)}
                 disabled={feeItems.length === 0}
@@ -409,7 +444,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: "#ddd",
   },
   feeDescription: {
     flex: 1,
@@ -419,7 +454,7 @@ const styles = StyleSheet.create({
   feePrice: {
     fontSize: 16,
     fontFamily: "Nunito-Regular",
-    marginRight: 10, 
+    marginRight: 10,
   },
   totalPriceContainer: {
     marginVertical: 10,
@@ -443,9 +478,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 50,
     marginTop: 15,
-    width: '50%',
-    alignSelf: 'center',  // This centers the button horizontally
-    textAlign: 'center'   // Center the text inside the button
+    width: "50%",
+    alignSelf: "center", // This centers the button horizontally
+    textAlign: "center", // Center the text inside the button
   },
   startButton: {
     height: 50,
@@ -463,6 +498,20 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 12,
     color: "#8f9bb3",
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center", // This ensures vertical alignment
+    justifyContent: "space-between", // Adjusts spacing between text and icon
+  },
+  sectionTitle2: {
+    fontSize: 22,
+    fontFamily: "Nunito-Bold",
+    color: "#333",
+    marginRight: 10, // Adds space between the emoji and the icon
+  },
+  chatIcon: {
+    marginLeft: 10,
   },
 });
 

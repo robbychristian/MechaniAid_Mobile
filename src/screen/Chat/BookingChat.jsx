@@ -8,7 +8,8 @@ import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/nativ
 import { useDispatch, useSelector } from "react-redux";
 import { getChat, sendMessage } from "../../store/chat/Chat";
 import moment from "moment";
-
+import Pusher from "pusher-js";
+import * as Notifications from "expo-notifications";
 const BookingChat = ({ mechanics_id, chat_id }) => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -16,7 +17,7 @@ const BookingChat = ({ mechanics_id, chat_id }) => {
   const { user } = useSelector((state) => state.auth);
   const { chatMessages } = useSelector((state) => state.chat);
   const [message, setMessage] = useState("");
-
+  const [newMessage, setNewMessages] = useState(false);
   useFocusEffect(
     React.useCallback(() => {
       const onBackPress = () => {
@@ -72,6 +73,50 @@ const BookingChat = ({ mechanics_id, chat_id }) => {
       clearInterval(interval);
     };
   }, [navigation, mechanics_id, chat_id]);
+
+  // useEffect(() => {
+  //   let pusher;
+  //   let channel;
+  //   Pusher.logToConsole = true;
+  //   pusher = new Pusher("b2ef5fd775b4a8cf343c", {
+  //     cluster: "ap1",
+  //     encrypted: true,
+  //   });
+
+  //   // Determine the receiver ID
+  //   const receiverId = user.user_role == 3 ? mechanics_id : user.id;
+  //   console.log("Subscribing to channel for receiverId: ", receiverId);
+    
+  //   // Subscribe to the correct channel
+  //   channel = pusher.subscribe(`customer-notifications.${receiverId}`);
+  //   // Handle new message event
+  //   channel.bind("MessageSent", async (Data) => {
+  //     console.log("Message data received: ", Data);
+  //     if (Data) {
+  //       // Dynamically show notification based on the role
+  //       if (user.id != Data.senderId) {
+  //         try {
+  //           await newMessagePushNotification(Data.senderName);
+  //           // onHandleSenderName(Data.senderName, Data.senderId);
+  //         } catch (error) {
+  //           console.error("Error sending push notification:", error);
+  //         }
+  //       }
+  //       // onHandleSenderName(Data.senderName, Data.senderId);
+  //     }
+  //   });
+
+  //   return () => {
+  //     if (channel) {
+  //       channel.unbind_all();
+  //       channel.unsubscribe();
+  //     }
+  //     if (pusher) {
+  //       pusher.disconnect();
+  //     }
+  //   };
+  // }, [mechanics_id, user.id]);
+
 
   const onSubmit = async () => {
     try {
@@ -217,5 +262,14 @@ const BookingChat = ({ mechanics_id, chat_id }) => {
     </View>
   );
 };
-
+// async function newMessagePushNotification(receiver_name) {
+//   await Notifications.scheduleNotificationAsync({
+//     content: {
+//       title: "New Message Received!",
+//       body: `${receiver_name} sent a new message`,
+//       data: { data: "goes here" },
+//     },
+//     trigger: null,
+//   });
+// }
 export default BookingChat;

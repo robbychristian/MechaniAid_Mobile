@@ -9,11 +9,11 @@ const BookingPay = () => {
     const route = useRoute();
     const { id } = route.params;
     const webViewRef = useRef(null);
-    const [uri, setUri] = useState(decodeURI(`http://192.168.1.4:8000/api/paymentBooking/${id}`));
+    const [uri, setUri] = useState(decodeURI(`https://mechaniaid.com/api/paymentBooking/${id}`));
     const [key, setKey] = useState(0);
 
     useEffect(() => {
-        const decodedUri = decodeURI(`http://192.168.1.4:8000/api/paymentBooking/${id}`);
+        const decodedUri = decodeURI(`https://mechaniaid.com/api/paymentBooking/${id}`);
         setUri(decodedUri);
 
         const unsubscribe = navigation.addListener("focus", () => {
@@ -25,7 +25,7 @@ const BookingPay = () => {
     }, [navigation, uri]);
 
     const handleNavigationChange = async (event) => {
-        const successUrl = `http://192.168.1.4:8000/api/paymentBooking/success/${id}`; // Change this to your success URL from the backend
+        const successUrl = `https://mechaniaid.com/api/paymentBooking/success/${id}`; // Change this to your success URL from the backend
 
         // Check if the WebView's URL matches the success URL
         if (event.url === successUrl) {

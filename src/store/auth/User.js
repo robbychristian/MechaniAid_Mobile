@@ -21,8 +21,10 @@ export const loginUser = createAsyncThunk(
 
       return response.data;
     } catch (err) {
-      console.log(err.response);
-      return rejectWithValue(err.response);
+      if (err.response && err.response.data && err.response.data.errors) {
+        return rejectWithValue(err.response.data.errors);
+    }
+    return rejectWithValue({ general: "There was an error in loginuser" });
     }
   }
 );
@@ -34,8 +36,10 @@ export const registerUser = createAsyncThunk(
       const response = await api.post("register-customer", inputs);
       return response.data;
     } catch (err) {
-      console.log(err.response);
-      return rejectWithValue(err.response);
+      if (err.response && err.response.data && err.response.data.errors) {
+        return rejectWithValue(err.response.data.errors);
+    }
+    return rejectWithValue({ general: "There was an error in registeruser" });
     }
   }
 );
@@ -65,8 +69,10 @@ export const updatePersonalInformation = createAsyncThunk(
       const response = await api.post("updatepersonalinformation", inputs);
       return response.data;
     } catch (err) {
-      console.log(err.response);
-      return rejectWithValue(err.response);
+      if (err.response && err.response.data && err.response.data.errors) {
+        return rejectWithValue(err.response.data.errors);
+    }
+    return rejectWithValue({ general: "There was an error in updatepersonalinformation" });
     }
   }
 );
@@ -78,8 +84,10 @@ export const updateAddressInformation = createAsyncThunk(
       const response = await api.post("updateaddressinformation", inputs);
       return response.data;
     } catch (err) {
-      console.log(err.response);
-      return rejectWithValue(err.response);
+      if (err.response && err.response.data && err.response.data.errors) {
+        return rejectWithValue(err.response.data.errors);
+    }
+    return rejectWithValue({ general: "There was an error in updateaddressinformation" });
     }
   }
 );

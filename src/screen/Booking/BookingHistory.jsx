@@ -84,10 +84,10 @@ const BookingHistory = () => {
       <Card
         style={styles.card}
       >
-        <TouchableOpacity onPress={() =>
-          navigation.navigate("BookingPayment", {
-            user_id: item.user_id,
-            total_price: item.total_price,
+        <TouchableOpacity 
+        onPress={() =>
+          navigation.navigate("BookingInfo", {
+            booking_id: item.id,
           })
         }>
           <View style={styles.row}>
