@@ -9,11 +9,11 @@ const MarketPlacePay = () => {
     const route = useRoute();
     const { id, user_id } = route.params;
     const webViewRef = useRef(null);
-    const [uri, setUri] = useState(decodeURI(`http://192.168.1.13:8000/api/paymentMarketplace/${id}/${user_id}`));
+    const [uri, setUri] = useState(decodeURI(`http://192.168.1.4:8000/api/paymentMarketplace/${id}/${user_id}`));
     const [key, setKey] = useState(0);
 
     useEffect(() => {
-        const decodUri = decodeURI(`http://192.168.1.13:8000/api/paymentMarketplace/${id}/${user_id}`);
+        const decodUri = decodeURI(`http://192.168.1.4:8000/api/paymentMarketplace/${id}/${user_id}`);
         setUri(decodUri)
 
         const unsubscribe = navigation.addListener("focus", () => {
@@ -25,7 +25,7 @@ const MarketPlacePay = () => {
     }, [navigation, uri, id])
 
     const handleNavigationChange = (event) => {
-        const successUrl = `http://192.168.1.13:8000/api/paymentMarketplace/success/${id}/${user_id}`; // Change this to your success URL from the backend
+        const successUrl = `http://192.168.1.4:8000/api/paymentMarketplace/success/${id}/${user_id}`; // Change this to your success URL from the backend
 
         // Check if the WebView's URL matches the success URL
         if (event.url === successUrl) {

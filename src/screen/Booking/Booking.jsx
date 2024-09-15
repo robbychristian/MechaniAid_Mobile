@@ -150,7 +150,7 @@ const Booking = () => {
 
       // Subscribe to channel
       channel = pusher.subscribe(`customer-notifications.${user.id}`);
-      channel.bind("BookingAccepted", (Data) => {
+      channel.bind("BookingAccepted", async (Data) => {
         if (Data.mechanicName) {
           setMechanicName(Data.mechanicName);
           setMechanicProfilePic(Data.mechanicProfilePic);
@@ -159,6 +159,13 @@ const Booking = () => {
           setIsBooking(false);
           setShowModal(true);
           setIsAccepted(true);
+          
+          // Await the notification call
+          try {
+            await bookingAcceptedPushNotification(Data.mechanicName);
+          } catch (error) {
+            console.error("Error sending push notification:", error);
+          }
         } else {
           console.log("Data or mechanicName not available.");
         }
@@ -191,13 +198,20 @@ const Booking = () => {
 
       // Subscribe to channel
       channel = pusher.subscribe(`customer-notifications.${user.id}`);
-      channel.bind("BookingStarted", (Data) => {
+      channel.bind("BookingStarted", async (Data) => {
         if (Data.bookingStatus && Data.bookingId) {
           console.log("Booking Started Worked!");
           setMechanicName(Data.mechanicName);
           setMechanicProfilePic(Data.mechanicProfilePic);
           setIsAccepted(false);
           setBookingStarted(true);
+
+          try {
+            await bookingStartedPushNotification();
+          } catch (error) {
+            console.error("Error sending push notification:", error);
+          }
+
         } else {
           console.log("Data or mechanicName not available.");
         }
@@ -829,11 +843,16 @@ const Booking = () => {
 
                 <TouchableOpacity
                   style={styles2.startButton}
-                  onPress={() => {
+                  onPress={async () => {
                     if (finalBookingDetails.booking.mode_of_payment == "Cash") {
                       Toast.success("Booking Completed!");
                       navigation.navigate("Home"); // Logic for Cash payment
                       setBookingCompleted(false);
+                      try {
+                        await bookingCompletedPushNotification();
+                      } catch (error) {
+                        console.error("Error sending push notification:", error);
+                      }
                     } else {
                       setBookingCompleted(false);
                       navigation.navigate("BookingPay", {
@@ -1191,6 +1210,39 @@ async function schedulePushNotification(name) {
     content: {
       title: "Booking found!",
       body: `A booking request from ${name}`,
+      data: { data: "goes here" },
+    },
+    trigger: null,
+  });
+}
+
+async function bookingAcceptedPushNotification(name) {
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "Booking Accepted!",
+      body: `Mechanic ${name}, accepted your booking`,
+      data: { data: "goes here" },
+    },
+    trigger: null,
+  });
+}
+
+async function bookingStartedPushNotification() {
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "Booking Started!",
+      body: `Your booking is now in progress`,
+      data: { data: "goes here" },
+    },
+    trigger: null,
+  });
+}
+
+async function bookingCompletedPushNotification() {
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "Booking Completed!",
+      body: `Your booking is now completed`,
       data: { data: "goes here" },
     },
     trigger: null,
