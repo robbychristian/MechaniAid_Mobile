@@ -22,7 +22,7 @@ import moment from "moment";
 import { CustomSelect } from "../../components/Inputs/CustomSelect";
 import axios from "axios";
 
-const Profile = ( {handleLogout}) => {
+const Profile = ({ handleLogout }) => {
   const dispatch = useDispatch();
   const { user, loading } = useSelector((state) => state.auth);
   const navigation = useNavigation();
@@ -39,6 +39,7 @@ const Profile = ( {handleLogout}) => {
     control: controlAddress,
     handleSubmit: handleSubmitAddress,
     formState: { errors: errorsAddress },
+    setValue: setAddressValue,
   } = useForm({ defaultValues: {} });
 
   const uploadFile = async () => {
@@ -75,7 +76,7 @@ const Profile = ( {handleLogout}) => {
   };
 
   const onUpdateAddress = async (data) => {
-    console.log(data)
+    console.log(data);
     const formdata = new FormData();
     for (const key in data) {
       if (data.hasOwnProperty(key)) {
@@ -85,11 +86,22 @@ const Profile = ( {handleLogout}) => {
     formdata.append("id", user.id);
     formdata.append("user_role", user.user_role);
 
-    formdata.append("region", selectedRegion?.region_name || "");
-    formdata.append("state", selectedProvince?.province_name || "");
-    formdata.append("city", selectedCity?.city_name || "");
-    formdata.append("barangay", selectedBarangay?.brgy_name || "");
-
+    formdata.append(
+      "region",
+      selectedRegion?.region_name || (user.user_role == 3 ? user.customers?.region : user.mechanics?.region) || ""
+    );
+    formdata.append(
+      "state",
+      selectedProvince?.province_name || (user.user_role == 3 ? user.customers?.state : user.mechanics?.state) || ""
+    );
+    formdata.append(
+      "city",
+      selectedCity?.city_name || (user.user_role == 3 ? user.customers?.city : user.mechanics?.city) || ""
+    );
+    formdata.append(
+      "barangay",
+      selectedBarangay?.brgy_name || (user.user_role == 3 ? user.customers?.barangay : user.mechanics?.barangay) || ""
+    );
     try {
       // console.log(formdata)
       const response = await dispatch(updateAddressInformation(formdata));
@@ -116,64 +128,81 @@ const Profile = ( {handleLogout}) => {
   useEffect(() => {
     axios
       .get("https://isaacdarcilla.github.io/philippine-addresses/region.json")
-      .then((response) => setRegions(response.data));
+      .then((response) => setRegions(response.data))
+      .catch((err) => {
+        console.log("Error fetching regions:", err);
+        Toast.error("Error loading regions");
+      });
   }, []);
 
-  // useEffect(() => {
-  //   if (selectedRegion) {
-  //     axios
-  //       .get(
-  //         "https://isaacdarcilla.github.io/philippine-addresses/province.json"
-  //       )
-  //       .then((response) =>
-  //         setProvinces(
-  //           response.data.filter(
-  //             (p) => p.region_code === selectedRegion.region_code
-  //           )
-  //         )
-  //       );
-  //     setSelectedProvince(null); // Reset selected province
-  //     setSelectedCity(null); // Reset selected city
-  //     setSelectedBarangay(null); // Reset selected barangay
-  //   } else {
-  //     setProvinces([]);
-  //   }
-  // }, [selectedRegion]);
+  useEffect(() => {
+    if (selectedRegion) {
+      axios
+        .get(
+          "https://isaacdarcilla.github.io/philippine-addresses/province.json"
+        )
+        .then((response) =>
+          setProvinces(
+            response.data.filter(
+              (p) => p.region_code === selectedRegion.region_code
+            )
+          )
+        )
+        .catch((err) => {
+          console.log("Error fetching provinces:", err);
+          Toast.error("Error loading provinces");
+        });
+      setSelectedProvince(null);
+      setSelectedCity(null);
+      setSelectedBarangay(null);
+    } else {
+      setProvinces([]);
+    }
+  }, [selectedRegion]);
 
-  // useEffect(() => {
-  //   if (selectedProvince) {
-  //     axios
-  //       .get("https://isaacdarcilla.github.io/philippine-addresses/city.json")
-  //       .then((response) =>
-  //         setCities(
-  //           response.data.filter(
-  //             (c) => c.province_code === selectedProvince.province_code
-  //           )
-  //         )
-  //       );
-  //     setSelectedCity(null); // Reset selected city
-  //     setSelectedBarangay(null); // Reset selected barangay
-  //   } else {
-  //     setCities([]);
-  //   }
-  // }, [selectedProvince]);
+  useEffect(() => {
+    if (selectedProvince) {
+      axios
+        .get("https://isaacdarcilla.github.io/philippine-addresses/city.json")
+        .then((response) =>
+          setCities(
+            response.data.filter(
+              (c) => c.province_code === selectedProvince.province_code
+            )
+          )
+        )
+        .catch((err) => {
+          console.log("Error fetching cities:", err);
+          Toast.error("Error loading cities");
+        });
+      setSelectedCity(null);
+      setSelectedBarangay(null);
+    } else {
+      setCities([]);
+    }
+  }, [selectedProvince]);
 
-  // useEffect(() => {
-  //   if (selectedCity) {
-  //     axios
-  //       .get(
-  //         "https://isaacdarcilla.github.io/philippine-addresses/barangay.json"
-  //       )
-  //       .then((response) =>
-  //         setBarangays(
-  //           response.data.filter((b) => b.city_code === selectedCity.city_code)
-  //         )
-  //       );
-  //     setSelectedBarangay(null); // Reset selected barangay
-  //   } else {
-  //     setBarangays([]);
-  //   }
-  // }, [selectedCity]);
+  useEffect(() => {
+    if (selectedCity) {
+      axios
+        .get(
+          "https://isaacdarcilla.github.io/philippine-addresses/barangay.json"
+        )
+        .then((response) =>
+          setBarangays(
+            response.data.filter((b) => b.city_code === selectedCity.city_code)
+          )
+        )
+        .catch((err) => {
+          console.log("Error fetching barangays:", err);
+          Toast.error("Error loading barangays");
+        });
+      setSelectedBarangay(null);
+    } else {
+      setBarangays([]);
+    }
+  }, [selectedCity]);
+
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
       if (user) {
@@ -184,15 +213,13 @@ const Profile = ( {handleLogout}) => {
           "phone",
           user.user_role == 3
             ? user.customers?.phone || ""
-            : user.mechanics?.phone || "" 
+            : user.mechanics?.phone || ""
         );
-        setValue(
+        setAddressValue(
           "street",
-          user.user_role == 3
-            ? user.customers?.street
-            : user.mechanics?.street
+          user.user_role == 3 ? user.customers?.street : user.mechanics?.street
         );
-        if (user.birth_day){
+        if (user.birth_day) {
           const formattedDate = moment(user.birth_day).toDate();
           setValue("bday", formattedDate);
         }
@@ -203,19 +230,19 @@ const Profile = ( {handleLogout}) => {
         setValue("lname", "");
         setValue("phone", "");
         setValue("bday", "");
-        setValue("street", "");
+        setAddressValue("street", "");
       }
     });
-  
+
     // Initial setting of values if user is defined
     if (user) {
       setValue("fname", user.first_name || "");
       setValue("mname", user.middle_name || "");
       setValue("lname", user.last_name || "");
       let phoneInput = "";
-      if(user.user_role == 3){
+      if (user.user_role == 3) {
         phoneInput = user.customers.phone;
-      } else if (user.user_role == 2){
+      } else if (user.user_role == 2) {
         phoneInput = user.mechanics.phone;
       }
       setValue(
@@ -224,13 +251,11 @@ const Profile = ( {handleLogout}) => {
           ? user.customers?.phone || ""
           : user.mechanics?.phone || ""
       );
-      setValue(
+      setAddressValue(
         "street",
-        user.user_role == 3
-          ? user.customers?.street
-          : user.mechanics?.street
+        user.user_role == 3 ? user.customers?.street : user.mechanics?.street
       );
-      if (user.birth_day){
+      if (user.birth_day) {
         const formattedDate = moment(user.birth_day).toDate();
         setValue("bday", formattedDate);
       }
@@ -241,12 +266,11 @@ const Profile = ( {handleLogout}) => {
       setValue("lname", "");
       setValue("phone", "");
       setValue("bday", "");
-      setValue("street", "");
+      setAddressValue("street", "");
     }
-  
+
     return unsubscribe;
   }, [navigation, user]);
-  
 
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -369,7 +393,11 @@ const Profile = ( {handleLogout}) => {
               errors={errorsAddress}
               my={5}
               label="Region"
-              placeholder={user.user_role == 3 ? user.customers.region : user.mechanics.region}
+              placeholder={
+                user.user_role == 3
+                  ? user.customers.region
+                  : user.mechanics.region
+              }
               // placeholder="Select Region"
               options={regions.map((region) => ({
                 value: region.region_name,
@@ -383,7 +411,11 @@ const Profile = ( {handleLogout}) => {
               errors={errorsAddress}
               my={5}
               label="Province"
-              placeholder={user.user_role == 3 ? user.customers?.state : user.mechanics?.state}
+              placeholder={
+                user.user_role == 3
+                  ? user.customers?.state
+                  : user.mechanics?.state
+              }
               options={provinces.map((province) => ({
                 value: province.province_name,
                 ...province,
@@ -397,7 +429,11 @@ const Profile = ( {handleLogout}) => {
               errors={errorsAddress}
               my={5}
               label="City"
-              placeholder={user.user_role == 3 ? user.customers?.city : user.mechanics?.city}
+              placeholder={
+                user.user_role == 3
+                  ? user.customers?.city
+                  : user.mechanics?.city
+              }
               options={cities.map((city) => ({
                 value: city.city_name,
                 ...city,
@@ -411,7 +447,11 @@ const Profile = ( {handleLogout}) => {
               errors={errorsAddress}
               my={5}
               label="Barangay"
-              placeholder={user.user_role == 3 ? user.customers?.barangay : user.mechanics?.barangay}
+              placeholder={
+                user.user_role == 3
+                  ? user.customers?.barangay
+                  : user.mechanics?.barangay
+              }
               options={barangays.map((barangay) => ({
                 value: barangay.brgy_name,
                 ...barangay,
@@ -421,15 +461,6 @@ const Profile = ( {handleLogout}) => {
               disabled={!selectedCity}
             />
             <CustomTextInput
-              control={controlPersonal}
-              errors={errorsPersonal}
-              label={`Street`}
-              message={`Street is required`}
-              my={5}
-              name={`street`}
-              rules={{ required: true }}
-            /> 
-             {/* <CustomTextInput
               control={controlAddress}
               errors={errorsAddress}
               label={`Street`}
@@ -437,7 +468,7 @@ const Profile = ( {handleLogout}) => {
               my={5}
               name={`street`}
               rules={{ required: true }}
-            /> */}
+            />
 
             <View style={{ marginVertical: 15 }}>
               <Button
@@ -450,15 +481,8 @@ const Profile = ( {handleLogout}) => {
                   </Text>
                 )}
               </Button>
-              <Button
-                onPress={handleLogout}
-                style={styles.buttonStyle}
-              >
-                {() => (
-                  <Text style={styles.textStyle}>
-                    LOGOUT
-                  </Text>
-                )}
+              <Button onPress={handleLogout} style={styles.buttonStyle}>
+                {() => <Text style={styles.textStyle}>LOGOUT</Text>}
               </Button>
             </View>
           </View>
