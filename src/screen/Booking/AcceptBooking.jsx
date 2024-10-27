@@ -78,8 +78,11 @@ const AcceptBooking = () => {
 
       setLoading(true);
       api
+        // .get(
+        //   `https://nominatim.openstreetmap.org/reverse?lat=${route.params.item.latitude}&lon=${route.params.item.longitude}&format=json&addressdetails=1`
+        // )
         .get(
-          `https://nominatim.openstreetmap.org/reverse?lat=${route.params.item.latitude}&lon=${route.params.item.longitude}&format=json&addressdetails=1`
+          `https://us1.locationiq.com/v1/reverse.php?key=pk.504d8d0a6978c505a7c22459f545100c&lat=${route.params.item.latitude}&lon=${route.params.item.longitude}&format=json`
         )
         .then((response) => {
           setLoading(false);

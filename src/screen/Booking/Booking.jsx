@@ -478,8 +478,11 @@ const Booking = () => {
 
       // Check if booking is not null and has required properties
       if (booking && booking.latitude && booking.longitude) {
+        // const geocodeResponse = await fetch(
+        //   `https://nominatim.openstreetmap.org/reverse?lat=${booking.latitude}&lon=${booking.longitude}&format=json&zoom=20&addressdetails=11`
+        // );
         const geocodeResponse = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?lat=${booking.latitude}&lon=${booking.longitude}&format=json&zoom=20&addressdetails=11`
+          `https://us1.locationiq.com/v1/reverse.php?key=pk.504d8d0a6978c505a7c22459f545100c&lat=${booking.latitude}&lon=${booking.longitude}&format=json`
         );
         const geocodeData = await geocodeResponse.json();
         const locationName = geocodeData.display_name || "Unknown location";
@@ -514,14 +517,17 @@ const Booking = () => {
             "An error occurred while searching for bookings."
           }`
         );
+        cancelSearch();
       } else if (error.request) {
         // The request was made but no response was received
         console.error("API Error Request:", error.request);
         Toast.error("No response received from the server.");
+        cancelSearch();
       } else {
         // Something happened in setting up the request
         console.error("API Error Message:", error.message);
         Toast.error("Error: " + error.message);
+        cancelSearch();
       }
     } finally {
       setIsSearching(false); // Reset searching state
