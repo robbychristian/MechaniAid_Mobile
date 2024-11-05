@@ -26,6 +26,9 @@ const Home = () => {
   const navigation = useNavigation();
   const [bookings, setBookings] = useState([]);
   const { user } = useSelector((state) => state.auth);
+  const getFirstName = () => {
+    return user.first_name.split(" ")[0];
+  };
   useEffect(() => {
     console.log(user);
   }, []);
@@ -110,7 +113,7 @@ const Home = () => {
             paddingHorizontal: 15,
           }}
         >
-          <Text style={styles.title}>Hello, {user.first_name}!</Text>
+          <Text style={styles.title}>Hello, {getFirstName()}!</Text>
           <Text style={styles.subtitle}>How can we help you today?</Text>
         </View>
 

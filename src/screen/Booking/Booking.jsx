@@ -32,7 +32,6 @@ import * as Notifications from "expo-notifications";
 import { ScrollView } from "react-native-gesture-handler";
 import BookingChat from "../Chat/BookingChat";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-
 const Booking = () => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -65,7 +64,8 @@ const Booking = () => {
 
   const [isModalVisible, setModalVisible] = useState(false);
   const [newMessage, setNewMessage] = useState(false);
-  
+  const [isBookingCancelled, setIsBookingCancelled] = useState(false);
+
   const handleSenderName = () => {
     setNewMessage(true);
   };
@@ -267,6 +267,26 @@ const Booking = () => {
         }
       }
     });
+
+    channel = pusher.subscribe(`mechanic-notifications.${user.id}`);
+    channel.bind("BookingCancelled", async (Data) => {
+      if (Data) {
+        console.log("Booking Cancelled Worked!");
+        Toast.warn("Booking Cancelled!");
+        setShowBookingFoundModal(false);
+        cancelSearch();
+        try {
+          await bookingCancelledPushNotification();
+        } catch (error) {
+          console.error(
+            "Error sending push notification:",
+            error
+          );
+        }
+      } else {
+        console.log("Data or mechanicName not available.");
+      }
+    });
     // }
 
     // Handle rotation animation
@@ -434,25 +454,68 @@ const Booking = () => {
     }, [navigation])
   );
 
-  const cancelBooking = () => {
-    // setIsBooking(false);
-    api
-      .post("cancelbooking", {
-        user_id: user.id,
-      })
-      .then((response) => {
-        setIsBooking(false);
-        if (isAccepted) {
-          setIsAccepted(false);
+  // const cancelBooking =  async () => {
+  //   // setIsBooking(false);
+  //   api
+  //     .post("cancelbooking", {
+  //       user_id: user.id,
+  //     })
+  //     .then((response) => {
+  //       setIsBooking(false);
+  //       if (isAccepted) {
+  //         setIsAccepted(false);
+  //       }
+  //       if (bookingStarted) {
+  //         setIsAccepted(false);
+  //         setBookingStarted(false);
+  //       }
+  //     })
+  //     .catch((err) => {
+  //       console.log(err.response);
+  //     });
+  // };
+
+  const cancelBooking = async () => {
+    try {
+      // Check booking status
+      const response = await api.post("checkbooking", { user_id: user.id });
+  
+      // Verify that the response and booking ID are valid
+      if (response && response.data && response.data.id) {
+        const bookingId = response.data.id; // Extract the booking ID
+        console.log("Booking ID after cancel:", bookingId);
+  
+        // Cancel the booking
+        try {
+          const cancelResponse = await api.post("cancelbooking", {
+            user_id: user.id,
+            booking_id: bookingId,
+          });
+  
+          // Update UI states
+          setIsBooking(false);
+          if (isAccepted) {
+            setIsAccepted(false);
+          }
+          if (bookingStarted) {
+            setIsAccepted(false);
+            setBookingStarted(false);
+          }
+        } catch (cancelError) {
+          console.error(
+            "Error cancelling booking:",
+            cancelError.response || cancelError
+          );
         }
-        if (bookingStarted) {
-          setIsAccepted(false);
-          setBookingStarted(false);
-        }
-      })
-      .catch((err) => {
-        console.log(err.response);
-      });
+      } else {
+        console.warn("No valid booking ID found in response.");
+      }
+    } catch (checkError) {
+      console.error(
+        "Error checking booking:",
+        checkError.response || checkError
+      );
+    }
   };
 
   // const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -492,6 +555,7 @@ const Booking = () => {
           ...booking,
           locationName,
         });
+
         setShowBookingFoundModal(true);
         const name = `${booking.first_name} ${booking.last_name}`;
         await schedulePushNotification(name);
@@ -1264,6 +1328,17 @@ async function bookingStartedPushNotification() {
     content: {
       title: "Booking Started!",
       body: `Your booking is now in progress`,
+      data: { data: "goes here" },
+    },
+    trigger: null,
+  });
+}
+
+async function bookingCancelledPushNotification() {
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "Booking Cancelled!",
+      body: `Customer cancelled the booking`,
       data: { data: "goes here" },
     },
     trigger: null,

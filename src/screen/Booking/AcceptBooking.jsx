@@ -117,6 +117,30 @@ const AcceptBooking = () => {
     channel.bind("MessageSent", async (Data) => {
       setNewMessage(true);
     });
+
+    channel = pusher.subscribe(`mechanic-notifications.${user.id}`);
+    channel.bind("BookingCancelled", (Data) => {
+      if (Data) {
+        console.log("Booking Cancelled Worked!");
+        Toast.warn("Booking Cancelled!");
+        setLoading(false);
+        Toast.warn("Booking Cancelled!");
+        api
+        .post("mechanic-inactive", {
+          mechanics_id: user.id,
+        })
+        .then((response) => {
+          console.log("Mechanic Inactivity Status: ", response.data.message);
+        })
+        .catch((err) => {
+          console.log(err.response);
+        });
+        navigation.navigate("Home");
+      } else {
+        console.log("Data or mechanicName not available.");
+      }
+    });
+
     return () => {
       if (channel) {
         channel.unbind_all();
